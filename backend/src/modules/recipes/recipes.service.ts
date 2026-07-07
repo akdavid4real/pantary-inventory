@@ -59,7 +59,7 @@ export class RecipesService {
 
   async findAll(query: RecipeQueryDto) {
     const { skip, take, page, limit } = getPagination(query);
-    const where: Record<string, unknown> = { isPublished: true };
+    const where: any = { isPublished: true };
 
     if (query.q) {
       where.OR = [
@@ -114,10 +114,11 @@ export class RecipesService {
 
     const ingredientRows = dto.ingredients ? await this.resolveRecipeIngredients(dto.ingredients) : undefined;
     const tags = dto.tags ? this.normalizeTags(dto.tags) : undefined;
-    const { ingredients, steps, tags: _tags, ...recipeData } = dto;
+    const { ingredients, steps, tags: _tags, ...rest } = dto;
+    const recipeData: any = { ...rest };
 
     if (recipeData.name) {
-      Object.assign(recipeData, { slug: slugify(recipeData.name) });
+      recipeData.slug = slugify(recipeData.name);
     }
 
     await this.prisma.$transaction(async (tx) => {

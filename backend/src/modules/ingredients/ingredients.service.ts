@@ -1,0 +1,164 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { getPagination, PaginationQueryDto } from '../../common/dto/query.dto';
+import { normalizeIngredientName, normalizeText, slugify } from '../../common/utils/string.utils';
+import { CreateIngredientDto, UpdateIngredientDto } from './dto/ingredient.dto';
+
+@Injectable()
+export class IngredientsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(dto: CreateIngredientDto) {
+    const name = normalizeIngredientName(dto.name);
+    const slug = slugify(name);
+    const aliases = this.uniqueAliases([dto.name, name, ...(dto.aliases ?? [])]);
+
+    return this.prisma.ingredient.create({
+      data: {
+        name,
+        slug,
+        description: dto.description,
+        category: dto.category,
+        defaultUnit: dto.defaultUnit,
+        storageLocation: dto.storageLocation,
+        shelfLifeDays: dto.shelfLifeDays,
+        averageCostNaira: dto.averageCostNaira,
+        aliases: {
+          create: aliases.map((alias) => ({
+            alias,
+            normalized: normalizeText(alias),
+          })),
+        },
+        ...(dto.nutrition
+          ? {
+              nutrition: {
+                create: {
+                  baseQuantity: dto.nutrition.baseQuantity ?? 100,
+                  baseUnit: dto.nutrition.baseUnit ?? 'g',
+                  calories: dto.nutrition.calories ?? 0,
+                  protein: dto.nutrition.protein ?? 0,
+                  carbs: dto.nutrition.carbs ?? 0,
+                  fat: dto.nutrition.fat ?? 0,
+                  source: dto.nutrition.source,
+                },
+              },
+            }
+          : {}),
+      },
+      include: { aliases: true, nutrition: true },
+    });
+  }
+
+  async findAll(query: PaginationQueryDto) {
+    const { skip, take, page, limit } = getPagination(query);
+    const q = query.q?.trim();
+    const where = q
+      ? {
+          OR: [
+            { name: { contains: q, mode: 'insensitive' as const } },
+            { aliases: { some: { alias: { contains: q, mode: 'insensitive' as const } } } },
+          ],
+        }
+      : {};
+
+    const [items, total] = await Promise.all([
+      this.prisma.ingredient.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { name: 'asc' },
+        include: { aliases: true, nutrition: true },
+      }),
+      this.prisma.ingredient.count({ where }),
+    ]);
+
+    return { items, meta: { total, page, limit } };
+  }
+
+  async findOne(id: string) {
+    const ingredient = await this.prisma.ingredient.findUnique({
+      where: { id },
+      include: { aliases: true, nutrition: true, conversions: true },
+    });
+    if (!ingredient) throw new NotFoundException('Ingredient not found.');
+    return ingredient;
+  }
+
+  async findByNameOrAlias(name: string) {
+    const normalized = normalizeText(normalizeIngredientName(name));
+    return this.prisma.ingredient.findFirst({
+      where: {
+        OR: [
+          { slug: slugify(normalized) },
+          { name: { equals: normalized, mode: 'insensitive' } },
+          { aliases: { some: { normalized } } },
+        ],
+      },
+      include: { nutrition: true, aliases: true },
+    });
+  }
+
+  async update(id: string, dto: UpdateIngredientDto) {
+    await this.findOne(id);
+    const data: Record<string, unknown> = { ...dto };
+    delete data.aliases;
+    delete data.nutrition;
+
+    if (dto.name) {
+      const normalizedName = normalizeIngredientName(dto.name);
+      data.name = normalizedName;
+      data.slug = slugify(normalizedName);
+    }
+
+    return this.prisma.ingredient.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(dto.nutrition
+          ? {
+              nutrition: {
+                upsert: {
+                  create: {
+                    baseQuantity: dto.nutrition.baseQuantity ?? 100,
+                    baseUnit: dto.nutrition.baseUnit ?? 'g',
+                    calories: dto.nutrition.calories ?? 0,
+                    protein: dto.nutrition.protein ?? 0,
+                    carbs: dto.nutrition.carbs ?? 0,
+                    fat: dto.nutrition.fat ?? 0,
+                    source: dto.nutrition.source,
+                  },
+                  update: dto.nutrition,
+                },
+              },
+            }
+          : {}),
+      },
+      include: { aliases: true, nutrition: true },
+    });
+  }
+
+  async remove(id: string) {
+    await this.findOne(id);
+    return this.prisma.ingredient.delete({ where: { id } });
+  }
+
+  async resolveOrCreate(name: string, defaultUnit = 'g') {
+    const existing = await this.findByNameOrAlias(name);
+    if (existing) return existing;
+
+    return this.create({ name, defaultUnit });
+  }
+
+  private uniqueAliases(values: string[]) {
+    const seen = new Set<string>();
+    return values
+      .map((value) => normalizeIngredientName(value))
+      .filter(Boolean)
+      .filter((value) => {
+        const key = normalizeText(value);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  }
+}

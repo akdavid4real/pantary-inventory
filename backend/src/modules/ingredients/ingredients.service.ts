@@ -52,7 +52,7 @@ export class IngredientsService {
   async findAll(query: PaginationQueryDto) {
     const { skip, take, page, limit } = getPagination(query);
     const q = query.q?.trim();
-    const where = q
+    const where: any = q
       ? {
           OR: [
             { name: { contains: q, mode: 'insensitive' as const } },
@@ -100,7 +100,7 @@ export class IngredientsService {
 
   async update(id: string, dto: UpdateIngredientDto) {
     await this.findOne(id);
-    const data: Record<string, unknown> = { ...dto };
+    const data: any = { ...dto };
     delete data.aliases;
     delete data.nutrition;
 

@@ -93,4 +93,52 @@ export class CreateIngredientDto {
   nutrition?: IngredientNutritionDto;
 }
 
-export class UpdateIngredientDto extends CreateIngredientDto {}
+export class UpdateIngredientDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiPropertyOptional({ enum: IngredientCategory })
+  @IsOptional()
+  @IsEnum(IngredientCategory)
+  category?: IngredientCategory;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  defaultUnit?: string;
+
+  @ApiPropertyOptional({ enum: StorageLocation })
+  @IsOptional()
+  @IsEnum(StorageLocation)
+  storageLocation?: StorageLocation;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  shelfLifeDays?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  averageCostNaira?: number;
+
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  aliases?: string[];
+
+  @ApiPropertyOptional({ type: IngredientNutritionDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => IngredientNutritionDto)
+  nutrition?: IngredientNutritionDto;
+}

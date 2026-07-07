@@ -1,8 +1,10 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { jwtVerify } from 'jose';
 import { UserRole } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { OPEN_ROUTE_KEY } from '../decorators/open-route.decorator';
 import { RequestWithUser } from '../types/request-user';
 
 @Injectable()
@@ -10,9 +12,13 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isOpen = this.reflector.getAllAndOverride<boolean>(OPEN_ROUTE_KEY, [context.getHandler(), context.getClass()]);
+    if (isOpen) return true;
+
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const authMode = this.config.get<string>('AUTH_MODE') ?? 'dev';
     const adminEmail = this.config.get<string>('ADMIN_EMAIL')?.toLowerCase();

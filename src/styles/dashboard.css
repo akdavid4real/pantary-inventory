@@ -1,0 +1,28 @@
+/* Authenticated dashboard overrides that cannot be expressed clearly with utilities. */
+.dashboard-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+.dashboard-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.dashboard-sidebar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.meal-planner .overflow-x-auto > div > .grid {
+  display: grid !important;
+  grid-template-columns: 70px repeat(7, minmax(80px, 1fr)) !important;
+}
+
+.meal-planner .overflow-x-auto > div {
+  min-width: 630px !important;
+}
+
+@media (min-width: 1024px) {
+  .meal-side > section {
+    grid-column: span 1 !important;
+  }
+}

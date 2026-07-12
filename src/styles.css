@@ -135,7 +135,7 @@ main {
   object-fit: contain;
 }
 
-nav {
+.site-header nav {
   display: flex;
   align-items: center;
   gap: clamp(14px, 3vw, 34px);
@@ -145,7 +145,7 @@ nav {
   text-transform: uppercase;
 }
 
-nav a {
+.site-header nav a {
   border-bottom: 2px solid transparent;
   padding-bottom: 5px;
   transition:
@@ -153,7 +153,7 @@ nav a {
     transform 180ms ease;
 }
 
-nav a:hover {
+.site-header nav a:hover {
   border-color: var(--coral);
   transform: translateY(-2px);
 }
@@ -854,7 +854,7 @@ nav a:hover {
     line-height: 1;
   }
 
-  nav {
+  .site-header nav {
     max-width: 164px;
     justify-content: flex-end;
     flex-wrap: wrap;

@@ -1,10 +1,10 @@
-import { assets } from "../data/assets";
+import { Brand } from "./Brand";
 
 export function Loader() {
   return (
     <div className="loader" aria-hidden="true">
       <div className="loader-mark">
-        <img src={assets.logo} alt="" />
+        <Brand inverse />
       </div>
       <div className="loader-bar">
         <span />

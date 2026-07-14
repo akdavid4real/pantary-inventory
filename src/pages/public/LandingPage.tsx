@@ -4,6 +4,7 @@ import { Loader } from "../../components/Loader";
 import { StatsBar } from "../../components/StatsBar";
 import { usePageAnimations } from "../../hooks/usePageAnimations";
 import { CookingSection } from "../../sections/CookingSection";
+import { ChefStorySection } from "../../sections/ChefStorySection";
 import { FeatureRailSection } from "../../sections/FeatureRailSection";
 import { FooterSection } from "../../sections/FooterSection";
 import { HeroSection } from "../../sections/HeroSection";
@@ -30,6 +31,7 @@ export function LandingPage() {
       <HeroSection />
       <StatsBar />
       <MessageSection />
+      <ChefStorySection />
       <FeatureRailSection horizontalRef={horizontalRef} />
       <NutritionSection />
       <CookingSection />

@@ -1,16 +1,17 @@
 import 'reflect-metadata';
+import './common/config/load-environment';
 import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
-import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { EnvironmentService } from './common/config/environment.service';
 import { PrismaAvailabilityFilter } from './common/filters/prisma-availability.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = app.get(ConfigService);
+  const config = app.get(EnvironmentService);
 
   const apiPrefix = config.get<string>('API_PREFIX') ?? 'api/v1';
   const frontendUrl = config.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';

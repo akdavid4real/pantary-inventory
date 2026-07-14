@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '@prisma/client';
+import { EnvironmentService } from '../config/environment.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OPEN_ROUTE_KEY } from '../decorators/open-route.decorator';
 import { RequestWithUser } from '../types/request-user';
@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
   private readonly ensuredUsers = new Map<string, number>();
 
   constructor(
-    private readonly config: ConfigService,
+    private readonly config: EnvironmentService,
     private readonly prisma: PrismaService,
     private readonly reflector: Reflector,
   ) {}

@@ -1,12 +1,12 @@
 import { BadGatewayException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { EnvironmentService } from '../../common/config/environment.service';
 import { LoginDto, RefreshSessionDto, SignUpDto } from './dto/auth.dto';
 
 type SupabaseAuthError = { error_description?: string; msg?: string; message?: string };
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly config: ConfigService) {}
+  constructor(private readonly config: EnvironmentService) {}
 
   signUp(dto: SignUpDto) {
     return this.request('/signup', {

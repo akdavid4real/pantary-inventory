@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { RecipeModerationStatus, RecipeReportStatus, RecipeStatus, UserRole } from '@prisma/client';
-import { ConfigService } from '@nestjs/config';
+import { EnvironmentService } from '../../common/config/environment.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getPagination } from '../../common/dto/query.dto';
 import { normalizeIngredientName, normalizeText, slugify, toTitleCase } from '../../common/utils/string.utils';
@@ -15,7 +15,7 @@ export class RecipesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ingredientsService: IngredientsService,
-    private readonly config: ConfigService,
+    private readonly config: EnvironmentService,
     private readonly measurementProfiles: MeasurementProfilesService,
   ) {}
 

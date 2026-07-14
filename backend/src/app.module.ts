@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import { EnvironmentModule } from './common/config/environment.module';
 import { AuthGuard } from './common/guards/auth.guard';
+import { RateLimitGuard } from './common/guards/rate-limit.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PrismaModule } from './prisma/prisma.module';
 import { AdminModule } from './modules/admin/admin.module';
@@ -23,8 +23,7 @@ import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
+    EnvironmentModule,
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -43,7 +42,7 @@ import { UsersModule } from './modules/users/users.module';
   ],
   controllers: [AppController],
   providers: [
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],

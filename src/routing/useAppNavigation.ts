@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 const pageByPath: Record<string, string> = {
-  "/": "Home",
+  "/": "landing",
+  "/dashboard": "Home",
   "/meals": "Meals",
   "/pantry": "Pantry",
   "/grocery": "Grocery",
@@ -20,6 +21,9 @@ function getPathFromPage(page: string) {
     return page;
   }
   if (page === "Home") {
+    return "/dashboard";
+  }
+  if (page === "landing") {
     return "/";
   }
 

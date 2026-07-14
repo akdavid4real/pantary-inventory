@@ -3,6 +3,8 @@ import { getPageFromPath } from "./useAppNavigation";
 
 describe("getPageFromPath", () => {
   it("maps known routes and removes leading slashes from generated routes", () => {
+    expect(getPageFromPath("/")).toBe("landing");
+    expect(getPageFromPath("/dashboard")).toBe("Home");
     expect(getPageFromPath("/pantry")).toBe("Pantry");
     expect(getPageFromPath("/recipes/recipe-1")).toBe("recipes/recipe-1");
     expect(getPageFromPath("/meal-week/2026-07-14")).toBe("meal-week/2026-07-14");

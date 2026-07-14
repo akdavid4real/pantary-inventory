@@ -17,6 +17,7 @@ import { Login } from "../pages/auth/Login";
 import { PasswordRecovery } from "../pages/auth/PasswordRecovery";
 import { SignUp } from "../pages/auth/SignUp";
 import { Onboarding } from "../pages/onboarding/Onboarding";
+import { LandingPage } from "../pages/public/LandingPage";
 import { ScreenProps } from "../types/navigation";
 
 type AppRoutesProps = ScreenProps & {
@@ -45,6 +46,10 @@ const utilityPages = {
 } as const;
 
 export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
+  if (page === "landing") {
+    return <LandingPage />;
+  }
+
   const editRecipeMatch = page.match(/^my-recipes\/([^/]+)\/edit$/);
   if (editRecipeMatch) return <RecipeEditor recipeId={editRecipeMatch[1]} onNavigate={onNavigate} />;
   if (page === "my-recipes/new") return <RecipeEditor onNavigate={onNavigate} />;
@@ -91,5 +96,5 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
     return <UtilityPage onNavigate={onNavigate} />;
   }
 
-  return <Dashboard onNavigate={onNavigate} />;
+  return <LandingPage />;
 }

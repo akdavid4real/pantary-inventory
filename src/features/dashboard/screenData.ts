@@ -1,9 +1,9 @@
-import jollof from "../../../assets/foods/01-nigerian-jollof-rice.png";
-import egusi from "../../../assets/foods/09-egusi-soup.png";
-import moi from "../../../assets/foods/32-moi-moi.png";
-import suya from "../../../assets/foods/26-chicken-suya.png";
-import fish from "../../../assets/foods/28-grilled-tilapia-pepper-sauce.png";
-import beans from "../../../assets/foods/07-nigerian-beans-porridge.png";
+import jollof from "../../../assets/foods/01-nigerian-jollof-rice.webp";
+import egusi from "../../../assets/foods/09-egusi-soup.webp";
+import moi from "../../../assets/foods/32-moi-moi.webp";
+import suya from "../../../assets/foods/26-chicken-suya.webp";
+import fish from "../../../assets/foods/28-grilled-tilapia-pepper-sauce.webp";
+import beans from "../../../assets/foods/07-nigerian-beans-porridge.webp";
 
 export const screenImages = { jollof, egusi, moi, suya, fish, beans };
 export const recipeCards = [

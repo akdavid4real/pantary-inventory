@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Bell, ChefHat, Clock3, Heart, Leaf, Menu, Search } from "lucide-react";
-import akaraImage from "../../../assets/foods/33-akara.png";
-import beansImage from "../../../assets/foods/07-nigerian-beans-porridge.png";
-import egusiImage from "../../../assets/foods/09-egusi-soup.png";
-import jollofImage from "../../../assets/foods/01-nigerian-jollof-rice.png";
-import yamImage from "../../../assets/ingredients/04-yam-tuber.png";
+import akaraImage from "../../../assets/foods/33-akara.webp";
+import beansImage from "../../../assets/foods/07-nigerian-beans-porridge.webp";
+import egusiImage from "../../../assets/foods/09-egusi-soup.webp";
+import jollofImage from "../../../assets/foods/01-nigerian-jollof-rice.webp";
+import yamImage from "../../../assets/ingredients/04-yam-tuber.webp";
 import { DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
 import { StatusPanel } from "../../components/dashboard/StatusPanel";
 import { panelClassName } from "../../components/dashboard/styles";

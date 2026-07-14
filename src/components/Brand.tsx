@@ -1,4 +1,4 @@
-import brandSheet from "../../assets/auth/brand-sheet.png";
+import brandSheet from "../../assets/auth/brand-sheet.webp";
 
 export function Brand({ inverse = false }: { inverse?: boolean }) {
   return (

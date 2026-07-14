@@ -1,6 +1,6 @@
 import { Eye, LockKeyhole } from "lucide-react";
 import { FormEvent, useState } from "react";
-import loginBackground from "../../../assets/auth/login-food-background.png";
+import loginBackground from "../../../assets/auth/login-food-background.webp";
 import { Brand } from "../../components/Brand";
 import { ScreenProps } from "../../types/navigation";
 import { AuthSession, publicApi, saveSession } from "../../services/api";

@@ -1,6 +1,6 @@
 import { Eye, Leaf, ShoppingBasket } from "lucide-react";
 import { FormEvent, useState } from "react";
-import signupBackground from "../../../assets/auth/signup-food-background.png";
+import signupBackground from "../../../assets/auth/signup-food-background.webp";
 import { Brand } from "../../components/Brand";
 import { ScreenProps } from "../../types/navigation";
 import { AuthSession, publicApi, saveSession } from "../../services/api";

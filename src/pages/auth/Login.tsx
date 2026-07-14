@@ -53,7 +53,13 @@ export function Login({ onNavigate }: ScreenProps) {
           <p>Sign in to continue planning meals you’ll love.</p>
           <label className="auth-field">
             <span>Email</span>
-            <input name="email" type="email" autoComplete="email" required />
+            <input
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              required
+            />
           </label>
           <label className="auth-field">
             <span>Password</span>
@@ -61,6 +67,7 @@ export function Login({ onNavigate }: ScreenProps) {
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
+                placeholder="Enter your password"
                 autoComplete="current-password"
                 required
               />

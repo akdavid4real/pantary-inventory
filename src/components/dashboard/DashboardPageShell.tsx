@@ -1,4 +1,13 @@
-import { Bell, Menu, Search } from "lucide-react";
+import {
+  Bell,
+  ChefHat,
+  CookingPot,
+  Ellipsis,
+  Home,
+  Menu,
+  Search,
+  ShoppingBasket,
+} from "lucide-react";
 import { gsap } from "gsap";
 import { ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { Sidebar } from "./Sidebar";
@@ -80,19 +89,63 @@ export function DashboardPageShell({
         />
       </div>
 
-      <main ref={mainRef} className={`min-w-0 flex-1 overflow-visible ${mainClassName}`}>
+      <main ref={mainRef} className={`dashboard-page-main min-w-0 flex-1 overflow-visible ${mainClassName}`}>
         {showToolbar ? (
           <DashboardToolbar onOpenMenu={() => setMenuOpen(true)} />
         ) : null}
         {children}
       </main>
+
+      <DashboardMobileNavigation
+        activePage={activePage}
+        onNavigate={onNavigate}
+        onOpenMenu={() => setMenuOpen(true)}
+      />
     </div>
+  );
+}
+
+const mobileNavigationItems = [
+  [Home, "Home"],
+  [ChefHat, "Meals"],
+  [CookingPot, "Pantry"],
+  [ShoppingBasket, "Grocery"],
+] as const;
+
+function DashboardMobileNavigation({
+  activePage,
+  onNavigate,
+  onOpenMenu,
+}: {
+  activePage: string;
+  onNavigate: (page: string) => void;
+  onOpenMenu: () => void;
+}) {
+  return (
+    <nav className="dashboard-mobile-nav" aria-label="Mobile navigation">
+      {mobileNavigationItems.map(([Icon, label]) => (
+        <button
+          type="button"
+          className={activePage === label ? "active" : ""}
+          aria-current={activePage === label ? "page" : undefined}
+          onClick={() => onNavigate(label)}
+          key={label}
+        >
+          <Icon />
+          <span>{label}</span>
+        </button>
+      ))}
+      <button type="button" onClick={onOpenMenu}>
+        <Ellipsis />
+        <span>More</span>
+      </button>
+    </nav>
   );
 }
 
 function DashboardToolbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   return (
-    <div className="mb-[18px] flex items-center justify-end gap-[18px]">
+    <div className="dashboard-toolbar mb-[18px] flex items-center justify-end gap-[18px]">
       <button
         type="button"
         aria-label="Open navigation"
@@ -128,8 +181,8 @@ export function DashboardPageHeader({
   action,
 }: DashboardPageHeaderProps) {
   return (
-    <header className="mb-4 flex flex-wrap items-start justify-between gap-4">
-      <div className="flex gap-3">
+    <header className="dashboard-page-header mb-4 flex flex-wrap items-start justify-between gap-4">
+      <div className="dashboard-page-heading flex min-w-0 gap-3">
         <button
           type="button"
           aria-label="Open navigation"
@@ -139,7 +192,7 @@ export function DashboardPageHeader({
           <Menu />
         </button>
 
-        <div>
+        <div className="min-w-0">
           <h1 className="m-0 font-serif text-4xl font-normal leading-tight sm:text-5xl">
             {title}
           </h1>
@@ -147,7 +200,7 @@ export function DashboardPageHeader({
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="dashboard-page-actions flex items-center gap-4">
         <label className="hidden w-[350px] items-center gap-3 rounded-xl border border-[#ded5c5] px-4 py-3 text-[#72736d] md:flex">
           <Search size={19} />
           <input

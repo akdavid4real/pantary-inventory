@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
-import { ConfigService } from '@nestjs/config/dist/config.service';
+import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';

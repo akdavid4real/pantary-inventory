@@ -158,6 +158,40 @@ main {
   transform: translateY(-2px);
 }
 
+.site-header-auth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-header nav .site-header-login,
+.site-header nav .site-header-signup {
+  border: 1px solid rgba(7, 63, 50, 0.24);
+  border-radius: 999px;
+  padding: 11px 17px;
+  line-height: 1;
+}
+
+.site-header nav .site-header-login:hover {
+  border-color: var(--evergreen);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.site-header nav .site-header-signup {
+  border-color: var(--evergreen);
+  background: var(--evergreen);
+  color: var(--cream);
+}
+
+.site-header nav .site-header-signup:hover {
+  border-color: var(--coral);
+  background: var(--coral);
+}
+
+.site-header-toggle {
+  display: none;
+}
+
 .hero {
   min-height: 100svh;
   padding: 74px max(18px, calc((100vw - 1240px) / 2)) 24px;
@@ -935,29 +969,144 @@ main {
 
 @media (max-width: 640px) {
   .site-header {
-    width: calc(100% - 28px);
-    align-items: flex-start;
+    position: fixed;
+    top: max(10px, env(safe-area-inset-top));
+    width: calc(100% - 24px);
+    min-height: 64px;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    background: rgba(7, 63, 50, 0.97);
+    color: #fffaf2;
+    padding: 8px 10px 8px 12px;
+    box-shadow: 0 16px 48px rgba(7, 63, 50, 0.2);
+    backdrop-filter: blur(16px);
+    mix-blend-mode: normal;
   }
 
-  .brand span {
-    max-width: 122px;
-    line-height: 1;
+  .site-header .ptp-brand,
+  .site-header .ptp-brand strong {
+    color: #fffaf2;
+  }
+
+  .site-header .ptp-brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    background-color: #fffaf2;
+  }
+
+  .site-header .ptp-brand strong {
+    max-width: 112px;
+    white-space: normal;
+    font-size: 1rem;
+    line-height: 0.95;
+  }
+
+  .site-header-toggle {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    flex: none;
+    place-items: center;
+    border: 0;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+  }
+
+  .site-header-toggle svg {
+    width: 24px;
+    height: 24px;
   }
 
   .site-header nav {
-    max-width: 164px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 10px 14px;
-    font-size: 0.68rem;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: 0;
+    display: grid;
+    visibility: hidden;
+    gap: 4px;
+    border: 1px solid rgba(18, 55, 42, 0.12);
+    border-radius: 18px;
+    background: #fffaf4;
+    color: var(--evergreen);
+    padding: 8px;
+    box-shadow: 0 24px 60px rgba(7, 63, 50, 0.2);
+    font-size: 0.82rem;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    transform-origin: top;
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+  }
+
+  .site-header--open nav {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .site-header nav a {
+    min-height: 46px;
+    border: 0;
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .site-header nav a:hover {
+    background: #edf4ef;
+    transform: none;
+  }
+
+  .site-header-auth {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    border-top: 1px solid rgba(18, 55, 42, 0.1);
+    margin-top: 4px;
+    padding-top: 8px;
+  }
+
+  .site-header nav .site-header-login,
+  .site-header nav .site-header-signup {
+    display: grid;
+    min-height: 48px;
+    place-items: center;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .site-header nav .site-header-login {
+    border: 1px solid rgba(7, 63, 50, 0.2);
   }
 
   .hero {
-    padding: 94px 16px 34px;
+    padding: calc(104px + env(safe-area-inset-top)) 18px 34px;
   }
 
   .hero-title {
-    font-size: clamp(3.15rem, 15vw, 4.75rem);
+    font-size: clamp(3.45rem, 17vw, 4.9rem);
+    line-height: 0.84;
+  }
+
+  .hero-stage {
+    min-height: auto;
+    align-content: start;
+    gap: 30px;
+  }
+
+  .hero-copy p {
+    margin-block: 18px;
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+
+  .primary-cta {
+    width: 100%;
+    min-height: 54px;
   }
 
   .hero-tag {
@@ -975,7 +1124,7 @@ main {
   }
 
   .spin-ring {
-    width: 120px;
+    width: 104px;
     font-size: 0.62rem;
   }
 

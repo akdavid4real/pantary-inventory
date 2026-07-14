@@ -9,16 +9,16 @@ export function PasswordRecovery({
 }: ScreenProps & { mode: string }) {
   const reset = mode === "reset-password";
   return (
-    <div className="auth">
-      <section className="auth-art">
+    <main className="auth auth--recovery">
+      <section className="auth-art legacy-auth-art">
         <div>
           <LockKeyhole />
           <b>Pantry-to-Plate</b>
         </div>
         <h1>Real ingredients. Real meals. Real results.</h1>
-        <img src={screenImages.egusi} />
+        <img src={screenImages.egusi} alt="Egusi soup with traditional sides" />
       </section>
-      <section className="auth-form">
+      <section className="auth-form legacy-auth-form">
         <div>
           <LockKeyhole size={42} />
           <h1>{reset ? "Create a new password" : "Forgot your password?"}</h1>
@@ -43,6 +43,6 @@ export function PasswordRecovery({
           </button>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

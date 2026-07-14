@@ -748,6 +748,387 @@
     min-width: 250px;
   }
 }
+
+/* Shared phone layout for authentication and onboarding routes. */
+@media (max-width: 700px) {
+  .auth,
+  .auth.auth--login,
+  .auth.auth--signup,
+  .auth.auth--recovery {
+    display: block;
+    min-height: 100dvh;
+    background: #fffaf4;
+  }
+
+  .auth .auth-art {
+    display: block;
+    min-height: 220px;
+    padding: calc(22px + env(safe-area-inset-top)) 20px 22px;
+    background-position: center 62%;
+  }
+
+  .auth--signup .auth-art {
+    min-height: 170px;
+    background-position: center 54%;
+  }
+
+  .auth .auth-art::after {
+    background: linear-gradient(180deg, rgba(0, 49, 41, 0.35), rgba(0, 49, 41, 0.04) 68%, rgba(0, 49, 41, 0.18));
+  }
+
+  .auth .auth-art-copy {
+    display: none;
+  }
+
+  .auth .auth-art .ptp-brand {
+    position: relative;
+    z-index: 2;
+  }
+
+  .auth .auth-art .ptp-brand-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 9px;
+    background-color: #fffaf2;
+  }
+
+  .auth .auth-form,
+  .auth--signup .auth-form {
+    min-height: 0;
+    place-items: start stretch;
+    border-radius: 24px 24px 0 0;
+    margin-top: -24px;
+    background: #fffaf4;
+    padding: 36px 20px calc(34px + env(safe-area-inset-bottom));
+    position: relative;
+    z-index: 2;
+  }
+
+  .auth .auth-form form,
+  .auth .auth-form > div {
+    width: 100%;
+    max-width: none;
+  }
+
+  .auth .auth-form h1,
+  .auth--signup .auth-form h1 {
+    font-size: clamp(2.35rem, 11vw, 3.15rem);
+  }
+
+  .auth .auth-form form > p:first-of-type,
+  .auth--signup .auth-form form > p:first-of-type {
+    margin: 12px 0 28px;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .auth .auth-field,
+  .auth--signup .auth-field {
+    margin-bottom: 18px;
+  }
+
+  .auth .auth-field > input,
+  .auth .auth-field > div,
+  .auth--signup .auth-field > input,
+  .auth--signup .auth-field > div {
+    min-height: 54px;
+    height: 54px;
+    border-radius: 12px;
+  }
+
+  .auth .auth-field > input {
+    border: 1px solid #b9b9b4;
+    background: #fffdf9;
+    padding: 0 16px;
+  }
+
+  .auth input,
+  .auth button {
+    font-size: 16px;
+  }
+
+  .auth-options {
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 26px;
+    font-size: 0.9rem;
+  }
+
+  .auth-submit,
+  .google-button,
+  .auth--signup .auth-submit,
+  .auth--signup .google-button {
+    min-height: 54px;
+    border-radius: 12px;
+  }
+
+  .auth-divider {
+    margin: 22px 0;
+  }
+
+  .auth-security {
+    margin-top: 28px !important;
+  }
+
+  .terms {
+    align-items: flex-start;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .auth--recovery .legacy-auth-art {
+    min-height: 210px;
+  }
+
+  .auth--recovery .legacy-auth-art > div {
+    position: relative;
+    z-index: 2;
+  }
+
+  .auth--recovery .legacy-auth-art > h1 {
+    display: none;
+  }
+
+  .auth--recovery .legacy-auth-art > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: cover;
+    opacity: 0.74;
+  }
+
+  .onboarding-welcome {
+    display: block;
+    min-height: 100dvh;
+    padding: 0;
+    background: #fffaf4;
+  }
+
+  .onboarding-welcome > section {
+    min-height: 0;
+  }
+
+  .onboarding-welcome > section:first-child {
+    min-height: 240px;
+    border-radius: 0;
+    padding: calc(24px + env(safe-area-inset-top)) 20px;
+    background-position: center 58%;
+  }
+
+  .onboarding-welcome > section:first-child > div {
+    display: none;
+  }
+
+  .onboarding-welcome > section:last-child {
+    display: block;
+    min-height: calc(100dvh - 216px);
+    border: 0;
+    border-radius: 24px 24px 0 0;
+    margin-top: -24px;
+    padding: 34px 18px calc(28px + env(safe-area-inset-bottom));
+    position: relative;
+  }
+
+  .onboarding-welcome h1 {
+    font-size: clamp(2.45rem, 11vw, 3.15rem);
+  }
+
+  .onboarding-welcome > section:last-child > div > p {
+    font-size: 1.15rem;
+    line-height: 1.45;
+  }
+
+  .onboarding-welcome article {
+    gap: 14px;
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  .onboarding-welcome article p {
+    font-size: 0.88rem;
+  }
+
+  .onboarding-flow {
+    min-height: 100dvh;
+    padding: calc(18px + env(safe-area-inset-top)) 16px 0;
+  }
+
+  .onboarding-top {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+
+  .onboarding-top > .ptp-brand {
+    width: 42px;
+    overflow: hidden;
+  }
+
+  .onboarding-top > .ptp-brand .ptp-brand-mark {
+    width: 42px;
+    height: 42px;
+  }
+
+  .onboarding-top .flow-progress {
+    grid-column: auto;
+    grid-row: auto;
+    margin-top: 0;
+  }
+
+  .onboarding-top > span {
+    grid-column: auto;
+    font-size: 0.84rem;
+  }
+
+  .flow-progress {
+    gap: 8px;
+  }
+
+  .flow-progress span {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75rem;
+  }
+
+  .flow-progress span:not(:last-child)::after {
+    display: none;
+  }
+
+  .onboarding-heading,
+  .onboarding-heading.centered {
+    margin: 30px 0 22px;
+    text-align: left;
+  }
+
+  .onboarding-heading h1 {
+    font-size: clamp(2.25rem, 10.5vw, 3rem);
+    line-height: 1.02;
+  }
+
+  .onboarding-heading p {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .preference-layout,
+  .cooking-preferences,
+  .pantry-builder {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .preference-layout,
+  .preference-tags,
+  .onboard-panel,
+  .pantry-builder aside {
+    border-radius: 16px;
+    padding: 18px;
+  }
+
+  .preference-tags {
+    border-top: 1px solid #e2d9ca;
+    margin-top: 16px;
+  }
+
+  .diet-grid,
+  .meal-sampler,
+  .ingredient-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .diet-grid button {
+    min-height: 126px;
+  }
+
+  .nigerian-toggle {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .preference-tags input {
+    width: 100%;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .segmented {
+    flex-wrap: wrap;
+  }
+
+  .segmented button {
+    min-width: calc(50% - 5px);
+  }
+
+  .nutrition-goals .macro-chart {
+    transform: scale(0.9);
+  }
+
+  .category-tabs {
+    flex-wrap: wrap;
+  }
+
+  .category-tabs button {
+    flex: 1 1 calc(33.333% - 10px);
+    padding-inline: 10px;
+  }
+
+  .ingredient-grid button {
+    min-height: 132px;
+  }
+
+  .ingredient-grid img {
+    height: 82px;
+  }
+
+  .pantry-builder aside {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .pantry-builder aside > div {
+    grid-template-columns: 36px minmax(0, 1fr) 52px 64px 24px;
+    gap: 6px;
+  }
+
+  .pantry-builder aside .unit-help {
+    display: none;
+  }
+
+  .onboarding-actions {
+    position: sticky;
+    z-index: 12;
+    bottom: 0;
+    grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+    gap: 10px;
+    border-top: 1px solid #e3d8c7;
+    margin: 28px -16px 0;
+    background: rgba(255, 250, 244, 0.96);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    box-shadow: 0 -14px 40px rgba(7, 63, 50, 0.08);
+    backdrop-filter: blur(16px);
+  }
+
+  .onboarding-actions .skip {
+    display: none;
+  }
+
+  .onboarding-actions .primary {
+    width: 100%;
+  }
+
+  .onboarding-error {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Direct auth inputs need their own frame; nested password inputs use the parent frame. */
+.auth-field > input {
+  border: 1px solid #b9b9b4;
+  background: #fffdf9;
+  padding: 0 16px;
+}
 @media (max-width: 720px) {
   .app-shell > .dashboard-sidebar {
     display: none;

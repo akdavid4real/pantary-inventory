@@ -1,5 +1,5 @@
 import { BadGatewayException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config/dist/config.service';
 import { LoginDto, RefreshSessionDto, SignUpDto } from './dto/auth.dto';
 
 type SupabaseAuthError = { error_description?: string; msg?: string; message?: string };

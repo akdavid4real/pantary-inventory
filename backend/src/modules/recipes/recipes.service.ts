@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { RecipeModerationStatus, RecipeReportStatus, RecipeStatus, UserRole } from '@prisma/client';
-import { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config/dist/config.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getPagination } from '../../common/dto/query.dto';
 import { normalizeIngredientName, normalizeText, slugify, toTitleCase } from '../../common/utils/string.utils';

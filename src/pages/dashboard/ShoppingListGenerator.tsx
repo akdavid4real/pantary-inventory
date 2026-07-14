@@ -1,74 +1,11 @@
-import { Check, ShoppingBasket, X } from "lucide-react";
+import { useState } from "react";
+import { RefreshCw, ShoppingBasket, X } from "lucide-react";
 import { DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
-import { Field } from "../../components/dashboard/PageElements";
-import { ScreenProps } from "../../types/navigation";
+import { api } from "../../services/api";
+import { routes, ScreenProps } from "../../types/navigation";
 
 export function ShoppingListGenerator({ onNavigate }: ScreenProps) {
-  const items = [
-    "Tomatoes — 6 pieces",
-    "Spinach — 250 g",
-    "Greek yogurt — 500 g",
-    "Quinoa — 500 g",
-    "Salmon fillets — 4",
-  ];
-  return (
-    <DashboardPageShell
-      activePage="Grocery"
-      onNavigate={onNavigate}
-      showToolbar
-    >
-      <div className="modal-backdrop">
-        <div className="modal">
-          <div className="modal-head">
-            <h1>Generate shopping list</h1>
-            <button onClick={() => onNavigate("Grocery")}>
-              <X />
-            </button>
-          </div>
-          <div className="progress-steps">
-            <b>1 Source</b>
-            <b>2 Review items</b>
-            <b>3 Create list</b>
-          </div>
-          <div className="shopping-columns">
-            <section>
-              <h3>Choose source</h3>
-              <button className="source-active">
-                <Check />
-                From meal plan
-              </button>
-              <button>From a recipe</button>
-            </section>
-            <section>
-              <h3>Review missing items</h3>
-              {items.map((item) => (
-                <div className="shopping-item" key={item}>
-                  <Check />
-                  <span>{item}</span>
-                </div>
-              ))}
-            </section>
-            <section>
-              <h3>Create list</h3>
-              <Field
-                label="List title"
-                value="Weekly meal plan shopping list"
-              />
-              <div className="ready">
-                <ShoppingBasket />
-                <h2>Your list is ready</h2>
-                <p>13 items are ready to be added.</p>
-              </div>
-            </section>
-          </div>
-          <div className="modal-actions">
-            <button onClick={() => onNavigate("Grocery")}>Cancel</button>
-            <button onClick={() => onNavigate("Grocery")}>
-              Create shopping list
-            </button>
-          </div>
-        </div>
-      </div>
-    </DashboardPageShell>
-  );
+  const [busy,setBusy]=useState(false); const [error,setError]=useState("");
+  const generate=async()=>{setBusy(true);setError("");try{const list=await api<{id:string}>("/shopping-list/generate/from-meal-plan",{method:"POST",body:"{}"});onNavigate(routes.shoppingList(list.id));}catch(reason){setError(reason instanceof Error?reason.message:"Could not refresh the list.");}finally{setBusy(false);}};
+  return <DashboardPageShell activePage="Grocery" onNavigate={onNavigate} showToolbar><div className="mx-auto flex min-h-[70vh] max-w-6xl items-start justify-end p-4 sm:p-8"><section className="w-full max-w-md rounded-2xl border bg-[#fffdf8] p-6 shadow-xl"><div className="flex justify-between"><div><span className="text-xs uppercase tracking-widest text-[#68736d]">Meal plan → Grocery</span><h1 className="mt-1 font-serif text-3xl">Refresh shopping list</h1></div><button onClick={()=>onNavigate("Grocery")}><X/></button></div><div className="my-6 rounded-xl bg-[#edf4ef] p-5"><ShoppingBasket className="mb-3"/><h2 className="font-serif text-xl">One active list</h2><p className="mt-2 text-sm text-[#626a65]">We’ll compare this week’s local recipes with Pantry, merge missing ingredients into your current list, preserve manual items, and keep eligible bought or skipped states.</p></div><p className="text-xs text-amber-800">External meal recipes are excluded until their ingredient data is supported.</p>{error?<p className="mt-3 rounded-lg bg-red-50 p-3 text-xs text-red-700">{error}</p>:null}<button onClick={()=>void generate()} disabled={busy} className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#07513f] p-3 text-sm text-white disabled:opacity-50"><RefreshCw size={16} className={busy?"animate-spin":""}/>{busy?"Refreshing…":"Refresh from this week"}</button></section></div></DashboardPageShell>;
 }

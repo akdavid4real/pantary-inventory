@@ -1,5 +1,20 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayUnique,
+  IsArray,
+  IsBoolean,
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  IsUUID,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
 export class UpdateProfileDto {
   @ApiPropertyOptional()
@@ -67,4 +82,41 @@ export class UpdatePreferencesDto {
   @IsOptional()
   @IsBoolean()
   preferNigerianMeals?: boolean;
+
+  @ApiPropertyOptional({ enum: ['Easy', 'Comfortable', 'Adventurous'] })
+  @IsOptional()
+  @IsIn(['Easy', 'Comfortable', 'Adventurous'])
+  cookingComfort?: string;
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 20 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  defaultServings?: number;
+}
+
+export class OnboardingPantryItemDto {
+  @IsUUID()
+  ingredientId!: string;
+
+  @IsNumber()
+  @IsPositive()
+  quantity!: number;
+
+  @IsString()
+  unit!: string;
+}
+
+export class CompleteOnboardingDto extends UpdatePreferencesDto {
+  @ApiPropertyOptional()
+  @IsString()
+  displayName!: string;
+
+  @ApiPropertyOptional({ type: [OnboardingPantryItemDto] })
+  @IsArray()
+  @ArrayUnique((item: OnboardingPantryItemDto) => `${item.ingredientId}:${item.unit.trim().toLowerCase()}`)
+  @ValidateNested({ each: true })
+  @Type(() => OnboardingPantryItemDto)
+  pantryItems!: OnboardingPantryItemDto[];
 }

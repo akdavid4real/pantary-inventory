@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { MealType } from '@prisma/client';
-import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsEnum, IsInt, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 
 export class StartCookingSessionDto {
   @ApiPropertyOptional({ default: 1 })
@@ -15,4 +16,23 @@ export class CompleteCookingSessionDto {
   @IsOptional()
   @IsEnum(MealType)
   mealType?: MealType;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => IngredientUsageDto)
+  actualUsage?: IngredientUsageDto[];
+}
+
+export class IngredientUsageDto {
+  @IsString()
+  ingredientId!: string;
+
+  @IsNumber()
+  @Min(0)
+  quantity!: number;
+
+  @IsString()
+  unit!: string;
 }

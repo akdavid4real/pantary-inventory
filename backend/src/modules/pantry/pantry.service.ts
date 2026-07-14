@@ -29,7 +29,12 @@ export class PantryService {
         ingredientId: ingredient.id,
         quantity: dto.quantity,
         unit: dto.unit,
-        expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : undefined,
+        expiryDate:
+          dto.expiryDate === null
+            ? null
+            : dto.expiryDate
+              ? new Date(dto.expiryDate)
+              : undefined,
         storageLocation: dto.storageLocation ?? ingredient.storageLocation,
         lowStockThreshold: dto.lowStockThreshold,
         notes: dto.notes,
@@ -65,7 +70,12 @@ export class PantryService {
       data: {
         quantity: dto.quantity,
         unit: dto.unit,
-        expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : undefined,
+        expiryDate:
+          dto.expiryDate === null
+            ? null
+            : dto.expiryDate
+              ? new Date(dto.expiryDate)
+              : undefined,
         storageLocation: dto.storageLocation,
         lowStockThreshold: dto.lowStockThreshold,
         notes: dto.notes,
@@ -98,7 +108,7 @@ export class PantryService {
       include: { ingredient: true },
     });
 
-    await this.createLog(userId, id, item.ingredientId, dto.type, dto.quantity, dto.unit, dto.reason);
+    await this.createLog(userId, id, item.ingredientId, dto.type, dto.quantity, dto.unit, dto.reason, dto.estimatedCostNaira);
     return updated;
   }
 
@@ -153,9 +163,10 @@ export class PantryService {
     quantity: number,
     unit: string,
     reason?: string,
+    estimatedCostNaira?: number,
   ) {
     return this.prisma.pantryItemLog.create({
-      data: { userId, pantryItemId, ingredientId, type, quantity, unit, reason },
+      data: { userId, pantryItemId, ingredientId, type, quantity, unit, reason, estimatedCostNaira },
     });
   }
 }

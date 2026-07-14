@@ -2,9 +2,11 @@ import 'reflect-metadata';
 import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { PrismaAvailabilityFilter } from './common/filters/prisma-availability.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,10 +15,36 @@ async function bootstrap() {
   const apiPrefix = config.get<string>('API_PREFIX') ?? 'api/v1';
   const frontendUrl = config.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';
 
-  app.use(helmet());
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:5173', 'http://localhost:3000'],
+    origin: [
+      frontendUrl,
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:3000',
+    ],
     credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'x-user-email'],
+  });
+  app.use(helmet());
+
+  const httpLogger = new Logger('HTTP');
+  app.use((request: Request, response: Response, next: NextFunction) => {
+    const startedAt = Date.now();
+    response.on('finish', () => {
+      const duration = Date.now() - startedAt;
+      const timing = JSON.stringify({
+        method: request.method,
+        path: request.originalUrl,
+        statusCode: response.statusCode,
+        durationMs: duration,
+        slow: duration >= 2000,
+      });
+      if (response.statusCode >= 500) httpLogger.error(timing);
+      else if (response.statusCode >= 400 || duration >= 2000) httpLogger.warn(timing);
+      else httpLogger.log(timing);
+    });
+    next();
   });
 
   app.setGlobalPrefix(apiPrefix);
@@ -28,6 +56,7 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
+  app.useGlobalFilters(new PrismaAvailabilityFilter());
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Pantry-to-Plate API')

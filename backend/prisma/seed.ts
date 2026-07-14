@@ -1,7 +1,27 @@
+import 'dotenv/config';
 import { PrismaClient, IngredientCategory, RecipeCategory, StorageLocation } from '@prisma/client';
 import { slugify } from '../src/common/utils/string.utils';
 
 const prisma = new PrismaClient();
+const storageBaseUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/recipe-images`;
+const recipeImage = (filename: string) => `${storageBaseUrl}/${filename}`;
+const ingredientStorageBaseUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/ingredient-images/ingredients`;
+const ingredientImageFiles: Record<string, string> = {
+  rice: '01-long-grain-rice.png',
+  beans: '02-brown-beans.png',
+  yam: '04-yam-tuber.png',
+  plantain: '07-plantain.png',
+  tomato: '17-fresh-tomatoes.png',
+  pepper: '19-scotch-bonnet-peppers.png',
+  onion: '20-onions.png',
+  'palm oil': '16-palm-oil.png',
+  chicken: '35-chicken.png',
+  egusi: '12-egusi-seeds.png',
+  garri: '06-garri.png',
+  'dried crayfish': '28-crayfish.png',
+  spinach: '22-ugu-leaves.png',
+  stockfish: '29-stockfish.png',
+};
 
 type NutritionSeed = {
   calories: number;
@@ -17,12 +37,15 @@ async function upsertIngredient(
   nutrition: NutritionSeed,
   aliases: string[] = [],
 ) {
+  const imageFile = ingredientImageFiles[name.toLowerCase()];
+  const imageUrl = imageFile ? `${ingredientStorageBaseUrl}/${imageFile}` : undefined;
   const ingredient = await prisma.ingredient.upsert({
     where: { slug: slugify(name) },
-    update: {},
+    update: { imageUrl },
     create: {
       name,
       slug: slugify(name),
+      imageUrl,
       category,
       defaultUnit,
       storageLocation: StorageLocation.PANTRY,
@@ -63,16 +86,42 @@ async function main() {
     egusi: await upsertIngredient('egusi', IngredientCategory.SPICES, 'g', { calories: 559, protein: 28, carbs: 11, fat: 47 }, ['melon seed']),
     garri: await upsertIngredient('garri', IngredientCategory.SWALLOW, 'g', { calories: 360, protein: 1, carbs: 88, fat: 0 }, ['gari', 'cassava flakes']),
     crayfish: await upsertIngredient('dried crayfish', IngredientCategory.SEAFOOD, 'g', { calories: 330, protein: 60, carbs: 0, fat: 5 }, ['crayfish']),
+    stockfish: await upsertIngredient('stockfish', IngredientCategory.SEAFOOD, 'g', { calories: 290, protein: 62, carbs: 0, fat: 3 }, ['dried cod']),
     spinach: await upsertIngredient('spinach', IngredientCategory.VEGETABLES, 'g', { calories: 23, protein: 3, carbs: 4, fat: 0 }, ['ugu', 'fluted pumpkin leaf']),
   };
 
+  const conversions: Array<[string, string, number, string]> = [
+    [ingredients.rice.id, 'cup', 200, 'Approximate dry rice weight; cup sizes vary.'],
+    [ingredients.rice.id, 'derica', 750, 'Approximate large derica of dry rice; local measures vary by market.'],
+    [ingredients.beans.id, 'cup', 200, 'Approximate dry beans weight.'],
+    [ingredients.beans.id, 'derica', 750, 'Approximate large derica of dry beans; local measures vary.'],
+    [ingredients.garri.id, 'cup', 175, 'Approximate weight based on Nigerian local-measure references.'],
+    [ingredients.garri.id, 'derica', 700, 'Approximate market derica; density and container size vary.'],
+    [ingredients.egusi.id, 'cup', 150, 'Approximate shelled egusi weight.'],
+    [ingredients.yam.id, 'piece', 250, 'Approximate peeled yam piece.'],
+    [ingredients.yam.id, 'tuber', 1000, 'Approximate medium yam tuber.'],
+    [ingredients.plantain.id, 'piece', 200, 'Approximate medium plantain.'],
+    [ingredients.tomato.id, 'piece', 120, 'Approximate medium tomato.'],
+    [ingredients.onion.id, 'piece', 100, 'Approximate medium onion.'],
+    [ingredients.pepper.id, 'piece', 12, 'Approximate scotch bonnet pepper.'],
+    [ingredients.chicken.id, 'piece', 250, 'Approximate mixed chicken piece.'],
+  ];
+  await Promise.all(conversions.map(([ingredientId, fromUnit, multiplier, notes]) =>
+    prisma.unitConversion.upsert({
+      where: { ingredientId_fromUnit_toUnit: { ingredientId, fromUnit, toUnit: 'g' } },
+      create: { ingredientId, fromUnit, toUnit: 'g', multiplier, notes },
+      update: { multiplier, notes },
+    }),
+  ));
+
   await prisma.recipe.upsert({
     where: { slug: 'jollof-rice' },
-    update: {},
+    update: { imageUrl: recipeImage('01-nigerian-jollof-rice.png') },
     create: {
       name: 'Jollof Rice',
       slug: 'jollof-rice',
       description: 'A Nigerian rice dish cooked in tomato and pepper sauce.',
+      imageUrl: recipeImage('01-nigerian-jollof-rice.png'),
       category: RecipeCategory.RICE_MEAL,
       region: 'Nigeria',
       servings: 4,
@@ -111,11 +160,12 @@ async function main() {
 
   await prisma.recipe.upsert({
     where: { slug: 'beans-and-plantain' },
-    update: {},
+    update: { imageUrl: recipeImage('07-nigerian-beans-porridge.png') },
     create: {
       name: 'Beans and Plantain',
       slug: 'beans-and-plantain',
       description: 'Soft cooked beans served with ripe plantain.',
+      imageUrl: recipeImage('07-nigerian-beans-porridge.png'),
       category: RecipeCategory.BEANS_MEAL,
       region: 'Nigeria',
       servings: 3,
@@ -151,11 +201,12 @@ async function main() {
 
   await prisma.recipe.upsert({
     where: { slug: 'yam-porridge' },
-    update: {},
+    update: { imageUrl: recipeImage('08-asaro-yam-porridge.png') },
     create: {
       name: 'Yam Porridge',
       slug: 'yam-porridge',
       description: 'Yam cooked in pepper sauce with palm oil.',
+      imageUrl: recipeImage('08-asaro-yam-porridge.png'),
       category: RecipeCategory.LUNCH,
       region: 'Nigeria',
       servings: 4,
@@ -186,11 +237,12 @@ async function main() {
 
   await prisma.recipe.upsert({
     where: { slug: 'egusi-soup-and-garri' },
-    update: {},
+    update: { imageUrl: recipeImage('09-egusi-soup.png') },
     create: {
       name: 'Egusi Soup and Garri',
       slug: 'egusi-soup-and-garri',
       description: 'Egusi soup served with garri swallow.',
+      imageUrl: recipeImage('09-egusi-soup.png'),
       category: RecipeCategory.SOUP,
       region: 'Nigeria',
       servings: 4,
@@ -222,11 +274,12 @@ async function main() {
 
   await prisma.recipe.upsert({
     where: { slug: 'akara' },
-    update: {},
+    update: { imageUrl: recipeImage('33-akara.png') },
     create: {
       name: 'Akara',
       slug: 'akara',
       description: 'Fried bean cakes made from blended beans and pepper.',
+      imageUrl: recipeImage('33-akara.png'),
       category: RecipeCategory.BREAKFAST,
       region: 'Nigeria',
       servings: 3,

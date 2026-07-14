@@ -1,7 +1,6 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { jwtVerify } from 'jose';
 import { UserRole } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OPEN_ROUTE_KEY } from '../decorators/open-route.decorator';
@@ -9,6 +8,9 @@ import { RequestWithUser } from '../types/request-user';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private readonly verifiedTokens = new Map<string, { expiresAt: number; user: { id: string; email?: string; role: UserRole } }>();
+  private readonly ensuredUsers = new Map<string, number>();
+
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
@@ -61,24 +63,53 @@ export class AuthGuard implements CanActivate {
   }
 
   private async verifyBearerToken(token: string, adminEmail?: string) {
-    const secret = this.config.get<string>('SUPABASE_JWT_SECRET');
-    if (!secret) {
-      throw new UnauthorizedException('SUPABASE_JWT_SECRET is required for bearer token verification.');
-    }
+    const cached = this.verifiedTokens.get(token);
+    if (cached && cached.expiresAt > Date.now()) return cached.user;
+    if (cached) this.verifiedTokens.delete(token);
 
-    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
-    const email = typeof payload.email === 'string' ? payload.email : undefined;
-    const metadata = payload.app_metadata as Record<string, unknown> | undefined;
+    const url = this.config.get<string>('SUPABASE_URL');
+    const apiKey = this.config.get<string>('SUPABASE_PUBLISHABLE_KEY');
+    if (!url || !apiKey) throw new UnauthorizedException('Supabase Auth is not configured.');
+
+    let response: Response;
+    try {
+      response = await fetch(`${url}/auth/v1/user`, {
+        headers: { apikey: apiKey, Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(5000),
+      });
+    } catch {
+      throw new ServiceUnavailableException({
+        message: 'Authentication is temporarily unavailable. Please retry.',
+        retryable: true,
+      });
+    }
+    if (!response.ok) throw new UnauthorizedException('Invalid or expired authentication token.');
+
+    const payload = (await response.json()) as {
+      id: string;
+      email?: string;
+      app_metadata?: Record<string, unknown>;
+    };
+    const email = payload.email;
+    const metadata = payload.app_metadata;
     const roleFromMetadata = metadata?.role === 'ADMIN' ? UserRole.ADMIN : undefined;
 
-    return {
-      id: String(payload.sub),
+    const user = {
+      id: payload.id,
       email,
       role: roleFromMetadata ?? (email?.toLowerCase() === adminEmail ? UserRole.ADMIN : UserRole.USER),
     };
+    if (this.verifiedTokens.size >= 1000) {
+      const oldest = this.verifiedTokens.keys().next().value as string | undefined;
+      if (oldest) this.verifiedTokens.delete(oldest);
+    }
+    this.verifiedTokens.set(token, { user, expiresAt: Date.now() + 15 * 60 * 1000 });
+    return user;
   }
 
   private async ensureUser(user: { id: string; email?: string; role: UserRole }) {
+    const ensuredUntil = this.ensuredUsers.get(user.id) ?? 0;
+    if (ensuredUntil > Date.now()) return;
     await this.prisma.user.upsert({
       where: { id: user.id },
       create: {
@@ -100,5 +131,6 @@ export class AuthGuard implements CanActivate {
         role: user.role,
       },
     });
+    this.ensuredUsers.set(user.id, Date.now() + 15 * 60 * 1000);
   }
 }

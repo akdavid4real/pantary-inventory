@@ -3,13 +3,30 @@ import { FormEvent, useState } from "react";
 import loginBackground from "../../../assets/auth/login-food-background.png";
 import { Brand } from "../../components/Brand";
 import { ScreenProps } from "../../types/navigation";
+import { AuthSession, publicApi, saveSession } from "../../services/api";
 
 export function Login({ onNavigate }: ScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
-  const submit = (event: FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onNavigate("Home");
+    const form = new FormData(event.currentTarget);
+    setLoading(true);
+    setError("");
+    try {
+      const session = await publicApi<AuthSession>("/auth/login", {
+        email: String(form.get("email")),
+        password: String(form.get("password")),
+      });
+      saveSession(session);
+      onNavigate("Home");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to sign in.");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <main className="auth auth--login">
@@ -36,14 +53,15 @@ export function Login({ onNavigate }: ScreenProps) {
           <p>Sign in to continue planning meals you’ll love.</p>
           <label className="auth-field">
             <span>Email</span>
-            <input type="email" defaultValue="akdavid@example.com" required />
+            <input name="email" type="email" autoComplete="email" required />
           </label>
           <label className="auth-field">
             <span>Password</span>
             <div>
               <input
                 type={showPassword ? "text" : "password"}
-                defaultValue="pantrytoplate"
+                name="password"
+                autoComplete="current-password"
                 required
               />
               <button
@@ -68,8 +86,9 @@ export function Login({ onNavigate }: ScreenProps) {
               Forgot password?
             </button>
           </div>
-          <button className="auth-submit" type="submit">
-            Sign in
+          {error ? <p role="alert">{error}</p> : null}
+          <button className="auth-submit" type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign in"}
           </button>
           <div className="auth-divider">
             <span>or continue with</span>

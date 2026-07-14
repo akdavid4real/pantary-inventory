@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getPagination, PaginationQueryDto } from '../../common/dto/query.dto';
 import { normalizeIngredientName, normalizeText, slugify } from '../../common/utils/string.utils';
@@ -9,6 +9,9 @@ export class IngredientsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateIngredientDto) {
+    if (!dto.nutrition || !dto.nutrition.calories || dto.nutrition.calories <= 0) {
+      throw new BadRequestException('Catalog ingredients require validated nutrition with calories greater than zero.');
+    }
     const name = normalizeIngredientName(dto.name);
     const slug = slugify(name);
     const aliases = this.uniqueAliases([dto.name, name, ...(dto.aliases ?? [])]);
@@ -45,7 +48,7 @@ export class IngredientsService {
             }
           : {}),
       },
-      include: { aliases: true, nutrition: true },
+      include: { aliases: true, nutrition: true, conversions: true },
     });
   }
 
@@ -67,7 +70,7 @@ export class IngredientsService {
         skip,
         take,
         orderBy: { name: 'asc' },
-        include: { aliases: true, nutrition: true },
+        include: { aliases: true, nutrition: true, conversions: true },
       }),
       this.prisma.ingredient.count({ where }),
     ]);
@@ -94,7 +97,7 @@ export class IngredientsService {
           { aliases: { some: { normalized } } },
         ],
       },
-      include: { nutrition: true, aliases: true },
+      include: { nutrition: true, aliases: true, conversions: true },
     });
   }
 
@@ -133,7 +136,7 @@ export class IngredientsService {
             }
           : {}),
       },
-      include: { aliases: true, nutrition: true },
+      include: { aliases: true, nutrition: true, conversions: true },
     });
   }
 
@@ -146,7 +149,7 @@ export class IngredientsService {
     const existing = await this.findByNameOrAlias(name);
     if (existing) return existing;
 
-    return this.create({ name, defaultUnit });
+    throw new BadRequestException(`${name} is not in the validated ingredient catalog. Add its nutrition before using it.`);
   }
 
   private uniqueAliases(values: string[]) {

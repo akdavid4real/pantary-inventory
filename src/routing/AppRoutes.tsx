@@ -10,6 +10,7 @@ import { Pantry } from "../pages/dashboard/Pantry";
 import { PantryItemEditor } from "../pages/dashboard/PantryItemEditor";
 import { RecipeDetails } from "../pages/dashboard/RecipeDetails";
 import { RecipeEditor } from "../pages/dashboard/RecipeEditor";
+import { MyRecipes } from "../pages/dashboard/MyRecipes";
 import { Settings } from "../pages/dashboard/Settings";
 import { ShoppingListGenerator } from "../pages/dashboard/ShoppingListGenerator";
 import { Login } from "../pages/auth/Login";
@@ -29,6 +30,7 @@ const dashboardPages = {
   Grocery,
   Home: Dashboard,
   Meals,
+  "My Recipes": MyRecipes,
   Pantry,
   Settings,
 } as const;
@@ -43,6 +45,20 @@ const utilityPages = {
 } as const;
 
 export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
+  const editRecipeMatch = page.match(/^my-recipes\/([^/]+)\/edit$/);
+  if (editRecipeMatch) return <RecipeEditor recipeId={editRecipeMatch[1]} onNavigate={onNavigate} />;
+  if (page === "my-recipes/new") return <RecipeEditor onNavigate={onNavigate} />;
+  const recipeMatch = page.match(/^recipes\/([^/]+)$/);
+  if (recipeMatch) return <RecipeDetails recipeId={recipeMatch[1]} onNavigate={onNavigate} />;
+
+  const mealWeekMatch = page.match(/^meals\/week\/([^/]+)$/);
+  if (mealWeekMatch) return <Meals weekDate={mealWeekMatch[1]} onNavigate={onNavigate} />;
+
+  const shoppingListMatch = page.match(/^grocery\/lists\/([^/]+)$/);
+  if (shoppingListMatch) return <Grocery listId={shoppingListMatch[1]} onNavigate={onNavigate} />;
+
+  const cookingMatch = page.match(/^cooking\/([^/]+)$/);
+  if (cookingMatch) return <CookingMode sessionId={cookingMatch[1]} onNavigate={onNavigate} />;
   if (page === "login") {
     return <Login onNavigate={onNavigate} />;
   }

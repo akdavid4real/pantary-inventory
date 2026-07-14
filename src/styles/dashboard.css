@@ -12,6 +12,248 @@
   background: rgba(255, 255, 255, 0.22);
 }
 
+.pantry-page {
+  background:
+    radial-gradient(circle at 78% 3%, rgba(255, 255, 255, 0.9), transparent 24rem),
+    #faf7f0;
+}
+
+.pantry-page main {
+  width: 100%;
+  max-width: none;
+}
+
+.pantry-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pantry-workspace {
+  grid-template-columns: minmax(0, 1fr) 290px;
+}
+
+.pantry-sidebar {
+  grid-template-columns: minmax(0, 1fr);
+  position: sticky;
+  top: 16px;
+  align-self: start;
+}
+
+.pantry-row {
+  content-visibility: auto;
+  contain-intrinsic-size: 68px;
+}
+
+.pantry-inventory-panel {
+  container-type: inline-size;
+}
+
+.pantry-table-grid {
+  grid-template-columns:
+    minmax(0, 1.8fr)
+    minmax(0, 0.82fr)
+    minmax(0, 0.68fr)
+    minmax(0, 0.88fr)
+    minmax(0, 0.94fr)
+    minmax(0, 0.72fr)
+    18px;
+  column-gap: 8px;
+}
+
+.pantry-table-grid > * {
+  min-width: 0;
+}
+
+.pantry-table-grid i {
+  max-width: 100%;
+  overflow: hidden;
+  padding-inline: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container (max-width: 720px) {
+  .pantry-table-grid {
+    grid-template-columns:
+      minmax(0, 1.75fr)
+      minmax(0, 0.7fr)
+      minmax(0, 0.86fr)
+      minmax(0, 0.96fr)
+      minmax(0, 0.72fr)
+      18px;
+  }
+
+  .pantry-col-category {
+    display: none;
+  }
+}
+
+@container (max-width: 580px) {
+  .pantry-table-grid {
+    grid-template-columns:
+      minmax(0, 1.9fr)
+      minmax(0, 0.72fr)
+      minmax(0, 1fr)
+      minmax(0, 0.72fr)
+      18px;
+  }
+
+  .pantry-col-location {
+    display: none;
+  }
+}
+
+@container (max-width: 460px) {
+  .pantry-table-grid {
+    grid-template-columns:
+      minmax(0, 2fr)
+      minmax(0, 0.78fr)
+      minmax(0, 0.76fr)
+      18px;
+  }
+
+  .pantry-col-expiry {
+    display: none;
+  }
+}
+
+.pantry-side-field {
+  display: grid;
+  grid-template-columns: minmax(86px, 0.82fr) minmax(0, 1.35fr);
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: #596660;
+}
+
+.pantry-side-control {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #ded5c5;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px 10px;
+  color: #103a31;
+  font-size: 12px;
+  outline: none;
+}
+
+.pantry-side-control:focus {
+  border-color: #07513f;
+  box-shadow: 0 0 0 2px rgba(7, 81, 63, 0.1);
+}
+
+.pantry-ingredient-picker {
+  scrollbar-width: thin;
+  scrollbar-color: #9fb9ad transparent;
+}
+
+.pantry-ingredient-picker::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pantry-ingredient-picker::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #9fb9ad;
+}
+
+.pantry-detail-scrim {
+  display: none;
+}
+
+@keyframes pantry-detail-enter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .pantry-metrics,
+  .pantry-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pantry-sidebar {
+    position: static;
+  }
+
+  .pantry-detail-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: block;
+    border: 0;
+    background: rgba(5, 45, 37, 0.16);
+    backdrop-filter: blur(1px);
+  }
+
+  .pantry-detail-panel {
+    position: fixed;
+    top: 88px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 30;
+    width: min(350px, calc(100vw - 32px));
+    overflow-y: auto;
+    border-radius: 22px;
+    box-shadow: 0 28px 80px rgba(4, 42, 33, 0.28);
+    animation: pantry-detail-enter 220ms ease-out both;
+  }
+}
+
+@media (max-width: 767px) {
+  .pantry-page main {
+    padding-inline: 0.9rem;
+  }
+
+  .pantry-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 639px) {
+  @keyframes pantry-detail-enter {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .pantry-detail-scrim {
+    background: rgba(5, 45, 37, 0.34);
+    backdrop-filter: blur(2px);
+  }
+
+  .pantry-detail-panel {
+    top: auto;
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    width: auto;
+    max-height: min(76dvh, 620px);
+    border-radius: 24px;
+  }
+
+  .pantry-side-field {
+    grid-template-columns: 92px minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pantry-detail-panel {
+    animation: none;
+  }
+}
+
 .meal-planner .overflow-x-auto > div > .grid {
   display: grid !important;
   grid-template-columns: 70px repeat(7, minmax(80px, 1fr)) !important;

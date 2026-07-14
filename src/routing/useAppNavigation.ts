@@ -11,13 +11,14 @@ const pageByPath: Record<string, string> = {
   "/settings": "Settings",
 };
 
-function getPageFromPath() {
-  const currentPath = window.location.pathname;
-
-  return pageByPath[currentPath] ?? currentPath.slice(1);
+export function getPageFromPath(currentPath = window.location.pathname) {
+  return pageByPath[currentPath] ?? currentPath.replace(/^\/+/, "");
 }
 
 function getPathFromPage(page: string) {
+  if (page.startsWith("/")) {
+    return page;
+  }
   if (page === "Home") {
     return "/";
   }
@@ -47,7 +48,7 @@ export function useAppNavigation() {
       window.history.pushState({}, "", nextPath);
     }
 
-    setPage(nextPage);
+    setPage(getPageFromPath(nextPath));
   }, []);
 
   return { page, navigate };

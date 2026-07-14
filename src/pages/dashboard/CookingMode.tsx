@@ -1,100 +1,22 @@
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  Clock3,
-  Play,
-  Timer,
-  X,
-} from "lucide-react";
-import { useState } from "react";
-import { cookingSteps, screenImages } from "../../features/dashboard/screenData";
-import { ScreenProps } from "../../types/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
+import { api } from "../../services/api";
+import { CookingSession, UsagePreview } from "../../types/inventory";
+import { routes } from "../../types/navigation";
 
-export function CookingMode({ onNavigate }: ScreenProps) {
-  const [step, setStep] = useState(2);
-  return (
-    <div className="cooking">
-      <header>
-        <b>Pantry-to-Plate</b>
-        <h2>Jollof Rice with Grilled Chicken</h2>
-        <button onClick={() => onNavigate("recipe-details")}>
-          <X />
-          Exit cooking
-        </button>
-        <span>Step {step + 1} of 7</span>
-      </header>
-      <div className="cook-grid">
-        <aside>
-          {cookingSteps.map((item, index) => (
-            <button
-              className={index === step ? "active" : ""}
-              onClick={() => setStep(index)}
-              key={item}
-            >
-              <span>{index + 1}</span>
-              <b>{item}</b>
-              <small>{5 + index * 3} min</small>
-            </button>
-          ))}
-        </aside>
-        <main>
-          <h1>{cookingSteps[step]}</h1>
-          <p>
-            <Clock3 /> {5 + step * 3} min
-          </p>
-          <p>
-            Blend tomatoes, red bell peppers, scotch bonnet peppers, and half of
-            the onions until smooth.
-          </p>
-          <img src={step % 2 ? screenImages.jollof : screenImages.egusi} />
-          <div className="timer-actions">
-            <button>
-              <Play />
-              Start timer
-            </button>
-            <button>
-              <Timer />
-              Pause
-            </button>
-          </div>
-        </main>
-        <section className="panel">
-          <h3>Ingredients for this step</h3>
-          {[
-            "Tomatoes",
-            "Red bell pepper",
-            "Scotch bonnet peppers",
-            "Red onion",
-          ].map((item) => (
-            <div className="ingredient" key={item}>
-              <Check />
-              <span>{item}</span>
-              <b>Have</b>
-            </div>
-          ))}
-          <section className="panel info-card">
-            <h3>Chef Nmesoma's tip</h3>
-            <p>
-              Blend until completely smooth for a rich, well-balanced sauce
-              base.
-            </p>
-          </section>
-        </section>
-      </div>
-      <footer>
-        <button
-          disabled={step === 0}
-          onClick={() => setStep((value) => value - 1)}
-        >
-          <ArrowLeft />
-          Previous step
-        </button>
-        <button onClick={() => setStep((value) => Math.min(6, value + 1))}>
-          Next step
-          <ArrowRight />
-        </button>
-      </footer>
-    </div>
-  );
+export function CookingMode({ onNavigate, sessionId }: { onNavigate: (page: string) => void; sessionId?: string }) {
+  const [session,setSession]=useState<CookingSession|null>(null); const [preview,setPreview]=useState<UsagePreview|null>(null); const [loading,setLoading]=useState(true); const [busy,setBusy]=useState(""); const [error,setError]=useState(""); const [reviewOpen,setReviewOpen]=useState(false); const [usage,setUsage]=useState<Record<string,number>>({});
+  const load=useCallback(async()=>{if(!sessionId){setError("No cooking session was selected.");setLoading(false);return;} setLoading(true);try{const [sessionValue,previewValue]=await Promise.all([api<CookingSession>(`/cooking/session/${sessionId}`),api<UsagePreview>(`/cooking/session/${sessionId}/usage-preview`)]);setSession(sessionValue);setPreview(previewValue);setUsage(Object.fromEntries(previewValue.items.map((item)=>[item.ingredientId,item.requiredQuantity])));}catch(reason){setError(reason instanceof Error?reason.message:"Could not load cooking session.");}finally{setLoading(false);}},[sessionId]);
+  useEffect(()=>{void load();},[load]);
+  const move=async(direction:"next"|"previous")=>{if(!session)return;setBusy(direction);try{setSession(await api<CookingSession>(`/cooking/session/${session.id}/${direction}`,{method:"PATCH"}));}catch(reason){setError(reason instanceof Error?reason.message:"Could not save progress.");}finally{setBusy("");}};
+  const complete=async()=>{if(!session||!preview)return;setBusy("complete");setError("");try{await api(`/cooking/session/${session.id}/complete`,{method:"POST",body:JSON.stringify({actualUsage:preview.items.map((item)=>({ingredientId:item.ingredientId,quantity:usage[item.ingredientId],unit:item.unit}))})});onNavigate("Pantry");}catch(reason){setError(reason instanceof Error?reason.message:"Could not complete cooking.");}finally{setBusy("");}};
+  if(loading)return <div className="grid min-h-screen place-items-center bg-[#f5f0e7]">Loading cooking session…</div>;
+  if(!session)return <div className="grid min-h-screen place-items-center bg-[#f5f0e7] p-6"><div className="rounded-xl bg-white p-6 text-center text-red-700" role="alert"><p>{error}</p><div className="mt-4 flex justify-center gap-4"><button onClick={()=>void load()} className="rounded-lg bg-[#07513f] px-5 py-2 text-white">Try again</button><button onClick={()=>onNavigate("Meals")} className="underline">Back to meals</button></div></div></div>;
+  const current=session.steps.find((step)=>step.stepNumber===session.currentStep)??session.steps[0]; const isLast=session.currentStep>=session.steps.length;
+  return <div className="min-h-screen bg-[#f5f0e7] text-[#173e33]"><header className="flex flex-wrap items-center gap-3 border-b bg-[#fffdf8] px-5 py-4"><b className="font-serif text-xl">Pantry-to-Plate</b><h1 className="mx-auto font-serif text-2xl">{session.recipe.name}</h1><button onClick={()=>onNavigate(routes.recipe(session.recipeId))} className="flex items-center gap-2 text-sm"><X size={18}/> Exit</button><span className="basis-full text-center text-xs">Step {session.currentStep} of {session.steps.length}</span></header>
+    {error?<div className="mx-auto mt-4 flex max-w-4xl flex-wrap items-center justify-between gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-700"><span>{error}</span><span><button onClick={()=>setReviewOpen(true)} className="mr-3 underline">Adjust usage</button><button onClick={()=>onNavigate("Pantry")} className="underline">Edit Pantry</button></span></div>:null}
+    <div className="mx-auto grid max-w-6xl gap-5 p-5 lg:grid-cols-[240px_minmax(0,1fr)_280px]"><aside className="space-y-2">{session.steps.map((step)=><button key={step.id} disabled className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left text-xs ${step.stepNumber===session.currentStep?"border-[#07513f] bg-[#e8f1eb]":"bg-white"}`}><span className="grid h-7 w-7 place-items-center rounded-full bg-[#07513f] text-white">{step.stepNumber}</span>{step.instruction.slice(0,55)}{step.instruction.length>55?"…":""}</button>)}</aside><main className="rounded-2xl border bg-[#fffdf8] p-7"><span className="text-xs uppercase tracking-widest">Step {current?.stepNumber}</span><h2 className="mt-3 font-serif text-4xl">Keep cooking</h2><p className="mt-5 text-lg leading-8">{current?.instruction}</p>{session.recipe.imageUrl?<img src={session.recipe.imageUrl} alt="" className="mt-7 h-64 w-full rounded-2xl object-cover"/>:null}</main><aside className="h-fit rounded-2xl border bg-[#fffdf8] p-5"><h2 className="font-serif text-xl">Pantry usage</h2>{preview?.items.map((item)=><div key={item.ingredientId} className="border-b py-3 text-xs"><div className="flex justify-between"><span>{item.name}</span><strong>{item.requiredQuantity} {item.unit}</strong></div><span className={item.missingQuantity>0?"text-red-600":"text-emerald-700"}>{item.availableQuantity} available{item.missingQuantity>0?` · ${item.missingQuantity} missing`:" · ready"}</span></div>)}<button onClick={()=>setReviewOpen(true)} className="mt-4 w-full rounded-lg border p-2 text-xs">Review actual usage</button></aside></div>
+    <footer className="sticky bottom-0 flex justify-between border-t bg-[#fffdf8] p-4"><button disabled={session.currentStep===1||!!busy} onClick={()=>void move("previous")} className="flex items-center gap-2 rounded-lg border px-5 py-3 text-sm disabled:opacity-40"><ArrowLeft/> Previous</button>{isLast?<button onClick={()=>setReviewOpen(true)} className="flex items-center gap-2 rounded-lg bg-[#07513f] px-5 py-3 text-sm text-white"><Check/> Finish cooking</button>:<button disabled={!!busy} onClick={()=>void move("next")} className="flex items-center gap-2 rounded-lg bg-[#07513f] px-5 py-3 text-sm text-white">Next <ArrowRight/></button>}</footer>
+    {reviewOpen&&preview?<div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#052d25]/65 p-4"><section className="w-full max-w-xl rounded-2xl bg-[#fffdf8] p-6"><div className="flex justify-between"><div><h2 className="font-serif text-2xl">Confirm actual usage</h2><p className="text-xs">Correct what you really used before Pantry is deducted.</p></div><button onClick={()=>setReviewOpen(false)}><X/></button></div><div className="mt-4 divide-y">{preview.items.map((item)=><label key={item.ingredientId} className="grid grid-cols-[1fr_110px_50px] items-center gap-2 py-3 text-sm"><span>{item.name}<small className={`block ${item.availableQuantity<(usage[item.ingredientId]??0)?"text-red-600":"text-[#6d746f]"}`}>{item.availableQuantity} available</small></span><input type="number" min="0" step="0.1" value={usage[item.ingredientId]??0} onChange={(event)=>setUsage((current)=>({...current,[item.ingredientId]:Number(event.target.value)}))} className="rounded-lg border p-2"/><span>{item.unit}</span></label>)}</div><button disabled={busy==="complete"} onClick={()=>void complete()} className="mt-5 w-full rounded-lg bg-[#07513f] p-3 text-sm text-white disabled:opacity-50">{busy==="complete"?"Updating Pantry…":"Complete cooking and deduct Pantry"}</button></section></div>:null}
+  </div>;
 }

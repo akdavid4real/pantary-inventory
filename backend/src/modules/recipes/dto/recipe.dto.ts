@@ -1,5 +1,5 @@
 import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { RecipeCategory } from '@prisma/client';
+import { RecipeCategory, RecipeModerationStatus, RecipeReportStatus, RecipeStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsEnum, IsInt, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/dto/query.dto';
@@ -137,6 +137,11 @@ export class CreateRecipeDto {
   @IsOptional()
   @IsArray()
   tags?: string[];
+
+  @ApiPropertyOptional({ enum: RecipeStatus, default: RecipeStatus.DRAFT })
+  @IsOptional()
+  @IsEnum(RecipeStatus)
+  status?: RecipeStatus;
 }
 
 export class UpdateRecipeDto extends PartialType(CreateRecipeDto) {}
@@ -156,4 +161,40 @@ export class RecipeQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   ingredient?: string;
+}
+
+export class ReportRecipeDto {
+  @IsString()
+  reason!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  details?: string;
+}
+
+export class ModerateRecipeDto {
+  @IsEnum(RecipeModerationStatus)
+  moderationStatus!: RecipeModerationStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  moderationNote?: string;
+}
+
+export class ResolveRecipeReportDto {
+  @IsEnum(RecipeReportStatus)
+  status!: RecipeReportStatus;
+}
+
+export class UploadRecipeImageDto {
+  @IsString()
+  fileName!: string;
+
+  @IsString()
+  contentType!: string;
+
+  @IsString()
+  base64!: string;
 }

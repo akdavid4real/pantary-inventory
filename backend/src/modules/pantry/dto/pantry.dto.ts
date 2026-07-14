@@ -23,7 +23,7 @@ export class CreatePantryItemDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDateString()
-  expiryDate?: string;
+  expiryDate?: string | null;
 
   @ApiPropertyOptional({ enum: StorageLocation })
   @IsOptional()
@@ -34,12 +34,12 @@ export class CreatePantryItemDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  lowStockThreshold?: number;
+  lowStockThreshold?: number | null;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  notes?: string;
+  notes?: string | null;
 }
 
 export class UpdatePantryItemDto extends PartialType(CreatePantryItemDto) {}
@@ -59,4 +59,10 @@ export class AdjustPantryItemDto {
   @IsOptional()
   @IsString()
   reason?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  estimatedCostNaira?: number;
 }

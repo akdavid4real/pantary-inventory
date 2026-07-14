@@ -35,4 +35,9 @@ export class NutritionController {
   mealPlanWeekSummary(@CurrentUser() user: RequestUser, @Query() query: NutritionWeekQueryDto) {
     return this.nutritionService.weekSummary(user.id, query.date);
   }
+
+  @Get('catalog-validation')
+  validateCatalog() {
+    return this.nutritionService.validateCatalog();
+  }
 }

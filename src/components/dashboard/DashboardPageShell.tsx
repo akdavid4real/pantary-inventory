@@ -1,5 +1,6 @@
 import { Bell, Menu, Search } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { gsap } from "gsap";
+import { ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { Sidebar } from "./Sidebar";
 
 type DashboardPageShellProps = {
@@ -31,8 +32,24 @@ export function DashboardPageShell({
   rootClassName = "",
 }: DashboardPageShellProps) {
   const [internalMenuOpen, setInternalMenuOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
   const resolvedMenuOpen = menuOpen ?? internalMenuOpen;
   const setMenuOpen = onMenuOpenChange ?? setInternalMenuOpen;
+
+  useLayoutEffect(() => {
+    const main = mainRef.current;
+    if (!main || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const targets = main.querySelectorAll("[data-dashboard-animate], article");
+    if (targets.length === 0) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        targets,
+        { autoAlpha: 0, y: 24 },
+        { autoAlpha: 1, y: 0, duration: 0.62, stagger: 0.055, ease: "power3.out", clearProps: "transform" },
+      );
+    }, main);
+    return () => ctx.revert();
+  }, [activePage]);
 
   return (
     <div
@@ -63,7 +80,7 @@ export function DashboardPageShell({
         />
       </div>
 
-      <main className={`min-w-0 flex-1 overflow-visible ${mainClassName}`}>
+      <main ref={mainRef} className={`min-w-0 flex-1 overflow-visible ${mainClassName}`}>
         {showToolbar ? (
           <DashboardToolbar onOpenMenu={() => setMenuOpen(true)} />
         ) : null}

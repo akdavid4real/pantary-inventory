@@ -2,10 +2,15 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CookingSessionStatus, PantryAdjustmentType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CompleteCookingSessionDto, StartCookingSessionDto } from './dto/cooking-mode.dto';
+import { convertIngredientQuantity } from '../../common/utils/unit.utils';
+import { MeasurementProfilesService } from '../measurement-profiles/measurement-profiles.service';
 
 @Injectable()
 export class CookingModeService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly measurementProfiles?: MeasurementProfilesService,
+  ) {}
 
   async start(userId: string, recipeId: string, dto: StartCookingSessionDto) {
     const recipe = await this.prisma.recipe.findUnique({
@@ -67,12 +72,35 @@ export class CookingModeService {
     });
   }
 
+  async usagePreview(userId: string, sessionId: string) {
+    const session = await this.prisma.cookingSession.findFirst({
+      where: { id: sessionId, userId, status: CookingSessionStatus.ACTIVE },
+      include: { recipe: { include: { ingredients: { include: { ingredient: { include: { conversions: true } } } } } } },
+    });
+    if (!session) throw new NotFoundException('Active cooking session not found.');
+    const scale = session.servings / Math.max(1, session.recipe.servings);
+    const requiredIngredients = session.recipe.ingredients.filter((item) => !item.isOptional);
+    const stocks = await this.prisma.pantryItem.findMany({
+      where: { userId, ingredientId: { in: requiredIngredients.map((item) => item.ingredientId) }, quantity: { gt: 0 } },
+    });
+    const profile = this.measurementProfiles ? await this.measurementProfiles.active(userId) : null;
+    const items = requiredIngredients.map((required) => {
+      const conversions = profile ? this.measurementProfiles!.applyProfile(required.ingredientId, required.ingredient.conversions, profile) : required.ingredient.conversions;
+      const requiredQuantity = required.quantity * scale;
+      const availableQuantity = stocks
+        .filter((item) => item.ingredientId === required.ingredientId)
+        .reduce((sum, item) => sum + (convertIngredientQuantity(item.quantity, item.unit, required.unit, conversions) ?? 0), 0);
+      return { ingredientId: required.ingredientId, name: required.ingredient.name, unit: required.unit, requiredQuantity, availableQuantity, missingQuantity: Math.max(0, requiredQuantity - availableQuantity) };
+    });
+    return { sessionId, servings: session.servings, canComplete: items.every((item) => item.missingQuantity === 0), items };
+  }
+
   async complete(userId: string, sessionId: string, dto: CompleteCookingSessionDto) {
     const session = await this.prisma.cookingSession.findFirst({
       where: { id: sessionId, userId, status: CookingSessionStatus.ACTIVE },
       include: {
         recipe: {
-          include: { ingredients: { include: { ingredient: true } } },
+          include: { ingredients: { include: { ingredient: { include: { conversions: true } } } } },
         },
         steps: true,
       },
@@ -80,63 +108,70 @@ export class CookingModeService {
     if (!session) throw new NotFoundException('Active cooking session not found.');
 
     const scale = session.servings / Math.max(1, session.recipe.servings);
+    const overrides = new Map((dto.actualUsage ?? []).map((item) => [item.ingredientId, item]));
+    for (const override of dto.actualUsage ?? []) {
+      const required = session.recipe.ingredients.find((item) => item.ingredientId === override.ingredientId);
+      if (!required) throw new BadRequestException('Actual usage contains an ingredient that is not in this recipe.');
+      if (required.unit.toLowerCase() !== override.unit.toLowerCase()) throw new BadRequestException(`Actual usage for ${required.ingredient.name} must use ${required.unit}.`);
+    }
 
-    await this.prisma.$transaction(async (tx) => {
-      for (const required of session.recipe.ingredients) {
-        const neededQuantity = required.quantity * scale;
-        const pantryItems = await tx.pantryItem.findMany({
-          where: {
-            userId,
-            ingredientId: required.ingredientId,
-            unit: required.unit,
-            quantity: { gt: 0 },
-          },
-          orderBy: [{ expiryDate: 'asc' }, { createdAt: 'asc' }],
-        });
-
-        const availableQuantity = pantryItems.reduce((sum, item) => sum + item.quantity, 0);
+    const requiredIngredients = session.recipe.ingredients.filter((item) => !item.isOptional);
+    const pantryItems = await this.prisma.pantryItem.findMany({
+      where: { userId, ingredientId: { in: requiredIngredients.map((item) => item.ingredientId) }, quantity: { gt: 0 } },
+      orderBy: [{ expiryDate: { sort: 'asc', nulls: 'last' } }, { createdAt: 'asc' }],
+    });
+    const operations = [] as any[];
+    const profile = this.measurementProfiles ? await this.measurementProfiles.active(userId) : null;
+    for (const required of requiredIngredients) {
+        const conversions = profile ? this.measurementProfiles!.applyProfile(required.ingredientId, required.ingredient.conversions, profile) : required.ingredient.conversions;
+        const neededQuantity = overrides.get(required.ingredientId)?.quantity ?? required.quantity * scale;
+        if (neededQuantity === 0) continue;
+        const stocks = pantryItems.filter((item) => item.ingredientId === required.ingredientId && convertIngredientQuantity(item.quantity, item.unit, required.unit, conversions) !== null);
+        const availableQuantity = stocks.reduce((sum, item) => sum + (convertIngredientQuantity(item.quantity, item.unit, required.unit, conversions) ?? 0), 0);
         if (availableQuantity < neededQuantity) {
-          throw new BadRequestException(`Not enough ${required.ingredient.name} in pantry.`);
+          throw new BadRequestException(`Not enough ${required.ingredient.name} in pantry. Required ${neededQuantity} ${required.unit}; available ${availableQuantity} ${required.unit}.`);
         }
 
         let remaining = neededQuantity;
-        for (const pantryItem of pantryItems) {
+        for (const pantryItem of stocks) {
           if (remaining <= 0) break;
-          const used = Math.min(pantryItem.quantity, remaining);
-          await tx.pantryItem.update({
+          const availableInRequiredUnit = convertIngredientQuantity(pantryItem.quantity, pantryItem.unit, required.unit, conversions) ?? 0;
+          const usedInRequiredUnit = Math.min(availableInRequiredUnit, remaining);
+          const usedInPantryUnit = convertIngredientQuantity(usedInRequiredUnit, required.unit, pantryItem.unit, conversions) ?? 0;
+          operations.push(this.prisma.pantryItem.update({
             where: { id: pantryItem.id },
-            data: { quantity: pantryItem.quantity - used },
-          });
-          await tx.pantryItemLog.create({
+            data: { quantity: Number(Math.max(0, pantryItem.quantity - usedInPantryUnit).toFixed(6)) },
+          }));
+          operations.push(this.prisma.pantryItemLog.create({
             data: {
               userId,
               pantryItemId: pantryItem.id,
               ingredientId: required.ingredientId,
               type: PantryAdjustmentType.USED,
-              quantity: used,
-              unit: required.unit,
+              quantity: usedInPantryUnit,
+              unit: pantryItem.unit,
               reason: `Cooked ${session.recipe.name}`,
             },
-          });
-          remaining -= used;
+          }));
+          remaining -= usedInRequiredUnit;
         }
       }
 
-      await tx.cookingSessionStep.updateMany({
+      operations.push(this.prisma.cookingSessionStep.updateMany({
         where: { sessionId },
         data: { completedAt: new Date() },
-      });
+      }));
 
-      await tx.cookingSession.update({
+      operations.push(this.prisma.cookingSession.update({
         where: { id: sessionId },
         data: {
           status: CookingSessionStatus.COMPLETED,
           completedAt: new Date(),
           currentStep: session.steps.length || session.currentStep,
         },
-      });
+      }));
 
-      await tx.nutritionLog.create({
+      operations.push(this.prisma.nutritionLog.create({
         data: {
           userId,
           recipeId: session.recipeId,
@@ -149,8 +184,8 @@ export class CookingModeService {
           fat: session.recipe.fatPerServing * session.servings,
           source: 'cooking-mode',
         },
-      });
-    });
+      }));
+    await this.prisma.$transaction(operations);
 
     return this.getSession(userId, sessionId);
   }
@@ -163,4 +198,5 @@ export class CookingModeService {
       include: { recipe: true, steps: { orderBy: { stepNumber: 'asc' } } },
     });
   }
+
 }

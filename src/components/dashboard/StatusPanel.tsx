@@ -4,11 +4,12 @@ import { panelClassName } from "./styles";
 type StatusPanelProps = {
   type: "pantry" | "grocery";
   onAction: () => void;
+  itemCount: number;
+  secondaryCount?: number;
 };
 
-export function StatusPanel({ type, onAction }: StatusPanelProps) {
+export function StatusPanel({ type, onAction, itemCount, secondaryCount = 0 }: StatusPanelProps) {
   const isPantry = type === "pantry";
-  const itemCount = isPantry ? 24 : 18;
 
   return (
     <article
@@ -35,14 +36,14 @@ export function StatusPanel({ type, onAction }: StatusPanelProps) {
       {isPantry ? (
         <>
           <p className="font-serif text-4xl text-[#e4a11c]">
-            3 <span className="font-sans text-sm">items</span>
+            {secondaryCount} <span className="font-sans text-sm">items</span>
           </p>
           <small className="text-[#70726d]">Expiring soon</small>
         </>
       ) : (
         <>
-          <small className="text-[#70726d]">Est. total</small>
-          <p className="font-serif text-3xl text-[#1a624c]">$42.18</p>
+          <small className="text-[#70726d]">Still to pick up</small>
+          <p className="font-serif text-3xl text-[#1a624c]">{secondaryCount}</p>
         </>
       )}
 

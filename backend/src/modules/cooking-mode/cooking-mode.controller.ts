@@ -31,6 +31,11 @@ export class CookingModeController {
     return this.cookingModeService.previous(user.id, sessionId);
   }
 
+  @Get('session/:sessionId/usage-preview')
+  usagePreview(@CurrentUser() user: RequestUser, @Param('sessionId') sessionId: string) {
+    return this.cookingModeService.usagePreview(user.id, sessionId);
+  }
+
   @Post('session/:sessionId/complete')
   complete(@CurrentUser() user: RequestUser, @Param('sessionId') sessionId: string, @Body() dto: CompleteCookingSessionDto) {
     return this.cookingModeService.complete(user.id, sessionId, dto);

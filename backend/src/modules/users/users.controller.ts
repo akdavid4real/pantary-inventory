@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RequestUser } from '../../common/types/request-user';
-import { UpdatePreferencesDto, UpdateProfileDto } from './dto/user.dto';
+import { CompleteOnboardingDto, UpdatePreferencesDto, UpdateProfileDto } from './dto/user.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('Users')
@@ -24,5 +24,10 @@ export class UsersController {
   @Patch('me/preferences')
   updatePreferences(@CurrentUser() user: RequestUser, @Body() dto: UpdatePreferencesDto) {
     return this.usersService.updatePreferences(user.id, dto);
+  }
+
+  @Post('me/onboarding')
+  completeOnboarding(@CurrentUser() user: RequestUser, @Body() dto: CompleteOnboardingDto) {
+    return this.usersService.completeOnboarding(user.id, dto);
   }
 }

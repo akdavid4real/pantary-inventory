@@ -3,12 +3,37 @@ import { FormEvent, useState } from "react";
 import signupBackground from "../../../assets/auth/signup-food-background.png";
 import { Brand } from "../../components/Brand";
 import { ScreenProps } from "../../types/navigation";
+import { AuthSession, publicApi, saveSession } from "../../services/api";
 
 export function SignUp({ onNavigate }: ScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const submit = (event: FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onNavigate("onboarding-1");
+    const form = new FormData(event.currentTarget);
+    const password = String(form.get("password"));
+    if (password !== String(form.get("confirmPassword"))) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const session = await publicApi<AuthSession>("/auth/signup", {
+        displayName: String(form.get("displayName")),
+        email: String(form.get("email")),
+        password,
+      });
+      if (!session.access_token) throw new Error("Check your email to confirm your account, then sign in.");
+      saveSession(session);
+      sessionStorage.setItem("onboarding-display-name", String(form.get("displayName")));
+      onNavigate("onboarding-1");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to create account.");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <main className="auth auth--signup">
@@ -61,18 +86,20 @@ export function SignUp({ onNavigate }: ScreenProps) {
           <p>Start turning everyday ingredients into meals made for you.</p>
           <label className="auth-field">
             <span>Full name</span>
-            <input defaultValue="AK DAVID" required />
+            <input name="displayName" autoComplete="name" required />
           </label>
           <label className="auth-field">
             <span>Email</span>
-            <input type="email" placeholder="you@example.com" required />
+            <input name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
           </label>
           <label className="auth-field">
             <span>Password</span>
             <div>
               <input
                 type={showPassword ? "text" : "password"}
-                defaultValue="pantrytoplate"
+                name="password"
+                autoComplete="new-password"
+                minLength={8}
                 required
               />
               <button
@@ -96,7 +123,8 @@ export function SignUp({ onNavigate }: ScreenProps) {
             <div>
               <input
                 type={showPassword ? "text" : "password"}
-                defaultValue="pantrytoplate"
+                name="confirmPassword"
+                autoComplete="new-password"
                 required
               />
               <button
@@ -113,8 +141,9 @@ export function SignUp({ onNavigate }: ScreenProps) {
             <a href="#terms">Terms of Service</a> and{" "}
             <a href="#privacy">Privacy Policy</a>.
           </label>
-          <button className="auth-submit" type="submit">
-            Create account
+          {error ? <p role="alert">{error}</p> : null}
+          <button className="auth-submit" type="submit" disabled={loading}>
+            {loading ? "Creating account..." : "Create account"}
           </button>
           <div className="auth-divider">
             <span>or</span>

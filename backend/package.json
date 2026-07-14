@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "nest build",
+    "test": "vitest run",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
@@ -15,6 +16,10 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
+    "catalog:check": "ts-node prisma/catalog-import.ts",
+    "catalog:storage": "ts-node prisma/catalog-import.ts --storage-check",
+    "catalog:reconcile": "ts-node prisma/catalog-import.ts --reconcile",
+    "catalog:apply": "ts-node prisma/catalog-import.ts --apply",
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
@@ -47,7 +52,8 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.9"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

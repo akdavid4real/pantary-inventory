@@ -12,6 +12,7 @@ import { CookingModeModule } from './modules/cooking-mode/cooking-mode.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { IngredientsModule } from './modules/ingredients/ingredients.module';
 import { MealPlannerModule } from './modules/meal-planner/meal-planner.module';
+import { MeasurementProfilesModule } from './modules/measurement-profiles/measurement-profiles.module';
 import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { PantryModule } from './modules/pantry/pantry.module';
 import { RecipeMatcherModule } from './modules/recipe-matcher/recipe-matcher.module';
@@ -32,6 +33,7 @@ import { UsersModule } from './modules/users/users.module';
     PantryModule,
     RecipeMatcherModule,
     MealPlannerModule,
+    MeasurementProfilesModule,
     ShoppingListModule,
     NutritionModule,
     CookingModeModule,

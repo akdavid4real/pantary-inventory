@@ -1,298 +1,126 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Plus, RefreshCw, Search } from "lucide-react";
 import {
-  BarChart3,
-  ChefHat,
-  Clock3,
-  Grid2X2,
-  Heart,
-  Leaf,
-  Lightbulb,
-  List,
-  Search,
-  ShoppingBasket,
-  Users,
-} from "lucide-react";
-import { DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
-import { PageHeading } from "../../components/dashboard/PageElements";
-import { recipeCards } from "../../features/dashboard/screenData";
-import { ScreenProps } from "../../types/navigation";
-import "./ExploreRecipes.css";
-
-const filters = [
-  "Nigerian",
-  "Pantry-perfect",
-  "Under 30 min",
-  "Vegetarian",
-  "High protein",
-];
+  DashboardPageHeader,
+  DashboardPageShell,
+} from "../../components/dashboard/DashboardPageShell";
+import { api } from "../../services/api";
+import { Paginated, Recipe, RecipeMatch } from "../../types/inventory";
+import { routes, ScreenProps } from "../../types/navigation";
 
 export function ExploreRecipes({ onNavigate }: ScreenProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [matches, setMatches] = useState<RecipeMatch[]>([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [page, matchRows] = await Promise.all([
+        api<Paginated<Recipe>>("/recipes?limit=100"),
+        api<RecipeMatch[]>("/recipe-matcher/from-pantry"),
+      ]);
+      setRecipes(page.items);
+      setMatches(matchRows);
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : "Could not load recipes.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+  const matchMap = useMemo(
+    () => new Map(matches.map((item) => [item.recipeId, item])),
+    [matches],
+  );
+  const visible = recipes.filter((recipe) =>
+    recipe.name.toLowerCase().includes(query.toLowerCase()),
+  );
   return (
     <DashboardPageShell
       activePage="Explore"
+      menuOpen={menuOpen}
+      onMenuOpenChange={setMenuOpen}
       onNavigate={onNavigate}
-      showToolbar
+      mainClassName="px-4 py-5 sm:px-7"
     >
-      <div className="explore-page">
-        <PageHeading
-          title="Explore recipes"
-          subtitle="Discover meals that match your pantry and taste."
+      <DashboardPageHeader
+        title="Explore recipes"
+        subtitle="Local recipes connected to your live Pantry."
+        onOpenMenu={() => setMenuOpen(true)}
+        action={
+          <div className="flex gap-2">
+            <button onClick={() => onNavigate("add-edit-recipe")} className="flex items-center gap-2 rounded-lg bg-[#07513f] px-4 py-3 text-sm text-white"><Plus size={17} /> Add your recipe</button>
+            <button aria-label="Refresh recipes" onClick={() => void load()} className="rounded-lg border p-3"><RefreshCw size={17} className={loading ? "animate-spin" : ""} /></button>
+          </div>
+        }
+      />
+      <label className="mb-5 flex max-w-lg items-center gap-2 rounded-xl border bg-white px-4 py-3">
+        <Search size={18} />
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search local recipes"
+          className="w-full outline-none"
         />
-
-        <div className="explore-toolbar">
-          <label className="explore-search">
-            <Search size={18} />
-            <input placeholder="Search recipes" />
-          </label>
-          {["All categories", "All regions", "All ingredients", "Sort by"].map(
-            (item) => (
-              <button key={item}>{item}⌄</button>
-            ),
-          )}
-          <div className="view-switch" aria-label="Recipe view">
-            <button className="active" aria-label="Grid view">
-              <Grid2X2 />
-            </button>
-            <button aria-label="List view">
-              <List />
-            </button>
-          </div>
+      </label>
+      {error ? (
+        <div className="grid min-h-64 place-items-center rounded-xl border border-red-100 bg-red-50 p-8 text-center text-red-700" role="alert">
+          <div><p>{error}</p><button type="button" className="mt-4 rounded-lg bg-[#064536] px-5 py-2.5 text-sm text-white" onClick={() => void load()}>Try again</button></div>
         </div>
-
-        <div className="explore-filters">
-          <div>
-            {filters.map((item) => (
-              <span key={item}>{item} ×</span>
-            ))}
-          </div>
-          <button>Clear all</button>
-        </div>
-
-        <div className="explore-layout">
-          <section className="explore-results">
-            <FeaturedRecipe onNavigate={onNavigate} />
-            <div className="explore-card-grid">
-              {recipeCards.slice(1).map((recipe, index) => (
-                <article className="explore-recipe-card" key={recipe.title}>
-                  <div className="recipe-image-wrap">
-                    <img src={recipe.image} alt="" />
-                    <button aria-label={`Favorite ${recipe.title}`}>
-                      <Heart fill={index % 2 === 0 ? "currentColor" : "none"} />
-                    </button>
-                  </div>
-                  <div className="recipe-card-copy">
-                    <h2>{recipe.title}</h2>
-                    <p>Main · Nigerian</p>
-                    <div className="recipe-facts">
-                      <span>
-                        <Clock3 />
-                        {30 + index * 5} min
-                      </span>
-                      <span>
-                        <BarChart3 />
-                        {index % 2 ? "Easy" : "Medium"}
-                      </span>
-                      <span>
-                        <Users />
-                        {2 + index} servings
-                      </span>
-                    </div>
-                    <div className="match-line">
-                      <Leaf />
-                      {recipe.match}% Pantry match
-                    </div>
-                    <div className="card-footer">
-                      <div>
-                        <span>{index % 2 ? "Vegetarian" : "High protein"}</span>
-                        <span>{index % 2 ? "High fiber" : "Gluten-free"}</span>
-                      </div>
-                      <button onClick={() => onNavigate("recipe-details")}>
-                        View recipe
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <aside className="explore-sidebar">
-            <RecommendationPanel />
-            <IngredientsPanel onNavigate={onNavigate} />
-            <TagsPanel />
-            <Pagination />
-          </aside>
-        </div>
-      </div>
-    </DashboardPageShell>
-  );
-}
-
-function FeaturedRecipe({ onNavigate }: ScreenProps) {
-  const recipe = recipeCards[0];
-  return (
-    <article className="featured-recipe">
-      <div className="featured-image">
-        <img src={recipe.image} alt="Jollof rice with grilled chicken" />
-        <button aria-label="Favorite recipe">
-          <Heart />
-        </button>
-      </div>
-      <div className="featured-copy">
-        <small>NIGERIAN CLASSIC</small>
-        <h2>{recipe.title}</h2>
-        <p className="featured-category">Main · Nigerian</p>
-        <p>
-          Smoky, flavorful jollof rice cooked in rich tomato and pepper sauce,
-          served with juicy grilled chicken.
+      ) : loading ? (
+        <p className="p-12 text-center">Loading recipes…</p>
+      ) : !visible.length ? (
+        <p className="rounded-xl border bg-[#fffdf8] p-12 text-center">
+          No local recipes match.
         </p>
-        <div className="featured-facts">
-          <span>
-            <Leaf />
-            94%<small>Pantry match</small>
-          </span>
-          <span>
-            <Clock3 />
-            40 min<small>Total time</small>
-          </span>
-          <span>
-            <BarChart3 />
-            Medium<small>Difficulty</small>
-          </span>
-          <span>
-            <Users />4<small>Servings</small>
-          </span>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {visible.map((recipe) => {
+            const match = matchMap.get(recipe.id);
+            return (
+              <button
+                key={recipe.id}
+                onClick={() => onNavigate(routes.recipe(recipe.id))}
+                className="overflow-hidden rounded-2xl border bg-[#fffdf8] text-left shadow-sm transition hover:-translate-y-1"
+              >
+                {recipe.imageUrl ? (
+                  <img
+                    src={recipe.imageUrl}
+                    alt=""
+                    className="h-44 w-full object-cover"
+                  />
+                ) : null}
+                <div className="p-4">
+                  <h2 className="font-serif text-xl">{recipe.name}</h2>
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-[#8a6b36]">{recipe.createdByUserId ? `Community · ${recipe.createdBy?.profile?.displayName ?? "Home cook"}` : "Pantry-to-Plate recipe"}</p>
+                  <p className="mt-1 text-xs text-[#68706a]">
+                    {recipe.prepTimeMinutes + recipe.cookTimeMinutes} min ·{" "}
+                    {recipe.servings} servings
+                  </p>
+                  <span
+                    className={`mt-3 inline-block rounded-full px-3 py-1 text-xs ${match?.canCookNow ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}
+                  >
+                    {match?.canCookNow
+                      ? "Ready to cook"
+                      : match?.insufficientIngredients.length
+                        ? "Some quantities are low"
+                        : "Missing ingredients"}{" "}
+                    · {match?.ingredientPresencePercentage ?? 0}% owned
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
-        <div className="nutrition-chips">
-          <span>
-            620<small>Calories</small>
-          </span>
-          <span>
-            32 g<small>Protein</small>
-          </span>
-          <span>
-            78 g<small>Carbs</small>
-          </span>
-          <span>
-            22 g<small>Fat</small>
-          </span>
-          <span>
-            5 g<small>Fiber</small>
-          </span>
-        </div>
-        <div className="featured-actions">
-          <button onClick={() => onNavigate("recipe-details")}>
-            View recipe
-          </button>
-          <button>
-            <ChefHat />
-            Plan meal
-          </button>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function RecommendationPanel() {
-  return (
-    <section>
-      <h3>
-        <Lightbulb />
-        Recommended for Alex
-      </h3>
-      <p>Recipes that fit your pantry, preferences and goals.</p>
-      <ul>
-        <li>
-          <ShoppingBasket />
-          High pantry match
-        </li>
-        <li>
-          <Clock3 />
-          Quick & easy meals
-        </li>
-        <li>
-          <Leaf />
-          High protein options
-        </li>
-        <li>
-          <ChefHat />
-          Nigerian favorites
-        </li>
-      </ul>
-    </section>
-  );
-}
-
-function IngredientsPanel({ onNavigate }: ScreenProps) {
-  return (
-    <section>
-      <div className="aside-title">
-        <h3>Available ingredients</h3>
-        <span>32 of 48 items</span>
-      </div>
-      <div className="ingredient-progress">
-        <i />
-      </div>
-      <div className="ingredient-counts">
-        <span>
-          18<small>Proteins</small>
-        </span>
-        <span>
-          7<small>Grains</small>
-        </span>
-        <span>
-          5<small>Vegetables</small>
-        </span>
-        <span>
-          2<small>Oils & spices</small>
-        </span>
-      </div>
-      <button className="aside-link" onClick={() => onNavigate("Pantry")}>
-        View pantry ›
-      </button>
-    </section>
-  );
-}
-
-function TagsPanel() {
-  return (
-    <section>
-      <h3>Popular Nigerian tags</h3>
-      <div className="popular-tags">
-        {[
-          "Nigerian classics",
-          "Soups",
-          "Rice dishes",
-          "Plantain",
-          "Beans",
-          "Pepper soup",
-          "Street food",
-          "Seafood",
-          "Stews",
-          "Breakfast",
-          "Party food",
-          "One-pot meals",
-        ].map((tag) => (
-          <span key={tag}>{tag}</span>
-        ))}
-      </div>
-      <button className="aside-link">View all tags ›</button>
-    </section>
-  );
-}
-
-function Pagination() {
-  return (
-    <section className="explore-pagination">
-      <p>Showing 1–6 of 72 recipes</p>
-      <div>
-        {[1, 2, 3, 4, 5].map((page) => (
-          <button className={page === 1 ? "active" : ""} key={page}>
-            {page}
-          </button>
-        ))}
-        <button>›</button>
-      </div>
-    </section>
+      )}
+    </DashboardPageShell>
   );
 }

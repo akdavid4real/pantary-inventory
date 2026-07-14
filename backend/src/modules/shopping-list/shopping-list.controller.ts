@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RequestUser } from '../../common/types/request-user';
-import { GenerateFromMealPlanDto, GenerateFromRecipeDto, UpdateShoppingListItemDto } from './dto/shopping-list.dto';
+import { CompleteShoppingListDto, CreateManualShoppingListItemDto, GenerateFromMealPlanDto, GenerateFromRecipeDto, UpdateShoppingListItemDto } from './dto/shopping-list.dto';
 import { ShoppingListService } from './shopping-list.service';
 
 @ApiTags('Shopping List')
@@ -30,6 +30,11 @@ export class ShoppingListController {
     return this.shoppingListService.current(user.id);
   }
 
+  @Post('items')
+  createManualItem(@CurrentUser() user: RequestUser, @Body() dto: CreateManualShoppingListItemDto) {
+    return this.shoppingListService.createManualItem(user.id, dto);
+  }
+
   @Get(':id')
   findOne(@CurrentUser() user: RequestUser, @Param('id') id: string) {
     return this.shoppingListService.findOne(user.id, id);
@@ -40,8 +45,13 @@ export class ShoppingListController {
     return this.shoppingListService.updateItem(user.id, itemId, dto);
   }
 
+  @Get(':id/purchase-review')
+  purchaseReview(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+    return this.shoppingListService.purchaseReview(user.id, id);
+  }
+
   @Post(':id/complete')
-  complete(@CurrentUser() user: RequestUser, @Param('id') id: string) {
-    return this.shoppingListService.complete(user.id, id);
+  complete(@CurrentUser() user: RequestUser, @Param('id') id: string, @Body() dto: CompleteShoppingListDto) {
+    return this.shoppingListService.complete(user.id, id, dto);
   }
 }

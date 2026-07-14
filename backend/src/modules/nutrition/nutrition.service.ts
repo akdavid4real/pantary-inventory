@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { MealType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { endOfDay, endOfWeek, startOfDay, startOfWeek } from '../../common/utils/date.utils';
+import { convertIngredientQuantity } from '../../common/utils/unit.utils';
 
 type MacroTotals = {
   calories: number;
@@ -45,12 +46,17 @@ export class NutritionService {
     });
     if (!recipe) throw new NotFoundException('Recipe not found.');
 
+    const invalidIngredients = recipe.ingredients.filter((item) => !item.ingredient.nutrition || item.ingredient.nutrition.calories <= 0);
+    if (invalidIngredients.length) {
+      throw new BadRequestException(`Nutrition is missing for: ${invalidIngredients.map((item) => item.ingredient.name).join(', ')}.`);
+    }
+
     const totals = recipe.ingredients.reduce(
       (sum, item) => {
         const nutrition = item.ingredient.nutrition;
         if (!nutrition) return sum;
 
-        const convertedQuantity = this.convertQuantity(item.quantity, item.unit, nutrition.baseUnit, item.ingredient.conversions);
+        const convertedQuantity = convertIngredientQuantity(item.quantity, item.unit, nutrition.baseUnit, item.ingredient.conversions) ?? 0;
         const multiplier = nutrition.baseQuantity > 0 ? convertedQuantity / nutrition.baseQuantity : 0;
 
         return {
@@ -64,6 +70,9 @@ export class NutritionService {
     );
 
     const perServing = this.divideTotals(totals, recipe.servings);
+    if (recipe.ingredients.length && perServing.calories <= 0) {
+      throw new BadRequestException('This recipe could not be published because its calculated calories are zero.');
+    }
 
     const updated = await this.prisma.recipe.update({
       where: { id: recipeId },
@@ -82,6 +91,17 @@ export class NutritionService {
       perServing: this.roundTotals(perServing),
       note: 'Calculated from ingredient nutrition estimates and unit conversions where available.',
     };
+  }
+
+  async validateCatalog() {
+    const ingredients = await this.prisma.ingredient.findMany({
+      include: { nutrition: true },
+      orderBy: { name: 'asc' },
+    });
+    const invalid = ingredients
+      .filter((ingredient) => !ingredient.nutrition || ingredient.nutrition.calories <= 0 || ingredient.nutrition.baseQuantity <= 0)
+      .map((ingredient) => ({ id: ingredient.id, name: ingredient.name, issue: !ingredient.nutrition ? 'missing nutrition' : ingredient.nutrition.calories <= 0 ? 'zero calories' : 'invalid base quantity' }));
+    return { valid: invalid.length === 0, ingredientCount: ingredients.length, invalid };
   }
 
   async daySummary(userId: string, date: string) {
@@ -171,14 +191,6 @@ export class NutritionService {
         source: 'cooking-mode',
       },
     });
-  }
-
-  private convertQuantity(quantity: number, fromUnit: string, toUnit: string, conversions: Array<{ fromUnit: string; toUnit: string; multiplier: number }>) {
-    if (fromUnit.toLowerCase() === toUnit.toLowerCase()) return quantity;
-    const conversion = conversions.find(
-      (item) => item.fromUnit.toLowerCase() === fromUnit.toLowerCase() && item.toUnit.toLowerCase() === toUnit.toLowerCase(),
-    );
-    return conversion ? quantity * conversion.multiplier : quantity;
   }
 
   private zeroTotals(): MacroTotals {

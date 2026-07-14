@@ -3,8 +3,13 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { addDays } from '../../common/utils/date.utils';
 import { normalizeIngredientName, normalizeText } from '../../common/utils/string.utils';
 import { SimulateRecipeMatchDto } from './dto/recipe-matcher.dto';
+import { convertIngredientQuantity } from '../../common/utils/unit.utils';
+import { RecipeModerationStatus, RecipeStatus } from '@prisma/client';
+import { MeasurementProfilesService } from '../measurement-profiles/measurement-profiles.service';
 
-type MatchPantryItem = {
+type ActiveMeasurementProfile = Awaited<ReturnType<MeasurementProfilesService['active']>>;
+
+export type MatchPantryItem = {
   ingredientId: string;
   quantity: number;
   unit: string;
@@ -12,6 +17,7 @@ type MatchPantryItem = {
     id: string;
     name: string;
     aliases?: { normalized: string }[];
+    conversions?: { fromUnit: string; toUnit: string; multiplier: number }[];
   };
 };
 
@@ -23,22 +29,33 @@ type PantryLookup = {
 
 @Injectable()
 export class RecipeMatcherService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly measurementProfiles?: MeasurementProfilesService,
+  ) {}
 
   async fromPantry(userId: string) {
-    const pantry = await this.getUserPantryLookup(userId);
+    const [pantry, profile] = await Promise.all([
+      this.getUserPantryLookup(userId),
+      this.measurementProfiles?.active(userId),
+    ]);
+    return this.fromPantryItems(pantry.items, profile);
+  }
+
+  async fromPantryItems(items: MatchPantryItem[], profile?: ActiveMeasurementProfile) {
     const recipes = await this.getRecipesForMatching();
-    return recipes.map((recipe) => this.scoreRecipe(recipe, pantry)).sort((a, b) => b.matchPercentage - a.matchPercentage);
+    const pantry = this.buildLookup(items.filter((item) => item.quantity > 0));
+    return recipes.map((recipe) => this.scoreRecipe(recipe, pantry, profile)).sort((a, b) => b.matchPercentage - a.matchPercentage);
   }
 
   async checkRecipe(userId: string, recipeId: string) {
-    const pantry = await this.getUserPantryLookup(userId);
-    const recipe = await this.prisma.recipe.findUnique({
-      where: { id: recipeId },
-      include: this.matchInclude(),
-    });
+    const [pantry, recipe, profile] = await Promise.all([
+      this.getUserPantryLookup(userId),
+      this.prisma.recipe.findUnique({ where: { id: recipeId }, include: this.matchInclude() }),
+      this.measurementProfiles?.active(userId),
+    ]);
     if (!recipe) throw new NotFoundException('Recipe not found.');
-    return this.scoreRecipe(recipe, pantry);
+    return this.scoreRecipe(recipe, pantry, profile);
   }
 
   async expiringFirst(userId: string, days = 7) {
@@ -92,7 +109,11 @@ export class RecipeMatcherService {
 
   private async getRecipesForMatching() {
     return this.prisma.recipe.findMany({
-      where: { isPublished: true },
+      where: {
+        isPublished: true,
+        status: RecipeStatus.PUBLISHED,
+        moderationStatus: RecipeModerationStatus.APPROVED,
+      },
       include: this.matchInclude(),
     });
   }
@@ -100,7 +121,7 @@ export class RecipeMatcherService {
   private async getUserPantryLookup(userId: string): Promise<PantryLookup> {
     const items = await this.prisma.pantryItem.findMany({
       where: { userId, quantity: { gt: 0 } },
-      include: { ingredient: { include: { aliases: true } } },
+      include: { ingredient: { include: { aliases: true, conversions: true } } },
     });
     return this.buildLookup(items);
   }
@@ -120,18 +141,39 @@ export class RecipeMatcherService {
     return { items, byIngredientId, byName };
   }
 
-  private scoreRecipe(recipe: any, pantry: PantryLookup) {
+  private scoreRecipe(recipe: any, pantry: PantryLookup, profile?: ActiveMeasurementProfile) {
     const requiredIngredients = recipe.ingredients.filter((item: any) => !item.isOptional);
     const totalRequired = requiredIngredients.length || 1;
     const availableIngredients = [] as Array<Record<string, unknown>>;
     const missingIngredients = [] as Array<Record<string, unknown>>;
+    const presentIngredients = [] as Array<Record<string, unknown>>;
+    const insufficientIngredients = [] as Array<Record<string, unknown>>;
     const requiredIngredientIds = requiredIngredients.map((item: any) => item.ingredientId);
 
     for (const required of requiredIngredients) {
       const pantryMatches = pantry.byIngredientId.get(required.ingredientId) ?? pantry.byName.get(normalizeText(required.ingredient.name)) ?? [];
-      const sameUnitQuantity = pantryMatches
-        .filter((item) => normalizeText(item.unit) === normalizeText(required.unit))
-        .reduce((sum, item) => sum + item.quantity, 0);
+      const conversions = profile && this.measurementProfiles
+        ? this.measurementProfiles.applyProfile(required.ingredientId, required.ingredient.conversions ?? [], profile)
+        : required.ingredient.conversions ?? [];
+      const sameUnitQuantity = pantryMatches.reduce((sum, item) => {
+        const converted = convertIngredientQuantity(
+          item.quantity,
+          item.unit,
+          required.unit,
+          conversions.length ? conversions : item.ingredient.conversions ?? [],
+        );
+        return sum + (converted ?? 0);
+      }, 0);
+
+      if (pantryMatches.length > 0) {
+        presentIngredients.push({
+          ingredientId: required.ingredientId,
+          name: required.ingredient.name,
+          requiredQuantity: required.quantity,
+          unit: required.unit,
+          availableQuantity: sameUnitQuantity,
+        });
+      }
 
       if (pantryMatches.length > 0 && sameUnitQuantity >= required.quantity) {
         availableIngredients.push({
@@ -142,18 +184,21 @@ export class RecipeMatcherService {
           availableQuantity: sameUnitQuantity,
         });
       } else {
-        missingIngredients.push({
+        const shortage = {
           ingredientId: required.ingredientId,
           name: required.ingredient.name,
           requiredQuantity: required.quantity,
           unit: required.unit,
           availableQuantity: sameUnitQuantity,
           missingQuantity: Math.max(0, required.quantity - sameUnitQuantity),
-        });
+        };
+        missingIngredients.push(shortage);
+        if (pantryMatches.length > 0) insufficientIngredients.push(shortage);
       }
     }
 
     const matchPercentage = Math.round((availableIngredients.length / totalRequired) * 100);
+    const ingredientPresencePercentage = Math.round((presentIngredients.length / totalRequired) * 100);
 
     return {
       recipeId: recipe.id,
@@ -165,9 +210,12 @@ export class RecipeMatcherService {
       cookTimeMinutes: recipe.cookTimeMinutes,
       prepTimeMinutes: recipe.prepTimeMinutes,
       matchPercentage,
+      ingredientPresencePercentage,
       canCookNow: missingIngredients.length === 0,
       availableIngredients,
       missingIngredients,
+      presentIngredients,
+      insufficientIngredients,
       requiredIngredientIds,
       nutrition: {
         caloriesPerServing: recipe.caloriesPerServing,
@@ -183,7 +231,7 @@ export class RecipeMatcherService {
       ingredients: {
         include: {
           ingredient: {
-            include: { aliases: true },
+            include: { aliases: true, conversions: true },
           },
         },
       },

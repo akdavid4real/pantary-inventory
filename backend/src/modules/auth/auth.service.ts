@@ -1,6 +1,6 @@
 import { BadGatewayException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { EnvironmentService } from '../../common/config/environment.service';
-import { LoginDto, RefreshSessionDto, SignUpDto } from './dto/auth.dto';
+import { LoginDto, RefreshSessionDto, ResendConfirmationDto, SignUpDto, VerifyEmailDto } from './dto/auth.dto';
 
 type SupabaseAuthError = { error_description?: string; msg?: string; message?: string };
 
@@ -22,6 +22,14 @@ export class AuthService {
 
   refresh(dto: RefreshSessionDto) {
     return this.request('/token?grant_type=refresh_token', { refresh_token: dto.refreshToken }, true);
+  }
+
+  verifyEmail(dto: VerifyEmailDto) {
+    return this.request('/verify', { email: dto.email, token: dto.token, type: 'email' }, true);
+  }
+
+  resendConfirmation(dto: ResendConfirmationDto) {
+    return this.request('/resend', { email: dto.email, type: 'signup' });
   }
 
   private async request(path: string, body: unknown, unauthorizedOnFailure = false) {

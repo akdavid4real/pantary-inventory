@@ -10,6 +10,9 @@ export function SignUp({ onNavigate }: ScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [confirmationEmail, setConfirmationEmail] = useState("");
+  const [pendingDisplayName, setPendingDisplayName] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [resendMessage, setResendMessage] = useState("");
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -28,6 +31,7 @@ export function SignUp({ onNavigate }: ScreenProps) {
         password,
       });
       if (!response.access_token || !response.refresh_token) {
+        setPendingDisplayName(String(form.get("displayName")));
         setConfirmationEmail(email);
         return;
       }
@@ -36,6 +40,39 @@ export function SignUp({ onNavigate }: ScreenProps) {
       onNavigate("onboarding-1");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to create account.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyCode = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const session = await publicApi<AuthSession>("/auth/verify-email", {
+        email: confirmationEmail,
+        token: verificationCode,
+      });
+      saveSession(session);
+      sessionStorage.setItem("onboarding-display-name", pendingDisplayName);
+      onNavigate("onboarding-1");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to verify this code.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendCode = async () => {
+    setLoading(true);
+    setError("");
+    setResendMessage("");
+    try {
+      await publicApi("/auth/resend-confirmation", { email: confirmationEmail });
+      setResendMessage("A new confirmation code has been sent.");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to resend the code.");
     } finally {
       setLoading(false);
     }
@@ -87,20 +124,38 @@ export function SignUp({ onNavigate }: ScreenProps) {
       </section>
       <section className="auth-form">
         {confirmationEmail ? (
-          <div className="auth-confirmation" role="status">
+          <form className="auth-confirmation" onSubmit={verifyCode}>
             <MailCheck aria-hidden="true" />
-            <h1>Check your inbox</h1>
+            <h1>Enter your code</h1>
             <p>
-              We sent a confirmation link to <strong>{confirmationEmail}</strong>.
-              Confirm your email before signing in and starting onboarding.
+              We sent a six-digit confirmation code to <strong>{confirmationEmail}</strong>.
             </p>
-            <button className="auth-submit" type="button" onClick={() => onNavigate("login")}>
-              Go to sign in
+            <label className="auth-code-field">
+              <span>Confirmation code</span>
+              <input
+                aria-label="Six-digit confirmation code"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                maxLength={6}
+                pattern="[0-9]{6}"
+                placeholder="000000"
+                value={verificationCode}
+                onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                required
+              />
+            </label>
+            {error ? <p className="auth-confirmation-error" role="alert">{error}</p> : null}
+            {resendMessage ? <p className="auth-confirmation-success" role="status">{resendMessage}</p> : null}
+            <button className="auth-submit" type="submit" disabled={loading || verificationCode.length !== 6}>
+              {loading ? "Checking code..." : "Confirm and continue"}
             </button>
-            <button className="auth-confirmation-secondary" type="button" onClick={() => setConfirmationEmail("")}>
+            <button className="auth-confirmation-secondary" type="button" disabled={loading} onClick={resendCode}>
+              Resend code
+            </button>
+            <button className="auth-confirmation-secondary" type="button" disabled={loading} onClick={() => setConfirmationEmail("")}>
               Use a different email
             </button>
-          </div>
+          </form>
         ) : (
         <form onSubmit={submit}>
           <h1>Create your account</h1>

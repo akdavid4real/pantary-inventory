@@ -4,7 +4,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RequestUser } from '../../common/types/request-user';
 import { OpenRoute } from '../../common/decorators/open-route.decorator';
 import { AuthService } from './auth.service';
-import { LoginDto, RefreshSessionDto, SignUpDto } from './dto/auth.dto';
+import { LoginDto, RefreshSessionDto, ResendConfirmationDto, SignUpDto, VerifyEmailDto } from './dto/auth.dto';
 
 @ApiTags('Auth')
 @ApiBearerAuth()
@@ -28,6 +28,18 @@ export class AuthController {
   @Post('refresh')
   refresh(@Body() dto: RefreshSessionDto) {
     return this.authService.refresh(dto);
+  }
+
+  @OpenRoute()
+  @Post('verify-email')
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  @OpenRoute()
+  @Post('resend-confirmation')
+  resendConfirmation(@Body() dto: ResendConfirmationDto) {
+    return this.authService.resendConfirmation(dto);
   }
 
   @Get('me')

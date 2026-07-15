@@ -260,7 +260,7 @@ admin_email = "auth@pantrytoplate.name.ng"
 sender_name = "Pantry to Plate"
 
 [auth.email.template.confirmation]
-subject = "Welcome to Pantry-to-Plate — confirm your email"
+subject = "Your Pantry-to-Plate confirmation code"
 content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize email template

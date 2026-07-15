@@ -634,7 +634,7 @@ async function reconcileAndMaybeApply(catalog: Catalog, localFiles: string[], op
   for (const source of catalog.recipes) {
     const existing = recipeMatches.get(source.id);
     const image = recipeImages.get(source.id)!;
-    const approved = source.reviewStatus === 'Approved';
+    const approved = source.reviewStatus === 'Approved' || source.reviewStatus === 'Submitted';
     const ingredients = (source.ingredients ?? []).map((item) => ({
       ingredientId: ingredientIdByCatalogId.get(item.ingredientId)!,
       quantity: item.quantity,
@@ -688,6 +688,9 @@ async function reconcileAndMaybeApply(catalog: Catalog, localFiles: string[], op
       if (ingredients.length) await tx.recipeIngredient.createMany({ data: ingredients.map((item) => ({ recipeId: recipe.id, ...item })) });
       await tx.recipeStep.deleteMany({ where: { recipeId: recipe.id } });
       if (steps.length) await tx.recipeStep.createMany({ data: steps.map((step) => ({ recipeId: recipe.id, ...step })) });
+    }, {
+      maxWait: 30_000,
+      timeout: 60_000,
     });
   }
 

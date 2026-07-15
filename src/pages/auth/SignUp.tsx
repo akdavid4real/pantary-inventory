@@ -221,12 +221,6 @@ export function SignUp({ onNavigate }: ScreenProps) {
           <button className="auth-submit" type="submit" disabled={loading}>
             {loading ? "Creating account..." : "Create account"}
           </button>
-          <div className="auth-divider">
-            <span>or</span>
-          </div>
-          <button className="google-button" type="button">
-            <b>G</b> Sign up with Google
-          </button>
           <p className="auth-switch">
             Already have an account?{" "}
             <button type="button" onClick={() => onNavigate("login")}>

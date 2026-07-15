@@ -7,6 +7,7 @@ const pageByPath: Record<string, string> = {
   "/pantry": "Pantry",
   "/grocery": "Grocery",
   "/favorites": "Favorites",
+  "/my-recipes": "My Recipes",
   "/explore": "Explore",
   "/analytics": "Analytics",
   "/settings": "Settings",

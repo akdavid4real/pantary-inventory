@@ -1,45 +1,50 @@
-# Design QA - Pantry side editor
+# Design QA - Settings
 
-- source visual truth path: `C:\Users\user\.codex\generated_images\019f531f-d968-7790-8e1b-67056c9e5eda\pantry.png`
-- implementation screenshot path: `C:\Users\user\Pictures\Screenshots\Screenshot 2026-07-13 072752.png`
-- implementation route: `http://127.0.0.1:5173/pantry`
-- viewport: user browser screenshot, approximately 823 x 793 captured pixels
-- state: pantry list with beans selected and the selected-item editor visible
+- source visual truth path: `C:\Users\user\.codex\generated_images\019f531f-d968-7790-8e1b-67056c9e5eda\settings.png`
+- implementation screenshot path: unavailable because the in-app browser runtime failed before capture
+- implementation route: `http://127.0.0.1:5173/settings`
+- intended viewport: `1600 x 1000`, matching the source image
+- state: desktop Settings page with profile, food preferences, nutrition goals, notifications, data export, and measurement profiles
 
 ## Full-view comparison evidence
 
-The reference and user-provided implementation screenshot were both opened at original available resolution. The reference uses a full-width desktop composition with four summary cards and a persistent right rail. The implementation screenshot instead shows two summary columns, unused space at the right edge, and all right-rail cards stacked beneath the inventory.
+The source screenshot was opened and inspected at its available resolution. It establishes a compact desktop dashboard with a persistent green application sidebar, a narrow in-page Settings navigation rail, and a two-column card grid. A browser-rendered implementation screenshot could not be captured, so a valid combined source-and-implementation comparison was not possible.
 
 ## Focused region comparison evidence
 
-The right-side editing region is clearly readable in both images. In the reference, `Use these first`, the selected item form, and `Recent history` occupy one compact vertical rail alongside the inventory. In the implementation screenshot, those same cards span the full content width underneath the table.
+No focused comparison was performed because the rendered implementation artifact is unavailable. The source clearly shows the profile-photo control, editable account fields, food-preference controls, responsive nutrition donut, notification switches, and lower data/privacy region that informed the implementation.
 
-## Findings and fixes
+## Findings
 
-- P1: The selected-item editor is below the inventory instead of beside it. Fixed by defining the pantry workspace as an explicit `minmax(0, 1fr) 290px` grid above the mobile breakpoint.
-- P1: The page is capped by a fixed maximum width, leaving a visibly empty right gutter. Fixed by allowing the Pantry main area to use the full available width.
-- P2: Summary cards render in two columns instead of the four-column reference row. Fixed with an explicit four-track pantry metrics grid.
-- P2: Responsive Tailwind utilities were not producing reliable tracks in the user's rendered browser state. Pantry-specific layout tracks now live in page CSS and the conflicting responsive utility classes were removed.
-- P2: Existing-item editing previously required an extra edit state. The selected item remains directly editable with one `Update item` submission.
+- [P1] Rendered fidelity cannot be confirmed.
+  - Location: `/settings` full page.
+  - Evidence: the source visual is available, but the connected in-app browser failed during initialization before it could produce an implementation capture.
+  - Impact: typography, spacing, wrapping, responsive behavior, and browser-specific rendering cannot be compared visually.
+  - Fix: restore the in-app browser connection, capture `/settings` at `1600 x 1000`, create a combined source-and-implementation image, and iterate on any visible P0/P1/P2 differences.
 
 ## Required fidelity surfaces
 
-- fonts and typography: Playfair Display and Inter remain aligned with the reference, though the user's browser capture appears visually zoomed out and should be rechecked after refresh.
-- spacing and layout rhythm: full-width content, four metrics, and the inventory/right-rail split now match the reference structure.
-- colors and visual tokens: the existing cream, evergreen, coral, pale green, and warm border palette matches the source.
-- image quality and asset fidelity: real ingredient imagery is retained; no placeholder or code-drawn imagery was introduced.
-- copy and content: `All locations`, `Use these first`, `Update item`, `Remove item`, and `Recent history` match the source language.
+- fonts and typography: implementation uses the existing Pantry-to-Plate serif/sans hierarchy, but browser rendering is not visually verified.
+- spacing and layout rhythm: code follows the source's narrow navigation rail and two-column cards, but exact spacing remains unverified.
+- colors and visual tokens: existing cream, evergreen, coral, warm-border, and green nutrition tokens were reused.
+- image quality and asset fidelity: profile images use real raster uploads with circular cropping; no fake or code-drawn image substitutes were introduced.
+- copy and content: source sections are represented with live account data instead of mock values, with measurement profiles retained as an additional product-specific section.
+
+## Primary interactions intended for browser testing
+
+- edit and save profile, height, weight, preferences, nutrition goals, and notification settings
+- upload a profile photo
+- verify nutrition donut changes with macro inputs
+- navigate through in-page Settings anchors
+- create, edit, activate, and delete a measurement profile
+- export account profile data
+- inspect browser console for runtime errors
 
 ## Comparison history
 
-1. Initial implementation screenshot: blocked by a stacked editor, two-column metrics, and unused right-side canvas.
-2. Fix applied: removed the content-width cap and replaced responsive utility tracks with explicit four-card and inventory-plus-rail CSS grids.
-3. Post-fix implementation screenshot: not yet available because the in-app browser runtime has no browser instances; user refresh or a permitted Playwright capture is required.
-
-## Verification
-
-- frontend production build after the layout fix: passed
-- diff whitespace check: passed, with existing line-ending warnings only
-- post-fix browser screenshot and interaction comparison: pending
+1. Source screenshot captured and inspected.
+2. Settings mock data replaced with live API-backed controls and the source layout structure.
+3. Frontend production build passed.
+4. Local implementation route started successfully, but the in-app browser failed during initialization and produced no screenshot.
 
 final result: blocked

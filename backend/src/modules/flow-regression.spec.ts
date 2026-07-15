@@ -66,14 +66,16 @@ describe('signup-to-cooking service regressions', () => {
       $transaction: vi.fn().mockResolvedValue([]),
     } as any;
     const dto = { displayName: 'Ada', allergyList: [], avoidedIngredients: [], preferNigerianMeals: true, pantryItems: [{ ingredientId: 'i1', quantity: 750, unit: 'g' }] } as any;
-    await new UsersService(prisma).completeOnboarding('u1', dto);
+    const config = { get: vi.fn() } as any;
+    await new UsersService(prisma, config).completeOnboarding('u1', dto);
     expect(prisma.pantryItem.update).toHaveBeenCalledWith({ where: { id: 'p1' }, data: { quantity: 750, unit: 'g' } });
     expect(prisma.pantryItem.create).not.toHaveBeenCalled();
   });
 
   it('rejects unsupported onboarding ingredients', async () => {
     const prisma = { ingredient: { findMany: vi.fn().mockResolvedValue([]) } } as any;
-    await expect(new UsersService(prisma).completeOnboarding('u1', { pantryItems: [{ ingredientId: 'bad', quantity: 1, unit: 'g' }] } as any)).rejects.toBeInstanceOf(BadRequestException);
+    const config = { get: vi.fn() } as any;
+    await expect(new UsersService(prisma, config).completeOnboarding('u1', { pantryItems: [{ ingredientId: 'bad', quantity: 1, unit: 'g' }] } as any)).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('preserves manual and bought generated grocery rows during refresh', async () => {

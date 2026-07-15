@@ -12,6 +12,7 @@ import {
   IsString,
   IsUUID,
   Max,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -31,6 +32,20 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiPropertyOptional({ minimum: 50, maximum: 260 })
+  @IsOptional()
+  @IsNumber()
+  @Min(50)
+  @Max(260)
+  heightCm?: number;
+
+  @ApiPropertyOptional({ minimum: 20, maximum: 500 })
+  @IsOptional()
+  @IsNumber()
+  @Min(20)
+  @Max(500)
+  weightKg?: number;
 }
 
 export class UpdatePreferencesDto {
@@ -94,6 +109,53 @@ export class UpdatePreferencesDto {
   @Min(1)
   @Max(20)
   defaultServings?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  emailNotifications?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  pushNotifications?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  mealPlanReminders?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  groceryReminders?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  expiryAlerts?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  lowStockAlerts?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  weeklyInsights?: boolean;
+}
+
+export class UploadProfileImageDto {
+  @IsString()
+  @MaxLength(180)
+  fileName!: string;
+
+  @IsString()
+  contentType!: string;
+
+  @IsString()
+  base64!: string;
 }
 
 export class OnboardingPantryItemDto {

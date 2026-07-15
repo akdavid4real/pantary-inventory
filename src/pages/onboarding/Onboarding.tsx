@@ -447,6 +447,18 @@ type CookingPreferenceStepProps = {
 };
 
 function CookingPreferenceStep(props: CookingPreferenceStepProps) {
+  const proteinCalories = props.nutrition.protein * 4;
+  const carbCalories = props.nutrition.carbs * 4;
+  const fatCalories = props.nutrition.fat * 9;
+  const macroCalories = proteinCalories + carbCalories + fatCalories;
+  const proteinEnd = macroCalories ? (proteinCalories / macroCalories) * 100 : 0;
+  const carbEnd = macroCalories
+    ? proteinEnd + (carbCalories / macroCalories) * 100
+    : 0;
+  const macroChartBackground = macroCalories
+    ? `conic-gradient(#599335 0 ${proteinEnd}%, #f56318 ${proteinEnd}% ${carbEnd}%, #f3b01e ${carbEnd}% 100%)`
+    : "#e4ddd2";
+
   const updateNutrition = (key: keyof NutritionGoals, value: string) => {
     props.onNutritionChange({ ...props.nutrition, [key]: Math.max(0, Number(value) || 0) });
   };
@@ -483,7 +495,16 @@ function CookingPreferenceStep(props: CookingPreferenceStepProps) {
           {([['calories', 'Calories', 'kcal'], ['protein', 'Protein', 'g'], ['carbs', 'Carbs', 'g'], ['fat', 'Fat', 'g']] as const).map(([key, label, unit]) => (
             <label key={key}><span>{label}</span><input type="number" min="0" value={props.nutrition[key]} onChange={(event) => updateNutrition(key, event.target.value)} /><b>{unit}</b></label>
           ))}
-          <div className="macro-chart"><strong>{props.nutrition.calories.toLocaleString()}<small>kcal</small></strong></div>
+          <div
+            className="macro-chart"
+            style={{ background: macroChartBackground }}
+            aria-label={`Protein ${Math.round(proteinEnd)} percent, carbohydrates ${Math.round(carbEnd - proteinEnd)} percent, fat ${Math.round(100 - carbEnd)} percent`}
+          >
+            <strong>
+              {props.nutrition.calories.toLocaleString()}
+              <small>kcal</small>
+            </strong>
+          </div>
           <button onClick={() => props.onNutritionChange(recommendedNutrition)}>↻ &nbsp; Use recommended goals</button>
         </div>
       </section>

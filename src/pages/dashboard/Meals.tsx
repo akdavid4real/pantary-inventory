@@ -6,6 +6,7 @@ import {
   Minus,
   Plus,
   RefreshCw,
+  Search,
   ShoppingBasket,
   Trash2,
   X,
@@ -27,6 +28,19 @@ import { routes } from "../../types/navigation";
 const mealTypes: MealType[] = ["BREAKFAST", "LUNCH", "DINNER", "SNACK"];
 const panel = "rounded-2xl border border-[#ded5c5] bg-[#fffdf8] shadow-sm";
 const dayMs = 86_400_000;
+
+async function loadAllRecipes() {
+  const firstPage = await api<Paginated<Recipe>>("/recipes?page=1&limit=100");
+  const pageCount = Math.ceil(firstPage.meta.total / firstPage.meta.limit);
+  if (pageCount <= 1) return firstPage.items;
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: pageCount - 1 }, (_, index) =>
+      api<Paginated<Recipe>>(`/recipes?page=${index + 2}&limit=100`),
+    ),
+  );
+  return [firstPage, ...remainingPages].flatMap((page) => page.items);
+}
 
 function isoDay(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -57,6 +71,9 @@ export function Meals({
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [matches, setMatches] = useState<RecipeMatch[]>([]);
   const [selectedId, setSelectedId] = useState("");
+  const [recipeQuery, setRecipeQuery] = useState("");
+  const [recipeCategory, setRecipeCategory] = useState("ALL");
+  const [recipeMaxMinutes, setRecipeMaxMinutes] = useState("ALL");
   const [editor, setEditor] = useState<{
     date: string;
     mealType: MealType;
@@ -78,13 +95,13 @@ export function Meals({
     setLoading(true);
     setError("");
     try {
-      const [entries, recipePage, matchRows] = await Promise.all([
+      const [entries, recipeRows, matchRows] = await Promise.all([
         api<MealEntry[]>(`/meal-planner/week?date=${isoDay(weekStart)}`),
-        api<Paginated<Recipe>>("/recipes?limit=100"),
+        loadAllRecipes(),
         api<RecipeMatch[]>("/recipe-matcher/from-pantry"),
       ]);
       setMeals(entries);
-      setRecipes(recipePage.items);
+      setRecipes(recipeRows);
       setMatches(matchRows);
       setSelectedId((current) =>
         entries.some((item) => item.id === current)
@@ -190,6 +207,23 @@ export function Meals({
     () => new Map(matches.map((item) => [item.recipeId, item])),
     [matches],
   );
+  const recipeCategories = useMemo(
+    () => Array.from(new Set(recipes.map((recipe) => recipe.category).filter(Boolean))) as string[],
+    [recipes],
+  );
+  const filteredRecipes = useMemo(() => {
+    const query = recipeQuery.trim().toLowerCase();
+    const timeLimit = recipeMaxMinutes === "ALL" ? Infinity : Number(recipeMaxMinutes);
+
+    return recipes.filter((recipe) => {
+      const totalMinutes = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
+      const matchesQuery = !query || [recipe.name, recipe.description, recipe.region]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(query));
+      const matchesCategory = recipeCategory === "ALL" || recipe.category === recipeCategory;
+      return matchesQuery && matchesCategory && totalMinutes <= timeLimit;
+    });
+  }, [recipeCategory, recipeMaxMinutes, recipeQuery, recipes]);
   const changeWeek = (offset: number) =>
     onNavigate(
       routes.mealWeek(
@@ -444,7 +478,7 @@ export function Meals({
         <div className="fixed inset-0 z-50 grid place-items-center bg-[#052d25]/60 p-4">
           <form
             onSubmit={saveMeal}
-            className="w-full max-w-md rounded-2xl bg-[#fffdf8] p-6 shadow-2xl"
+            className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-[#fffdf8] p-6 shadow-2xl"
           >
             <div className="flex justify-between">
               <div>
@@ -457,21 +491,70 @@ export function Meals({
                 <X />
               </button>
             </div>
-            <label className="mt-5 block text-xs">
+            <div className="mt-5 grid gap-2 sm:grid-cols-[minmax(0,1fr)_160px_140px]">
+              <label className="flex items-center gap-2 rounded-lg border bg-white px-3">
+                <Search size={16} />
+                <input
+                  value={recipeQuery}
+                  onChange={(event) => setRecipeQuery(event.target.value)}
+                  placeholder="Search recipes"
+                  className="w-full bg-transparent py-3 text-xs outline-none"
+                />
+              </label>
+              <select
+                value={recipeCategory}
+                onChange={(event) => setRecipeCategory(event.target.value)}
+                className="rounded-lg border bg-white p-3 text-xs capitalize"
+              >
+                <option value="ALL">All food types</option>
+                {recipeCategories.map((category) => (
+                  <option key={category} value={category}>
+                    {category.replace(/_/g, " ").toLowerCase()}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={recipeMaxMinutes}
+                onChange={(event) => setRecipeMaxMinutes(event.target.value)}
+                className="rounded-lg border bg-white p-3 text-xs"
+              >
+                <option value="ALL">Any time</option>
+                <option value="15">15 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="45">45 minutes</option>
+                <option value="60">60 minutes</option>
+              </select>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {["RICE_MEAL", "SWALLOW", "SOUP", "BEANS_MEAL", "BREAKFAST", "SNACK"].map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setRecipeCategory(recipeCategory === category ? "ALL" : category)}
+                  className={`rounded-full border px-3 py-1 text-[10px] capitalize ${recipeCategory === category ? "border-[#07513f] bg-[#07513f] text-white" : "bg-white"}`}
+                >
+                  {category.replace(/_/g, " ").toLowerCase()}
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-[10px] text-[#68706a]">
+              {filteredRecipes.length} of {recipes.length} recipes match these filters.
+            </p>
+            <label className="mt-2 block text-xs">
               Local recipe
               <select
                 name="recipeId"
                 required
                 className="mt-1 w-full rounded-lg border p-3"
               >
-                {recipes.map((recipe) => (
+                {filteredRecipes.map((recipe) => (
                   <option key={recipe.id} value={recipe.id}>
-                    {recipe.name}
+                    {recipe.name} · {recipe.prepTimeMinutes + recipe.cookTimeMinutes} min
                   </option>
                 ))}
               </select>
             </label>
-            {!recipes.length ? (
+            {!filteredRecipes.length ? (
               <div className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">No recipes are available yet. <button type="button" className="font-semibold underline" onClick={() => onNavigate("add-edit-recipe")}>Create your first recipe</button>.</div>
             ) : null}
             <label className="mt-3 block text-xs">
@@ -492,7 +575,7 @@ export function Meals({
               />
             </label>
             <button
-              disabled={busy === "add" || !recipes.length}
+              disabled={busy === "add" || !filteredRecipes.length}
               className="mt-5 w-full rounded-lg bg-[#07513f] p-3 text-sm text-white disabled:opacity-50"
             >
               {busy === "add" ? "Adding…" : "Add meal"}

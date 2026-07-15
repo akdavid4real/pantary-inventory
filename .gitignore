@@ -34,3 +34,6 @@ qa-screenshots/
 info/
 .playwright-cli/
 .vercel/
+
+# Private source portrait used only to generate the public companion artwork.
+/newimg.jpeg

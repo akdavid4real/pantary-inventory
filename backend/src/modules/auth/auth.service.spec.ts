@@ -10,7 +10,13 @@ describe('AuthService email verification', () => {
   it('exchanges a six-digit email code for a Supabase session', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ access_token: 'access', refresh_token: 'refresh' }),
+      json: async () => ({
+        access_token: 'access',
+        refresh_token: 'refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: { id: 'user-1', email: 'cook@example.com', user_metadata: {} },
+      }),
     });
     vi.stubGlobal('fetch', fetchMock);
     const config = {
@@ -23,9 +29,14 @@ describe('AuthService email verification', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://project.supabase.co/auth/v1/verify',
+      expect.objectContaining({ method: 'POST' }),
+    );
+    const request = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(JSON.parse(String(request.body))).toEqual(
       expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ email: 'cook@example.com', token: '123456', type: 'signup' }),
+        email: 'cook@example.com',
+        token: '123456',
+        type: 'signup',
       }),
     );
   });

@@ -97,12 +97,6 @@ export function Login({ onNavigate }: ScreenProps) {
           <button className="auth-submit" type="submit" disabled={loading}>
             {loading ? "Signing in..." : "Sign in"}
           </button>
-          <div className="auth-divider">
-            <span>or continue with</span>
-          </div>
-          <button className="google-button" type="button">
-            <b>G</b> Continue with Google
-          </button>
           <p className="auth-switch">
             New to Pantry-to-Plate?{" "}
             <button type="button" onClick={() => onNavigate("sign-up")}>

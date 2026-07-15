@@ -131,18 +131,21 @@ model User {
   nutritionLogs       NutritionLog[]
   recipes             Recipe[]             @relation("RecipeCreator")
   moderatedRecipes    Recipe[]             @relation("RecipeModerator")
-  measurementProfiles MeasurementProfile[]
-  recipeReports       RecipeReport[]
+    measurementProfiles MeasurementProfile[]
+    recipeReports       RecipeReport[]
+    favoriteRecipes     RecipeFavorite[]
 
   @@index([email])
 }
 
-model UserProfile {
+  model UserProfile {
   id          String   @id @default(uuid())
   userId      String   @unique
   displayName String?
   avatarUrl   String?
-  phone       String?
+    phone       String?
+    heightCm    Float?
+    weightKg    Float?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -161,7 +164,14 @@ model UserPreference {
   maxCookingMinutes   Int?
   preferNigerianMeals Boolean  @default(true)
   cookingComfort      String?
-  defaultServings     Int?
+    defaultServings     Int?
+    emailNotifications  Boolean  @default(true)
+    pushNotifications   Boolean  @default(true)
+    mealPlanReminders   Boolean  @default(true)
+    groceryReminders    Boolean  @default(true)
+    expiryAlerts        Boolean  @default(true)
+    lowStockAlerts      Boolean  @default(true)
+    weeklyInsights      Boolean  @default(true)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -303,7 +313,8 @@ model Recipe {
   shoppingItems           ShoppingListItem[]
   createdBy               User?                  @relation("RecipeCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
   moderatedBy             User?                  @relation("RecipeModerator", fields: [moderatedByUserId], references: [id], onDelete: SetNull)
-  reports                 RecipeReport[]
+    reports                 RecipeReport[]
+    favoritedBy             RecipeFavorite[]
 
   @@index([category])
   @@index([region])
@@ -311,7 +322,20 @@ model Recipe {
   @@index([createdByUserId])
   @@index([moderatedByUserId])
   @@index([status, moderationStatus])
-}
+  }
+
+  model RecipeFavorite {
+    id        String   @id @default(uuid())
+    userId    String
+    recipeId  String
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, recipeId])
+    @@index([userId, createdAt])
+    @@index([recipeId])
+  }
 
 model RecipeReport {
   id         String             @id @default(uuid())

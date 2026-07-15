@@ -4,13 +4,16 @@ import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { EnvironmentService } from './common/config/environment.service';
 import { PrismaAvailabilityFilter } from './common/filters/prisma-availability.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  app.use(json({ limit: '4mb' }));
+  app.use(urlencoded({ extended: true, limit: '4mb' }));
   const config = app.get(EnvironmentService);
 
   const apiPrefix = config.get<string>('API_PREFIX') ?? 'api/v1';

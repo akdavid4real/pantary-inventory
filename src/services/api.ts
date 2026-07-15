@@ -1,7 +1,8 @@
 const API_URL =
   import.meta.env.VITE_API_URL ??
   (import.meta.env.PROD ? "/api/v1" : "http://localhost:4000/api/v1");
-const SESSION_KEY = "pantry-to-plate-session";
+export const SESSION_KEY = "pantry-to-plate-session";
+export const SESSION_CHANGE_EVENT = "pantry-to-plate-session-change";
 
 export type AuthSession = {
   access_token: string;
@@ -30,8 +31,18 @@ export function getSession() {
   return readSession();
 }
 
+export function hasAuthSession() {
+  return Boolean(readSession()?.access_token);
+}
+
 export function saveSession(session: AuthSession) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  window.dispatchEvent(new Event(SESSION_CHANGE_EVENT));
+}
+
+export function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+  window.dispatchEvent(new Event(SESSION_CHANGE_EVENT));
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {

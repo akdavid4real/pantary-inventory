@@ -165,7 +165,7 @@ main {
 }
 
 .site-header nav .site-header-login,
-.site-header nav .site-header-signup {
+.site-header nav .site-header-primary {
   border: 1px solid rgba(7, 63, 50, 0.24);
   border-radius: 999px;
   padding: 11px 17px;
@@ -177,13 +177,13 @@ main {
   background: rgba(255, 255, 255, 0.62);
 }
 
-.site-header nav .site-header-signup {
+.site-header nav .site-header-primary {
   border-color: var(--evergreen);
   background: var(--evergreen);
   color: var(--cream);
 }
 
-.site-header nav .site-header-signup:hover {
+.site-header nav .site-header-primary:hover {
   border-color: var(--coral);
   background: var(--coral);
 }
@@ -1071,7 +1071,7 @@ main {
   }
 
   .site-header nav .site-header-login,
-  .site-header nav .site-header-signup {
+  .site-header nav .site-header-primary {
     display: grid;
     min-height: 48px;
     place-items: center;

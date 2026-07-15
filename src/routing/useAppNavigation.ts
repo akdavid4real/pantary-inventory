@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { hasAuthSession } from "../services/api";
 
 const pageByPath: Record<string, string> = {
   "/": "landing",
@@ -17,6 +18,14 @@ export function getPageFromPath(currentPath = window.location.pathname) {
   return pageByPath[currentPath] ?? currentPath.replace(/^\/+/, "");
 }
 
+export function resolvePageForAuth(page: string, authenticated = hasAuthSession()) {
+  if (authenticated && (page === "login" || page === "sign-up")) {
+    return "Home";
+  }
+
+  return page;
+}
+
 function getPathFromPage(page: string) {
   if (page.startsWith("/")) {
     return page;
@@ -32,14 +41,26 @@ function getPathFromPage(page: string) {
 }
 
 export function useAppNavigation() {
-  const [page, setPage] = useState(getPageFromPath);
+  const [page, setPage] = useState(() => resolvePageForAuth(getPageFromPath()));
 
   useEffect(() => {
+    const redirectAuthenticatedGuestRoute = () => {
+      const requestedPage = getPageFromPath();
+      const resolvedPage = resolvePageForAuth(requestedPage);
+
+      if (resolvedPage !== requestedPage) {
+        window.history.replaceState({}, "", getPathFromPage(resolvedPage));
+      }
+
+      setPage(resolvedPage);
+    };
+
     const handlePopState = () => {
-      setPage(getPageFromPath());
+      redirectAuthenticatedGuestRoute();
     };
 
     window.addEventListener("popstate", handlePopState);
+    redirectAuthenticatedGuestRoute();
 
     return () => {
       window.removeEventListener("popstate", handlePopState);
@@ -47,13 +68,14 @@ export function useAppNavigation() {
   }, []);
 
   const navigate = useCallback((nextPage: string) => {
-    const nextPath = getPathFromPage(nextPage);
+    const resolvedPage = resolvePageForAuth(nextPage);
+    const nextPath = getPathFromPage(resolvedPage);
 
     if (window.location.pathname !== nextPath) {
       window.history.pushState({}, "", nextPath);
     }
 
-    setPage(getPageFromPath(nextPath));
+    setPage(resolvedPage);
   }, []);
 
   return { page, navigate };

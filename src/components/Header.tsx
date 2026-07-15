@@ -1,9 +1,11 @@
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useAuthStatus } from "../hooks/useAuthStatus";
 import { Brand } from "./Brand";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isAuthenticated = useAuthStatus();
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -29,8 +31,14 @@ export function Header() {
         <a href="#nutrition" onClick={closeMenu}>Nutrition</a>
         <a href="#cook" onClick={closeMenu}>Cooking</a>
         <span className="site-header-auth">
-          <a className="site-header-login" href="/login" onClick={closeMenu}>Log in</a>
-          <a className="site-header-signup" href="/sign-up" onClick={closeMenu}>Sign up</a>
+          {isAuthenticated ? (
+            <a className="site-header-primary" href="/dashboard" onClick={closeMenu}>Dashboard</a>
+          ) : (
+            <>
+              <a className="site-header-login" href="/login" onClick={closeMenu}>Log in</a>
+              <a className="site-header-primary" href="/sign-up" onClick={closeMenu}>Sign up</a>
+            </>
+          )}
         </span>
       </nav>
     </header>

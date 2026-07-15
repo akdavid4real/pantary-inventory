@@ -25,7 +25,7 @@ describe('AuthService email verification', () => {
       'https://project.supabase.co/auth/v1/verify',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ email: 'cook@example.com', token: '123456', type: 'email' }),
+        body: JSON.stringify({ email: 'cook@example.com', token: '123456', type: 'signup' }),
       }),
     );
   });

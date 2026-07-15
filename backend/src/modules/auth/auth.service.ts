@@ -25,7 +25,7 @@ export class AuthService {
   }
 
   verifyEmail(dto: VerifyEmailDto) {
-    return this.request('/verify', { email: dto.email, token: dto.token, type: 'email' }, true);
+    return this.request('/verify', { email: dto.email, token: dto.token, type: 'signup' }, true);
   }
 
   resendConfirmation(dto: ResendConfirmationDto) {

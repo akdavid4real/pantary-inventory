@@ -9,9 +9,9 @@ export function FooterSection() {
         <span>Better planning. Better food. Better you.</span>
       </div>
       <div className="footer-orbit" aria-hidden="true">
-        <img src={assets.herbs} alt="" />
-        <img src={assets.recipe} alt="" />
-        <img src={assets.pantry} alt="" />
+        <img src={assets.herbs} alt="" loading="lazy" decoding="async" />
+        <img src={assets.recipe} alt="" loading="lazy" decoding="async" />
+        <img src={assets.pantry} alt="" loading="lazy" decoding="async" />
       </div>
       <div className="closing-cta">
         <Sparkles size={34} />

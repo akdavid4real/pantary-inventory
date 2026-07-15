@@ -290,7 +290,13 @@ export class RecipesService {
     const objectPath = `${userId}/${Date.now()}-${safeName}.${extension}`;
     const response = await fetch(`${url}/storage/v1/object/recipe-images/${objectPath}`, {
       method: 'POST',
-      headers: { Authorization: bearer, apikey: apiKey, 'Content-Type': dto.contentType, 'x-upsert': 'false' },
+      headers: {
+        Authorization: bearer,
+        apikey: apiKey,
+        'Content-Type': dto.contentType,
+        'Cache-Control': 'max-age=31536000',
+        'x-upsert': 'false',
+      },
       body: bytes,
     });
     const failureBody = response.ok ? '' : await response.text();

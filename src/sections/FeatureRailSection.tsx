@@ -22,7 +22,7 @@ export function FeatureRailSection({ horizontalRef }: FeatureRailSectionProps) {
             style={{ "--rotate": slide.rotation } as CSSProperties}
           >
             <div className="slide-count">0{index + 1}</div>
-            <img src={slide.image} alt={slide.alt} />
+            <img src={slide.image} alt={slide.alt} loading="lazy" decoding="async" />
             <div className="slide-content">
               <p>{slide.kicker}</p>
               <h3>{slide.title}</h3>

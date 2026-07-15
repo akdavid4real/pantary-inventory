@@ -8,6 +8,8 @@ export function ChefStorySection() {
         <img
           src={assets.chefSahmmy}
           alt="Chef Sahmmy standing in a warm modern kitchen surrounded by fresh ingredients"
+          loading="lazy"
+          decoding="async"
         />
         <div className="chef-story-shade" aria-hidden="true" />
         <div className="chef-story-copy">

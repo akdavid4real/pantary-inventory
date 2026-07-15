@@ -1,7 +1,7 @@
-import salmon from "../../../assets/asset_7.png";
-import chickpea from "../../../assets/asset_5.png";
-import roasted from "../../../assets/asset_6.png";
-import pantry from "../../../assets/asset_4.png";
+import salmon from "../../../assets/asset_7.webp";
+import chickpea from "../../../assets/asset_5.webp";
+import roasted from "../../../assets/asset_6.webp";
+import pantry from "../../../assets/asset_4.webp";
 
 export const days = [
   ["Mon", "20"],

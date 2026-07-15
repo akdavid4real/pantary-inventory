@@ -1,10 +1,10 @@
-import heroBowl from "../../assets/asset_5.png";
-import pantryJars from "../../assets/asset_4.png";
-import recipeBowl from "../../assets/asset_6.png";
-import groceryBag from "../../assets/asset_2.png";
-import herbDetail from "../../assets/asset_3.png";
-import cookingMode from "../../assets/asset_1.png";
-import logoMark from "../../assets/carrots.png";
+import heroBowl from "../../assets/asset_5.webp";
+import pantryJars from "../../assets/asset_4.webp";
+import recipeBowl from "../../assets/asset_6.webp";
+import groceryBag from "../../assets/asset_2.webp";
+import herbDetail from "../../assets/asset_3.webp";
+import cookingMode from "../../assets/asset_1.webp";
+import logoMark from "../../assets/carrots.webp";
 
 export const assets = {
   hero: heroBowl,
@@ -13,7 +13,7 @@ export const assets = {
   grocery: groceryBag,
   herbs: herbDetail,
   cooking: cookingMode,
-  chefSahmmy: "/og-preview.png",
+  chefSahmmy: "/og-preview-v3.jpg",
   logo: logoMark,
 };
 

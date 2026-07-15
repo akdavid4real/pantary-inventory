@@ -34,7 +34,15 @@ export function HeroSection() {
 
         <div className="hero-visual" aria-label="Fresh prepared meal bowl">
           <div className="spin-ring">better food / better planning / better you</div>
-          <img className="hero-plate" src={assets.hero} alt="A colorful chickpea, quinoa, tomato, and avocado bowl" />
+          <img
+            className="hero-plate"
+            src={assets.hero}
+            alt="A colorful chickpea, quinoa, tomato, and avocado bowl"
+            width={1254}
+            height={1254}
+            decoding="async"
+            fetchPriority="high"
+          />
           <KineticLabel>Real ingredients</KineticLabel>
           <div className="float-chip float-chip--one">24 pantry items</div>
           <div className="float-chip float-chip--two">25 min dinner</div>

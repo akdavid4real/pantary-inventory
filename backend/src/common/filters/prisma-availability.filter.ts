@@ -1,13 +1,25 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
 
 @Catch(Prisma.PrismaClientInitializationError, Prisma.PrismaClientKnownRequestError)
 export class PrismaAvailabilityFilter implements ExceptionFilter {
+  private readonly logger = new Logger(PrismaAvailabilityFilter.name);
+
   catch(exception: Prisma.PrismaClientInitializationError | Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse<Response>();
     const request = host.switchToHttp().getRequest<Request>();
     const retryableCodes = new Set(['P1001', 'P1002', 'P1017', 'P2024', 'P2028']);
+
+    this.logger.error(
+      JSON.stringify({
+        path: request.originalUrl,
+        prismaError: exception.name,
+        code: exception instanceof Prisma.PrismaClientKnownRequestError ? exception.code : undefined,
+        meta: exception instanceof Prisma.PrismaClientKnownRequestError ? exception.meta : undefined,
+        message: exception.message,
+      }),
+    );
 
     if (exception instanceof Prisma.PrismaClientKnownRequestError && !retryableCodes.has(exception.code)) {
       response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

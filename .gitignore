@@ -33,3 +33,4 @@ assets/
 qa-screenshots/
 info/
 .playwright-cli/
+.vercel/

@@ -10,6 +10,13 @@ export type AuthSession = {
   user?: { id: string; email?: string; user_metadata?: { display_name?: string } };
 };
 
+export type SignUpResponse = {
+  access_token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+  user?: { id: string; email?: string; user_metadata?: { display_name?: string } };
+};
+
 function readSession(): AuthSession | null {
   try {
     const value = localStorage.getItem(SESSION_KEY);

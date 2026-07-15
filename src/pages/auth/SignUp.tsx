@@ -1,14 +1,15 @@
-import { Eye, Leaf, ShoppingBasket } from "lucide-react";
+import { Eye, Leaf, MailCheck, ShoppingBasket } from "lucide-react";
 import { FormEvent, useState } from "react";
 import signupBackground from "../../../assets/auth/signup-food-background.webp";
 import { Brand } from "../../components/Brand";
 import { ScreenProps } from "../../types/navigation";
-import { AuthSession, publicApi, saveSession } from "../../services/api";
+import { AuthSession, publicApi, saveSession, SignUpResponse } from "../../services/api";
 
 export function SignUp({ onNavigate }: ScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirmationEmail, setConfirmationEmail] = useState("");
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -20,13 +21,17 @@ export function SignUp({ onNavigate }: ScreenProps) {
     setLoading(true);
     setError("");
     try {
-      const session = await publicApi<AuthSession>("/auth/signup", {
+      const email = String(form.get("email")).trim();
+      const response = await publicApi<SignUpResponse>("/auth/signup", {
         displayName: String(form.get("displayName")),
-        email: String(form.get("email")),
+        email,
         password,
       });
-      if (!session.access_token) throw new Error("Check your email to confirm your account, then sign in.");
-      saveSession(session);
+      if (!response.access_token || !response.refresh_token) {
+        setConfirmationEmail(email);
+        return;
+      }
+      saveSession(response as AuthSession);
       sessionStorage.setItem("onboarding-display-name", String(form.get("displayName")));
       onNavigate("onboarding-1");
     } catch (caught) {
@@ -81,6 +86,22 @@ export function SignUp({ onNavigate }: ScreenProps) {
         </div>
       </section>
       <section className="auth-form">
+        {confirmationEmail ? (
+          <div className="auth-confirmation" role="status">
+            <MailCheck aria-hidden="true" />
+            <h1>Check your inbox</h1>
+            <p>
+              We sent a confirmation link to <strong>{confirmationEmail}</strong>.
+              Confirm your email before signing in and starting onboarding.
+            </p>
+            <button className="auth-submit" type="button" onClick={() => onNavigate("login")}>
+              Go to sign in
+            </button>
+            <button className="auth-confirmation-secondary" type="button" onClick={() => setConfirmationEmail("")}>
+              Use a different email
+            </button>
+          </div>
+        ) : (
         <form onSubmit={submit}>
           <h1>Create your account</h1>
           <p>Start turning everyday ingredients into meals made for you.</p>
@@ -158,6 +179,7 @@ export function SignUp({ onNavigate }: ScreenProps) {
             </button>
           </p>
         </form>
+        )}
       </section>
     </main>
   );

@@ -1,6 +1,21 @@
 import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { MealType, RecipeSource } from '@prisma/client';
-import { IsDateString, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateMealPlanEntryDto {
   @ApiPropertyOptional()
@@ -53,4 +68,47 @@ export class WeekQueryDto {
   @IsOptional()
   @IsDateString()
   date?: string;
+}
+
+export class AiMealPlanPreviewDto {
+  @ApiPropertyOptional({ description: 'Any date in the week to plan.' })
+  @IsOptional()
+  @IsDateString()
+  weekDate?: string;
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 14, default: 7 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(14)
+  mealCount?: number;
+}
+
+export class AiMealPlanEntryDto {
+  @IsUUID()
+  recipeId!: string;
+
+  @IsDateString()
+  plannedDate!: string;
+
+  @IsEnum(MealType)
+  mealType!: MealType;
+
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  servings!: number;
+
+  @IsString()
+  @MaxLength(240)
+  reason!: string;
+}
+
+export class ApplyAiMealPlanDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(14)
+  @ValidateNested({ each: true })
+  @Type(() => AiMealPlanEntryDto)
+  entries!: AiMealPlanEntryDto[];
 }

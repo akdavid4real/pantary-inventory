@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Search,
   ShoppingBasket,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -18,6 +19,7 @@ import {
 import { api, cachedApi } from "../../services/api";
 import { getCachedRecipeCatalog, loadRecipeCatalog } from "../../services/catalog";
 import {
+  AiMealPlanPreview,
   MealEntry,
   MealType,
   RecipeMatch,
@@ -76,6 +78,7 @@ export function Meals({
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState("");
+  const [aiPreview, setAiPreview] = useState<AiMealPlanPreview | null>(null);
   const weekStart = useMemo(() => startOfWeek(weekDate), [weekDate]);
   const days = useMemo(
     () =>
@@ -227,6 +230,49 @@ export function Meals({
       setBusy("");
     }
   };
+  const generateAiPlan = async () => {
+    setBusy("ai-preview");
+    setError("");
+    setNotice("");
+    try {
+      const preview = await api<AiMealPlanPreview>("/meal-planner/ai/preview", {
+        method: "POST",
+        body: JSON.stringify({ weekDate: isoDay(weekStart), mealCount: 7 }),
+      });
+      setAiPreview(preview);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not create an AI meal plan.");
+    } finally {
+      setBusy("");
+    }
+  };
+  const applyAiPlan = async () => {
+    if (!aiPreview) return;
+    setBusy("ai-apply");
+    setError("");
+    try {
+      const created = await api<MealEntry[]>("/meal-planner/ai/apply", {
+        method: "POST",
+        body: JSON.stringify({
+          entries: aiPreview.entries.map(({ recipeId, plannedDate, mealType, servings, reason }) => ({
+            recipeId,
+            plannedDate,
+            mealType,
+            servings,
+            reason,
+          })),
+        }),
+      });
+      setMeals((current) => sortMeals([...current, ...created]));
+      setSelectedId(created[0]?.id ?? "");
+      setAiPreview(null);
+      setNotice(`${created.length} smart meal${created.length === 1 ? "" : "s"} added to this week.`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not add the AI plan.");
+    } finally {
+      setBusy("");
+    }
+  };
   const selected = meals.find((item) => item.id === selectedId);
   const matchByRecipe = useMemo(
     () => new Map(matches.map((item) => [item.recipeId, item])),
@@ -269,14 +315,23 @@ export function Meals({
         subtitle="Plan with real recipes and see what your pantry can cover."
         onOpenMenu={() => setMenuOpen(true)}
         action={
-          <button
-            onClick={() =>
-              setEditor({ date: isoDay(days[0]), mealType: "DINNER" })
-            }
-            className="flex items-center gap-2 rounded-xl bg-[#ff5f4b] px-5 py-3 text-sm text-white"
-          >
-            <Plus size={18} /> Add meal
-          </button>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <button
+              onClick={() => void generateAiPlan()}
+              disabled={busy === "ai-preview" || loading}
+              className="flex items-center gap-2 rounded-xl border border-[#07513f] bg-[#edf4ef] px-4 py-3 text-sm font-medium text-[#07513f] disabled:opacity-50"
+            >
+              <Sparkles size={18} /> {busy === "ai-preview" ? "Planning..." : "Plan with Gemini"}
+            </button>
+            <button
+              onClick={() =>
+                setEditor({ date: isoDay(days[0]), mealType: "DINNER" })
+              }
+              className="flex items-center gap-2 rounded-xl bg-[#ff5f4b] px-5 py-3 text-sm text-white"
+            >
+              <Plus size={18} /> Add meal
+            </button>
+          </div>
         }
       />
       {error ? (
@@ -615,6 +670,64 @@ export function Meals({
               {busy === "add" ? "Adding…" : "Add meal"}
             </button>
           </form>
+        </div>
+      ) : null}
+      {aiPreview ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-[#052d25]/65 p-4">
+          <section
+            className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-[#fffdf8] p-5 shadow-2xl sm:p-7"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ai-plan-title"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <span className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#e8f2eb] px-3 py-1 text-[11px] font-medium text-[#07513f]">
+                  <Sparkles size={13} /> {aiPreview.source === "GEMINI" ? "Gemini plan" : "PlateSense fallback"}
+                </span>
+                <h2 id="ai-plan-title" className="font-serif text-3xl text-[#092e27]">Your smart week</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68706a]">{aiPreview.summary}</p>
+              </div>
+              <button type="button" onClick={() => setAiPreview(null)} className="rounded-lg border p-2" aria-label="Close smart plan"><X size={18} /></button>
+            </div>
+
+            {aiPreview.source === "PLATESENSE_FALLBACK" ? (
+              <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-800">
+                Gemini was not configured or could not respond, so PlateSense prepared a safe pantry-ranked plan instead. You can still review and use it.
+              </p>
+            ) : null}
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {aiPreview.entries.map((entry) => (
+                <article key={`${entry.plannedDate}-${entry.mealType}`} className="grid grid-cols-[76px_1fr] gap-3 rounded-xl border border-[#ded5c5] bg-white/60 p-3">
+                  {entry.recipe.imageUrl ? (
+                    <img src={entry.recipe.imageUrl} alt="" className="h-20 w-[76px] rounded-lg object-cover" />
+                  ) : (
+                    <span className="grid h-20 w-[76px] place-items-center rounded-lg bg-[#edf4ef] text-[#07513f]"><Sparkles size={20} /></span>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-[.12em] text-[#8a6a22]">
+                      {new Date(entry.plannedDate).toLocaleDateString(undefined, { weekday: "long" })} · {entry.mealType.toLowerCase()}
+                    </p>
+                    <h3 className="mt-1 truncate font-serif text-lg text-[#092e27]">{entry.recipe.name}</h3>
+                    <p className="mt-1 text-[11px] leading-4 text-[#68706a]">{entry.reason}</p>
+                    <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-[#285a4a]">
+                      <span>{entry.ingredientPresencePercentage}% pantry</span>
+                      <span>·</span>
+                      <span>{entry.recipe.prepTimeMinutes + entry.recipe.cookTimeMinutes} min</span>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button type="button" onClick={() => setAiPreview(null)} className="rounded-xl border px-5 py-3 text-sm">Keep my current plan</button>
+              <button type="button" onClick={() => void applyAiPlan()} disabled={busy === "ai-apply"} className="flex items-center justify-center gap-2 rounded-xl bg-[#07513f] px-6 py-3 text-sm text-white disabled:opacity-50">
+                <Sparkles size={17} /> {busy === "ai-apply" ? "Adding plan..." : `Add ${aiPreview.entries.length} meals to this week`}
+              </button>
+            </div>
+          </section>
         </div>
       ) : null}
     </DashboardPageShell>

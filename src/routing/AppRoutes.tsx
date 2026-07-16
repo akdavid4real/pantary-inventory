@@ -3,6 +3,7 @@ import { CookingMode } from "../pages/dashboard/CookingMode";
 import { Dashboard } from "../pages/dashboard/Dashboard";
 import { ExploreRecipes } from "../pages/dashboard/ExploreRecipes";
 import { Favorites } from "../pages/dashboard/Favorites";
+import { FoodScan } from "../pages/dashboard/FoodScan";
 import { Grocery } from "../pages/dashboard/Grocery";
 import { Meals } from "../pages/dashboard/Meals";
 import { Notifications } from "../pages/dashboard/Notifications";
@@ -28,6 +29,7 @@ const dashboardPages = {
   Analytics,
   Explore: ExploreRecipes,
   Favorites,
+  "Food Scan": FoodScan,
   Grocery,
   Home: Dashboard,
   Meals,

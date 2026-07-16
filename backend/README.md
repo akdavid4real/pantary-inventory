@@ -20,12 +20,13 @@ This is the NestJS backend for Pantry-to-Plate. It contains the **PlateSense Foo
 | Recipes | Local Nigerian recipe database, recipe ingredients, steps, tags |
 | Pantry | Pantry stock, expiry dates, low stock, stock logs |
 | Recipe Matcher | Pantry-to-recipe matching and missing ingredient detection |
-| Meal Planner | Weekly calendar entries |
+| Meal Planner | Weekly calendar entries and Gemini-assisted plan previews |
 | Shopping List | Shopping list generation from recipes and meal plans |
 | Nutrition | Recipe macros, daily summaries, weekly Chart.js-ready summaries |
 | Cooking Mode | Step-by-step cooking, pantry deduction, nutrition logging |
 | Dashboard | Dashboard summary cards |
 | Recommendations | Pantry, expiry, low-budget, high-protein, and quick meal recommendations |
+| Food Analysis | Gemini vision analysis for camera and uploaded food photos |
 | Admin | Food database stats and demo seeding |
 
 ## Setup
@@ -49,7 +50,37 @@ DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supaba
 AUTH_MODE=dev
 SUPABASE_JWT_SECRET=
 ADMIN_EMAIL=
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
 ```
+
+`GEMINI_API_KEY` is optional and must stay on the backend. When it is absent,
+rate-limited, or unavailable, the same meal-plan preview endpoint falls back to
+the deterministic PlateSense pantry ranking. The browser never receives the key.
+
+## Gemini smart meal planning
+
+The Meals screen can request a seven-meal preview. The backend removes recipes
+that conflict with saved allergies, avoided ingredients, and maximum cooking
+time before sending candidates to Gemini. Gemini can only choose approved
+database recipe IDs and open calendar slots. Its structured response is
+validated again, shown to the user for review, and saved only after confirmation.
+
+Applying a preview is transactional: if a slot was filled after the preview was
+created, nothing is written and the user is asked to generate a fresh plan.
+
+## Gemini food photo analysis
+
+The **Food Scan** dashboard page opens the rear camera on supported mobile
+browsers and accepts JPEG, PNG, or WebP uploads elsewhere. The browser resizes
+and compresses the image before sending it to the authenticated backend. The
+backend verifies the image signature, enforces a 2.5 MB decoded limit, and asks
+Gemini for a structured dish, ingredient, allergen, and estimated nutrition
+analysis. Images are not written to application storage, and Gemini interaction
+storage is disabled for these requests.
+
+Photo nutrition is deliberately presented as an estimate because actual
+portions and preparation methods cannot be confirmed from an image alone.
 
 ## Core API flow
 
@@ -106,6 +137,9 @@ GET    /api/v1/recipes
 GET    /api/v1/pantry
 POST   /api/v1/pantry
 GET    /api/v1/recipe-matcher/from-pantry
+POST   /api/v1/meal-planner/ai/preview
+POST   /api/v1/meal-planner/ai/apply
+POST   /api/v1/food-analysis/photo
 POST   /api/v1/shopping-list/generate/from-meal-plan
 GET    /api/v1/nutrition/week
 POST   /api/v1/cooking/start/:recipeId

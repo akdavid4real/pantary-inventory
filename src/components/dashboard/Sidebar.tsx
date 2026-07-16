@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Camera,
   ChefHat,
   CookingPot,
   Heart,
@@ -19,6 +20,7 @@ const links = [
   [CookingPot, "Pantry"],
   [ShoppingBasket, "Grocery"],
   [Search, "Explore"],
+  [Camera, "Food Scan"],
   [FileText, "My Recipes"],
   [Heart, "Favorites"],
   [BarChart3, "Analytics"],

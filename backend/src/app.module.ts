@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CookingModeModule } from './modules/cooking-mode/cooking-mode.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { FoodAnalysisModule } from './modules/food-analysis/food-analysis.module';
 import { IngredientsModule } from './modules/ingredients/ingredients.module';
 import { MealPlannerModule } from './modules/meal-planner/meal-planner.module';
 import { MeasurementProfilesModule } from './modules/measurement-profiles/measurement-profiles.module';
@@ -39,6 +40,7 @@ import { UsersModule } from './modules/users/users.module';
     CookingModeModule,
     DashboardModule,
     FavoritesModule,
+    FoodAnalysisModule,
     RecommendationsModule,
     AdminModule,
   ],

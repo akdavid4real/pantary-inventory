@@ -79,8 +79,9 @@ async function preparePhoto(file: File): Promise<PreparedPhoto> {
   }
   const original = await readFile(file);
   const image = await loadImage(original);
-  let blob = await renderJpeg(image, 1600, 0.82);
-  if (blob.size > 2_500_000) blob = await renderJpeg(image, 1100, 0.7);
+  // Keep photos small enough for fast vision responses on serverless.
+  let blob = await renderJpeg(image, 1280, 0.78);
+  if (blob.size > 1_500_000) blob = await renderJpeg(image, 960, 0.68);
   if (blob.size > 2_500_000) throw new Error("This photo is still too large. Try taking it at a lower camera resolution.");
   const dataUrl = await readFile(new File([blob], "food-photo.jpg", { type: "image/jpeg" }));
   return {

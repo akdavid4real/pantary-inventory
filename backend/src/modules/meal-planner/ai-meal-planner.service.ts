@@ -2,6 +2,11 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { GoogleGenAI } from '@google/genai';
 import { MealType, RecipeModerationStatus, RecipeStatus } from '@prisma/client';
 import { EnvironmentService } from '../../common/config/environment.service';
+import { resolveGeminiModel } from '../../common/config/gemini-model';
+import {
+  GEMINI_MEAL_PLAN_TIMEOUT_MS,
+  geminiInteractionRequestOptions,
+} from '../../common/config/gemini-request';
 import { addDays, endOfWeek, startOfDay, startOfWeek } from '../../common/utils/date.utils';
 import { normalizeText } from '../../common/utils/string.utils';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -9,8 +14,6 @@ import { RecipeMatcherService } from '../recipe-matcher/recipe-matcher.service';
 import { AiMealPlanPreviewDto, ApplyAiMealPlanDto } from './dto/meal-planner.dto';
 
 const allowedMealTypes: MealType[] = [MealType.BREAKFAST, MealType.LUNCH, MealType.DINNER];
-const defaultModel = 'gemini-2.5-flash';
-
 type GeminiChoice = {
   recipeId: string;
   dayOffset: number;
@@ -109,7 +112,7 @@ export class AiMealPlannerService {
     }
 
     const apiKey = this.config.get<string>('GEMINI_API_KEY');
-    const model = this.config.get<string>('GEMINI_MODEL') ?? defaultModel;
+    const model = resolveGeminiModel(this.config.get<string>('GEMINI_MODEL'));
     let source: 'GEMINI' | 'PLATESENSE_FALLBACK' = 'PLATESENSE_FALLBACK';
     let choices: GeminiChoice[] = [];
     let summary = 'PlateSense built a balanced plan from your strongest pantry matches.';
@@ -246,66 +249,72 @@ export class AiMealPlannerService {
     requestedCount: number;
     weekStart: Date;
   }) {
-    const client = new GoogleGenAI({
-      apiKey: input.apiKey,
-      httpOptions: { timeout: 15_000 },
-    });
+    // Do not rely on constructor httpOptions.timeout — Interactions ignores it.
+    const client = new GoogleGenAI({ apiKey: input.apiKey });
     const candidateIds = input.candidates.map((candidate) => candidate.recipeId);
-    const response = await client.interactions.create({
-      model: input.model,
-      store: false,
-      system_instruction: [
-        'You are the Nigerian-aware meal planning assistant for Pantry-to-Plate.',
-        'Select only recipe IDs and meal slots supplied by the application.',
-        'Prioritize pantry coverage, ingredients that may expire, nutrition variety, cooking-time limits, and Nigerian food preferences.',
-        'Never invent a recipe, ingredient, date, or slot. Keep each reason under 140 characters.',
-      ].join(' '),
-      input: JSON.stringify({
-        task: `Choose exactly ${input.requestedCount} meals for the week beginning ${input.weekStart.toISOString().slice(0, 10)}.`,
-        preferences: input.preferences,
-        expiringIngredients: input.expiringIngredients,
-        availableSlots: input.availableSlots,
-        candidates: input.candidates.map((candidate) => ({
-          recipeId: candidate.recipeId,
-          name: candidate.recipeName,
-          category: candidate.category,
-          region: candidate.region,
-          totalMinutes: candidate.prepTimeMinutes + candidate.cookTimeMinutes,
-          pantryMatchPercentage: candidate.matchPercentage,
-          ingredientPresencePercentage: candidate.ingredientPresencePercentage,
-          canCookNow: candidate.canCookNow,
-          missingIngredients: candidate.missingIngredients.map((ingredient) => ingredient.name),
-          nutrition: candidate.nutrition,
-        })),
-      }),
-      response_format: {
-        type: 'text',
-        mime_type: 'application/json',
-        schema: {
-          type: 'object',
-          properties: {
-            entries: {
-              type: 'array',
-              minItems: input.requestedCount,
-              maxItems: input.requestedCount,
-              items: {
-                type: 'object',
-                properties: {
-                  recipeId: { type: 'string', enum: candidateIds },
-                  dayOffset: { type: 'integer', minimum: 0, maximum: 6 },
-                  mealType: { type: 'string', enum: allowedMealTypes },
-                  reason: { type: 'string' },
+    const response = await client.interactions.create(
+      {
+        model: input.model,
+        store: false,
+        system_instruction: [
+          'You are the Nigerian-aware meal planning assistant for Pantry-to-Plate.',
+          'Select only recipe IDs and meal slots supplied by the application.',
+          'Prioritize pantry coverage, ingredients that may expire, nutrition variety, cooking-time limits, and Nigerian food preferences.',
+          'Never invent a recipe, ingredient, date, or slot. Keep each reason under 140 characters.',
+        ].join(' '),
+        input: JSON.stringify({
+          task: `Choose exactly ${input.requestedCount} meals for the week beginning ${input.weekStart.toISOString().slice(0, 10)}.`,
+          preferences: input.preferences,
+          expiringIngredients: input.expiringIngredients,
+          availableSlots: input.availableSlots,
+          candidates: input.candidates.map((candidate) => ({
+            recipeId: candidate.recipeId,
+            name: candidate.recipeName,
+            category: candidate.category,
+            region: candidate.region,
+            totalMinutes: candidate.prepTimeMinutes + candidate.cookTimeMinutes,
+            pantryMatchPercentage: candidate.matchPercentage,
+            ingredientPresencePercentage: candidate.ingredientPresencePercentage,
+            canCookNow: candidate.canCookNow,
+            missingIngredients: candidate.missingIngredients.map((ingredient) => ingredient.name),
+            nutrition: candidate.nutrition,
+          })),
+        }),
+        generation_config: {
+          thinking_level: 'minimal',
+          max_output_tokens: 2048,
+          temperature: 0.3,
+        },
+        response_format: {
+          type: 'text',
+          mime_type: 'application/json',
+          schema: {
+            type: 'object',
+            properties: {
+              entries: {
+                type: 'array',
+                minItems: input.requestedCount,
+                maxItems: input.requestedCount,
+                items: {
+                  type: 'object',
+                  properties: {
+                    recipeId: { type: 'string', enum: candidateIds },
+                    dayOffset: { type: 'integer', minimum: 0, maximum: 6 },
+                    mealType: { type: 'string', enum: allowedMealTypes },
+                    reason: { type: 'string' },
+                  },
+                  required: ['recipeId', 'dayOffset', 'mealType', 'reason'],
+                  additionalProperties: false,
                 },
-                required: ['recipeId', 'dayOffset', 'mealType', 'reason'],
-                additionalProperties: false,
               },
             },
+            required: ['entries'],
+            additionalProperties: false,
           },
-          required: ['entries'],
-          additionalProperties: false,
         },
       },
-    });
+      geminiInteractionRequestOptions(GEMINI_MEAL_PLAN_TIMEOUT_MS),
+    );
     if (!response.output_text) throw new Error('Gemini returned no structured output.');
     const parsed = JSON.parse(response.output_text) as { entries?: GeminiChoice[] };
     return parsed.entries ?? [];

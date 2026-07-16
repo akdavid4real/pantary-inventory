@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 import { EnvironmentService } from '../../common/config/environment.service';
+import { resolveGeminiModel } from '../../common/config/gemini-model';
+import { GEMINI_FOOD_ANALYSIS_TIMEOUT_MS } from '../../common/config/gemini-request';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AnalyzeFoodPhotoDto } from './dto/food-analysis.dto';
 
@@ -21,6 +23,48 @@ type FoodAnalysis = {
   observations: string[];
   answer: string;
 };
+
+const FOOD_ANALYSIS_SCHEMA = {
+  type: 'object',
+  properties: {
+    isFood: { type: 'boolean' },
+    dishName: { type: 'string' },
+    confidence: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH'] },
+    description: { type: 'string' },
+    likelyIngredients: { type: 'array', items: { type: 'string' }, maxItems: 20 },
+    servingDescription: { type: 'string' },
+    estimatedNutrition: {
+      type: 'object',
+      properties: {
+        calories: { type: 'number', minimum: 0, maximum: 5000 },
+        proteinGrams: { type: 'number', minimum: 0, maximum: 500 },
+        carbsGrams: { type: 'number', minimum: 0, maximum: 1000 },
+        fatGrams: { type: 'number', minimum: 0, maximum: 500 },
+      },
+      required: ['calories', 'proteinGrams', 'carbsGrams', 'fatGrams'],
+      additionalProperties: false,
+    },
+    allergenWarnings: { type: 'array', items: { type: 'string' }, maxItems: 10 },
+    observations: { type: 'array', items: { type: 'string' }, maxItems: 10 },
+    answer: { type: 'string' },
+  },
+  required: [
+    'isFood',
+    'dishName',
+    'confidence',
+    'description',
+    'likelyIngredients',
+    'servingDescription',
+    'estimatedNutrition',
+    'allergenWarnings',
+    'observations',
+    'answer',
+  ],
+  additionalProperties: false,
+} as const;
+
+/** Fast vision fallbacks if the primary model stalls or errors. */
+const FOOD_ANALYSIS_FALLBACK_MODELS = ['gemini-3.1-flash-lite', 'gemini-2.5-flash-lite'] as const;
 
 @Injectable()
 export class FoodAnalysisService {
@@ -52,27 +96,45 @@ export class FoodAnalysisService {
       where: { userId },
       select: { allergies: true, avoidedIngredients: true, dietaryPreference: true },
     });
-    const model = this.config.get<string>('GEMINI_MODEL') ?? 'gemini-2.5-flash';
-    let analysis: FoodAnalysis;
-    try {
-      analysis = await this.analyzeWithGemini({
-        apiKey,
-        model,
-        imageData,
-        contentType: dto.contentType,
-        question: dto.question,
-        preferences,
-      });
-    } catch (error) {
-      this.logger.warn(`Gemini food analysis failed: ${error instanceof Error ? error.message : 'Unknown API error'}`);
-      throw new ServiceUnavailableException('Gemini could not analyze this photo right now. Please try again.');
+    const primaryModel = resolveGeminiModel(this.config.get<string>('GEMINI_MODEL'));
+    const models = this.modelCandidates(primaryModel);
+
+    let lastError: unknown;
+    for (const model of models) {
+      try {
+        const analysis = await this.analyzeWithGemini({
+          apiKey,
+          model,
+          imageData,
+          contentType: dto.contentType,
+          question: dto.question,
+          preferences,
+        });
+        return {
+          ...this.normalizeAnalysis(analysis),
+          model,
+          disclaimer:
+            'Photo-based food and nutrition results are estimates. Portions, ingredients, and preparation methods can change the actual values.',
+        };
+      } catch (error) {
+        lastError = error;
+        this.logger.warn(
+          `Gemini food analysis failed on ${model}: ${error instanceof Error ? error.message : 'Unknown API error'}`,
+        );
+      }
     }
 
-    return {
-      ...this.normalizeAnalysis(analysis),
-      model,
-      disclaimer: 'Photo-based food and nutrition results are estimates. Portions, ingredients, and preparation methods can change the actual values.',
-    };
+    this.logger.warn(
+      `Gemini food analysis exhausted models: ${errorMessage(lastError)}`,
+    );
+    throw new ServiceUnavailableException(
+      'Gemini could not analyze this photo right now. Please try again with a clearer, closer food photo.',
+    );
+  }
+
+  private modelCandidates(primary: string) {
+    const ordered = [primary, ...FOOD_ANALYSIS_FALLBACK_MODELS];
+    return [...new Set(ordered.map((model) => model.trim()).filter(Boolean))];
   }
 
   private async analyzeWithGemini(input: {
@@ -83,65 +145,96 @@ export class FoodAnalysisService {
     question?: string;
     preferences: { allergies: string[]; avoidedIngredients: string[]; dietaryPreference: string | null } | null;
   }) {
-    const client = new GoogleGenAI({ apiKey: input.apiKey, httpOptions: { timeout: 20_000 } });
-    const response = await client.interactions.create({
-      model: input.model,
-      store: false,
-      system_instruction: [
-        'You are the Nigerian-aware food photo analyst for Pantry-to-Plate.',
+    // Use generateContent (not Interactions). Interactions previously hung for the
+    // full Vercel 300s window without returning an AI payload because its client
+    // path ignored constructor httpOptions.timeout.
+    const client = new GoogleGenAI({
+      apiKey: input.apiKey,
+      httpOptions: {
+        timeout: GEMINI_FOOD_ANALYSIS_TIMEOUT_MS,
+        retryOptions: { attempts: 1 },
+      },
+    });
+
+    const prompt = JSON.stringify({
+      task: 'Analyze this food photo and return structured estimates only for what is visible.',
+      userQuestion:
+        input.question ||
+        'What food is this, what may be in it, and what is the estimated nutrition?',
+      savedFoodProfile: input.preferences,
+      rules: [
         'Identify only what is visually supported and lower confidence when uncertain.',
         'Nutrition values must be cautious estimates for the visible serving, never medical advice.',
         'Mention possible allergens and clearly answer the user question.',
         'If the image is not food, set isFood to false and explain that briefly.',
-      ].join(' '),
-      input: [
-        { type: 'image', mime_type: input.contentType, data: input.imageData },
-        {
-          type: 'text',
-          text: JSON.stringify({
-            task: 'Analyze this food photo.',
-            userQuestion: input.question || 'What food is this, what may be in it, and what is the estimated nutrition?',
-            savedFoodProfile: input.preferences,
-          }),
-        },
+        'Be concise.',
       ],
-      response_format: {
-        type: 'text',
-        mime_type: 'application/json',
-        schema: {
-          type: 'object',
-          properties: {
-            isFood: { type: 'boolean' },
-            dishName: { type: 'string' },
-            confidence: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH'] },
-            description: { type: 'string' },
-            likelyIngredients: { type: 'array', items: { type: 'string' }, maxItems: 20 },
-            servingDescription: { type: 'string' },
-            estimatedNutrition: {
-              type: 'object',
-              properties: {
-                calories: { type: 'number', minimum: 0, maximum: 5000 },
-                proteinGrams: { type: 'number', minimum: 0, maximum: 500 },
-                carbsGrams: { type: 'number', minimum: 0, maximum: 1000 },
-                fatGrams: { type: 'number', minimum: 0, maximum: 500 },
-              },
-              required: ['calories', 'proteinGrams', 'carbsGrams', 'fatGrams'],
-              additionalProperties: false,
-            },
-            allergenWarnings: { type: 'array', items: { type: 'string' }, maxItems: 10 },
-            observations: { type: 'array', items: { type: 'string' }, maxItems: 10 },
-            answer: { type: 'string' },
-          },
-          required: [
-            'isFood', 'dishName', 'confidence', 'description', 'likelyIngredients',
-            'servingDescription', 'estimatedNutrition', 'allergenWarnings', 'observations', 'answer',
-          ],
-          additionalProperties: false,
-        },
-      },
     });
-    if (!response.output_text) throw new ServiceUnavailableException('Gemini could not analyze this photo.');
-    return JSON.parse(response.output_text) as FoodAnalysis;
+
+    const response = await this.withDeadline(
+      client.models.generateContent({
+        model: input.model,
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: input.contentType,
+                  data: input.imageData,
+                },
+              },
+            ],
+          },
+        ],
+        config: {
+          systemInstruction: [
+            'You are the Nigerian-aware food photo analyst for Pantry-to-Plate.',
+            'Return only JSON matching the schema. Prefer short ingredient names and brief observations.',
+          ].join(' '),
+          responseMimeType: 'application/json',
+          responseJsonSchema: FOOD_ANALYSIS_SCHEMA,
+          temperature: 0.2,
+          maxOutputTokens: 2048,
+          thinkingConfig: {
+            thinkingLevel: ThinkingLevel.MINIMAL,
+            includeThoughts: false,
+          },
+          httpOptions: {
+            timeout: GEMINI_FOOD_ANALYSIS_TIMEOUT_MS,
+            retryOptions: { attempts: 1 },
+          },
+        },
+      }),
+      GEMINI_FOOD_ANALYSIS_TIMEOUT_MS + 2_000,
+      `Gemini food analysis timed out after ${GEMINI_FOOD_ANALYSIS_TIMEOUT_MS}ms`,
+    );
+
+    const outputText = response.text?.trim();
+    if (!outputText) {
+      throw new Error('Gemini returned an empty food analysis response.');
+    }
+
+    try {
+      return JSON.parse(outputText) as FoodAnalysis;
+    } catch {
+      throw new Error('Gemini returned non-JSON food analysis output.');
+    }
+  }
+
+  private async withDeadline<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        promise,
+        new Promise<T>((_, reject) => {
+          timer = setTimeout(() => reject(new Error(message)), ms);
+        }),
+      ]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 
   private normalizeAnalysis(value: FoodAnalysis): FoodAnalysis {
@@ -181,4 +274,8 @@ export class FoodAnalysisService {
     }
     return bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP';
   }
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Unknown API error';
 }

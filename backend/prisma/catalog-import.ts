@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { execFile } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import {
@@ -101,9 +102,15 @@ type ImageResolution = {
 
 type ImportOptions = {
   apply: boolean;
+  applyRecipeImages: boolean;
   reconcile: boolean;
   storageCheck: boolean;
   json: boolean;
+};
+
+type StorageListing = {
+  method: 'storage-api' | 'supabase-cli';
+  objects: string[];
 };
 
 const prisma = new PrismaClient();
@@ -119,9 +126,11 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 function readOptions(): ImportOptions {
   const args = new Set(process.argv.slice(2));
   const apply = args.has('--apply');
+  const applyRecipeImages = args.has('--apply-recipe-images');
   return {
     apply,
-    reconcile: apply || args.has('--reconcile'),
+    applyRecipeImages,
+    reconcile: apply || applyRecipeImages || args.has('--reconcile'),
     storageCheck: args.has('--storage-check'),
     json: args.has('--json'),
   };
@@ -238,29 +247,65 @@ async function listStorageObjectsWithApi(bucket: string, prefix = ''): Promise<s
   return objects;
 }
 
-function objectsFromVerifiedCliLayout(bucket: string, localFiles: string[]) {
-  if (bucket === recipeImageBucket) {
-    return localFiles
-      .filter((file) => file.toLowerCase().includes(`${path.sep}foods${path.sep}`))
-      .filter((file) => {
-        const name = path.basename(file);
-        const number = Number(name.match(/^(\d+)-/)?.[1]);
-        return (Number.isFinite(number) && number <= 60) || name === 'jollof-rice-grilled-chicken-hero.png';
-      })
-      .map((file) => path.basename(file));
-  }
-  if (bucket === ingredientImageBucket) {
-    return localFiles
-      .filter((file) => file.toLowerCase().includes(`${path.sep}ingredients${path.sep}`))
-      .map((file) => `ingredients/${path.basename(file)}`);
-  }
-  throw new Error(`No verified CLI layout is available for bucket ${bucket}.`);
+function runCommand(executable: string, args: string[]) {
+  return new Promise<string>((resolve, reject) => {
+    execFile(
+      executable,
+      args,
+      { cwd: repositoryRoot, encoding: 'utf8', timeout: 120_000, windowsHide: true },
+      (error, stdout) => {
+        if (error) {
+          Object.assign(error, { stdout });
+          reject(error);
+          return;
+        }
+        resolve(stdout);
+      },
+    );
+  });
 }
 
-async function listStorageObjects(bucket: string, localFiles: string[]) {
-  return serviceRoleKey
-    ? listStorageObjectsWithApi(bucket)
-    : objectsFromVerifiedCliLayout(bucket, localFiles);
+function parseStorageCliOutput(output: string, bucket: string) {
+  const start = output.lastIndexOf('{"paths"');
+  const end = output.lastIndexOf('}');
+  if (start < 0 || end < start) throw new Error(`Supabase CLI did not return a JSON storage listing for ${bucket}.`);
+  const result = JSON.parse(output.slice(start, end + 1)) as { paths?: string[] };
+  const prefix = `${bucket}/`;
+  return (result.paths ?? []).map((objectPath) => {
+    const normalized = objectPath.replace(/^\/+/, '');
+    return normalized.startsWith(prefix) ? normalized.slice(prefix.length) : normalized;
+  });
+}
+
+async function listStorageObjectsWithCli(bucket: string): Promise<string[]> {
+  assertSafeBucketName(bucket);
+  const commandArgs = [
+    'supabase',
+    'storage',
+    'ls',
+    `ss:///${bucket}/`,
+    '--linked',
+    '--experimental',
+    '--recursive',
+    '--output-format',
+    'json',
+  ];
+  const executable = process.platform === 'win32' ? 'cmd.exe' : 'npx';
+  const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'npx', ...commandArgs] : commandArgs;
+  try {
+    return parseStorageCliOutput(await runCommand(executable, args), bucket);
+  } catch (error) {
+    const stdout = (error as { stdout?: string }).stdout;
+    if (stdout) return parseStorageCliOutput(stdout, bucket);
+    throw error;
+  }
+}
+
+async function listStorageObjects(bucket: string): Promise<StorageListing> {
+  if (serviceRoleKey) {
+    return { method: 'storage-api', objects: await listStorageObjectsWithApi(bucket) };
+  }
+  return { method: 'supabase-cli', objects: await listStorageObjectsWithCli(bucket) };
 }
 
 function publicObjectUrl(bucket: string, objectPath: string): string | undefined {
@@ -338,6 +383,33 @@ function recipeLocalAsset(recipe: CatalogRecipe): string | undefined {
   return path.resolve(repositoryRoot, recipe.localAssetHint.replaceAll('/', path.sep));
 }
 
+function recipeAssetsByCatalogId(recipes: CatalogRecipe[], localFiles: string[]) {
+  const assets = new Map<string, string>();
+  const filesByIdentity = new Map<string, string[]>();
+  for (const file of localFiles) {
+    if (!file.toLowerCase().includes(`${path.sep}foods${path.sep}`)) continue;
+    if (!/^\.(png|jpe?g|webp)$/i.test(path.extname(file))) continue;
+    const identity = slugify(path.basename(file, path.extname(file)).replace(/^\d+-/, ''));
+    filesByIdentity.set(identity, [...(filesByIdentity.get(identity) ?? []), file]);
+  }
+
+  for (const recipe of recipes) {
+    const hinted = recipeLocalAsset(recipe);
+    if (hinted && localFiles.includes(hinted)) {
+      assets.set(recipe.id, hinted);
+      continue;
+    }
+    const candidates = new Set(
+      [recipe.id, recipe.slug, recipe.name]
+        .flatMap((identity) => filesByIdentity.get(slugify(identity)) ?? []),
+    );
+    const pngCandidates = [...candidates].filter((file) => path.extname(file).toLowerCase() === '.png');
+    if (pngCandidates.length === 1) assets.set(recipe.id, pngCandidates[0]);
+    else if (candidates.size === 1) assets.set(recipe.id, [...candidates][0]);
+  }
+  return assets;
+}
+
 function normalizeUnit(unit: string | undefined): string {
   const key = (unit ?? '').trim().toUpperCase();
   const units: Record<string, string> = {
@@ -409,8 +481,7 @@ function uniqueAliases(ingredient: CatalogIngredient) {
 
 function localSummary(catalog: Catalog, localFiles: string[]) {
   const ingredientAssets = ingredientAssetByCatalogId(catalog.ingredients, localFiles);
-  const recipeAssets = catalog.recipes.map((recipe) => recipeLocalAsset(recipe));
-  const existingRecipeAssets = recipeAssets.filter(Boolean).filter((file) => localFiles.includes(file!));
+  const recipeAssets = recipeAssetsByCatalogId(catalog.recipes, localFiles);
   const statuses = Object.fromEntries(
     [...new Set(catalog.recipes.map((recipe) => recipe.reviewStatus ?? 'Unknown'))]
       .sort()
@@ -424,8 +495,9 @@ function localSummary(catalog: Catalog, localFiles: string[]) {
     ingredients: catalog.ingredients.length,
     conversions: catalog.conversions.length,
     reviewStatuses: statuses,
-    localRecipeImagesMatched: existingRecipeAssets.length,
-    localRecipeImagesMissingHint: recipeAssets.filter((file) => !file).length,
+    localRecipeImagesMatched: recipeAssets.size,
+    localRecipeImagesMissing: catalog.recipes.length - recipeAssets.size,
+    localRecipeImagesWithoutHint: catalog.recipes.filter((recipe) => !recipe.localAssetHint).length,
     localIngredientImagesMatched: catalog.ingredients.filter((ingredient) => ingredientAssets.has(ingredient.ingredientId)).length,
     warnings: catalog.warnings,
   };
@@ -434,13 +506,16 @@ function localSummary(catalog: Catalog, localFiles: string[]) {
 async function reconcileAndMaybeApply(catalog: Catalog, localFiles: string[], options: ImportOptions) {
   // CLI storage listings are intentionally sequential because concurrent CLI
   // processes can contend on the Windows telemetry cache file.
-  const recipeStorageObjects = await listStorageObjects(recipeImageBucket, localFiles);
-  const ingredientStorageObjects = await listStorageObjects(ingredientImageBucket, localFiles);
+  const recipeStorage = await listStorageObjects(recipeImageBucket);
+  const ingredientStorage = await listStorageObjects(ingredientImageBucket);
+  const recipeStorageObjects = recipeStorage.objects;
+  const ingredientStorageObjects = ingredientStorage.objects;
   const [existingIngredients, existingRecipes] = await Promise.all([
     prisma.ingredient.findMany({ include: { aliases: true } }),
     prisma.recipe.findMany({ select: { id: true, slug: true, catalogId: true, imageUrl: true, createdByUserId: true } }),
   ]);
   const ingredientAssets = ingredientAssetByCatalogId(catalog.ingredients, localFiles);
+  const recipeAssets = recipeAssetsByCatalogId(catalog.recipes, localFiles);
   const existingIngredientByCatalogId = new Map(existingIngredients.flatMap((item) => item.catalogId ? [[item.catalogId, item] as const] : []));
   const existingIngredientCandidates = new Map<string, Set<(typeof existingIngredients)[number]>>();
   for (const ingredient of existingIngredients) {
@@ -485,7 +560,7 @@ async function reconcileAndMaybeApply(catalog: Catalog, localFiles: string[], op
     const match = recipeMatches.get(recipe.id);
     recipeImages.set(recipe.id, resolveImage(
       match?.imageUrl,
-      recipeLocalAsset(recipe),
+      recipeAssets.get(recipe.id),
       recipeStorageObjects,
       recipeImageBucket,
       '',
@@ -510,7 +585,7 @@ async function reconcileAndMaybeApply(catalog: Catalog, localFiles: string[], op
 
   const admin = await resolveAdmin(false);
   const summary = {
-    mode: options.apply ? 'apply' : 'live-reconcile',
+    mode: options.apply ? 'apply' : options.applyRecipeImages ? 'apply-recipe-images' : 'live-reconcile',
     database: {
       ingredientsToCreate: catalog.ingredients.filter((item) => !ingredientMatches.get(item.ingredientId)).length,
       ingredientsToUpdate: catalog.ingredients.filter((item) => ingredientMatches.get(item.ingredientId)).length,
@@ -521,7 +596,9 @@ async function reconcileAndMaybeApply(catalog: Catalog, localFiles: string[], op
     },
     images: summarizeImages([...recipeImages.values()], [...ingredientImages.values()]),
     storage: {
-      listingMethod: serviceRoleKey ? 'storage-api' : 'verified-cli-layout',
+      listingMethod: recipeStorage.method === ingredientStorage.method
+        ? recipeStorage.method
+        : `${recipeStorage.method}+${ingredientStorage.method}`,
       recipeBucket: recipeImageBucket,
       recipeObjectsFound: recipeStorageObjects.length,
       ingredientBucket: ingredientImageBucket,
@@ -530,12 +607,22 @@ async function reconcileAndMaybeApply(catalog: Catalog, localFiles: string[], op
     platformAdmin: admin ? { id: admin.id, email: admin.email, found: true } : { found: false },
   };
 
-  if (!options.apply) return summary;
+  if (!options.apply && !options.applyRecipeImages) return summary;
   if (ingredientConflicts.length || recipeConflicts.length) {
     throw new Error('Apply stopped because reconciliation found identity conflicts. Run with --reconcile and resolve them first.');
   }
   if (!supabaseUrl || !recipeImageBucket || !ingredientImageBucket) {
     throw new Error('Apply stopped because SUPABASE_URL and the recipe/ingredient image buckets are required.');
+  }
+  if (options.applyRecipeImages) {
+    const updates = catalog.recipes.flatMap((source) => {
+      const existing = recipeMatches.get(source.id);
+      const image = recipeImages.get(source.id)!;
+      if (!existing || existing.imageUrl || !image.url) return [];
+      return [prisma.recipe.update({ where: { id: existing.id }, data: { imageUrl: image.url } })];
+    });
+    await Promise.all(updates);
+    return { ...summary, applied: { recipeImages: updates.length } };
   }
   const platformAdmin = await resolveAdmin(true);
   if (!platformAdmin) throw new Error('Platform Admin could not be resolved.');
@@ -743,15 +830,16 @@ async function resolveAdmin(createOrUpdate: boolean) {
 async function main() {
   const options = readOptions();
   if (options.storageCheck) {
-    const localFiles = await listFilesRecursively(assetDirectory);
-    const recipeObjects = await listStorageObjects(recipeImageBucket, localFiles);
-    const ingredientObjects = await listStorageObjects(ingredientImageBucket, localFiles);
+    const recipeStorage = await listStorageObjects(recipeImageBucket);
+    const ingredientStorage = await listStorageObjects(ingredientImageBucket);
     console.log(JSON.stringify({
-      listingMethod: serviceRoleKey ? 'storage-api' : 'verified-cli-layout',
+      listingMethod: recipeStorage.method === ingredientStorage.method
+        ? recipeStorage.method
+        : `${recipeStorage.method}+${ingredientStorage.method}`,
       recipeBucket: recipeImageBucket,
-      recipeObjects: recipeObjects.length,
+      recipeObjects: recipeStorage.objects.length,
       ingredientBucket: ingredientImageBucket,
-      ingredientObjects: ingredientObjects.length,
+      ingredientObjects: ingredientStorage.objects.length,
     }, null, 2));
     return;
   }
@@ -766,7 +854,7 @@ async function main() {
     console.log('Pantry-to-Plate catalog import report');
     console.log(JSON.stringify(result, null, 2));
     if (!options.reconcile) console.log('Next: deploy the catalog migration, confirm Platform Admin, and run catalog:reconcile.');
-    else if (!options.apply) console.log('No database or storage records were changed. Use --apply only after reviewing this report.');
+    else if (!options.apply && !options.applyRecipeImages) console.log('No database or storage records were changed. Use --apply only after reviewing this report.');
   }
 }
 

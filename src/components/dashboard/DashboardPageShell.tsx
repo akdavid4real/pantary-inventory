@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { gsap } from "gsap";
 import { ReactNode, useLayoutEffect, useRef, useState } from "react";
+import { clearSession } from "../../services/api";
 import { Sidebar } from "./Sidebar";
 
 type DashboardPageShellProps = {
@@ -82,6 +83,11 @@ export function DashboardPageShell({
       >
         <Sidebar
           active={activePage}
+          onSignOut={() => {
+            clearSession();
+            setMenuOpen(false);
+            onNavigate("login");
+          }}
           onSelect={(page) => {
             setMenuOpen(false);
             onNavigate(page);

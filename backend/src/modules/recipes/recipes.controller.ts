@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Headers, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateRecipeDto, ModerateRecipeDto, RecipeQueryDto, ReportRecipeDto, ResolveRecipeReportDto, UpdateRecipeDto, UploadRecipeImageDto } from './dto/recipe.dto';
 import { RecipesService } from './recipes.service';
@@ -19,6 +19,7 @@ export class RecipesController {
   }
 
   @Get()
+  @Header('Cache-Control', 'private, max-age=60, stale-while-revalidate=300')
   findAll(@Query() query: RecipeQueryDto) {
     return this.recipesService.findAll(query);
   }

@@ -5,7 +5,7 @@ import {
   DashboardPageShell,
 } from "../../components/dashboard/DashboardPageShell";
 import { MetricSummaryCard } from "../../components/dashboard/MetricSummaryCard";
-import { api } from "../../services/api";
+import { api, cachedApi, getCachedApiValue, invalidateApiCache } from "../../services/api";
 import { Recipe } from "../../types/inventory";
 import { routes } from "../../types/navigation";
 
@@ -16,6 +16,7 @@ type Favorite = {
 };
 
 const panel = "rounded-2xl border border-[#ded5c5] bg-[#fffdf8] shadow-sm";
+const favoritesPath = "/favorites";
 
 function totalMinutes(recipe: Recipe) {
   return recipe.prepTimeMinutes + recipe.cookTimeMinutes;
@@ -27,18 +28,18 @@ function categoryLabel(category?: string) {
 
 export function Favorites({ onNavigate }: { onNavigate: (page: string) => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
+  const [favorites, setFavorites] = useState<Favorite[]>(() => getCachedApiValue<Favorite[]>(favoritesPath) ?? []);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("ALL");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => getCachedApiValue<Favorite[]>(favoritesPath) === null);
   const [error, setError] = useState("");
   const [removing, setRemoving] = useState("");
 
-  const loadFavorites = async () => {
+  const loadFavorites = async (force = false) => {
     setLoading(true);
     setError("");
     try {
-      setFavorites(await api<Favorite[]>("/favorites"));
+      setFavorites(await cachedApi<Favorite[]>(favoritesPath, { ttlMs: 60_000, force }));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not load your favorites.");
     } finally {
@@ -71,6 +72,7 @@ export function Favorites({ onNavigate }: { onNavigate: (page: string) => void }
     setError("");
     try {
       await api(`/favorites/${recipeId}`, { method: "DELETE" });
+      invalidateApiCache(favoritesPath);
       setFavorites((current) => current.filter((item) => item.recipe.id !== recipeId));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not remove that favorite.");
@@ -106,7 +108,7 @@ export function Favorites({ onNavigate }: { onNavigate: (page: string) => void }
       {error ? (
         <div className="mb-4 flex items-center justify-between rounded-xl bg-red-50 p-3 text-sm text-red-700">
           <span>{error}</span>
-          <button onClick={() => void loadFavorites()} className="font-semibold">Retry</button>
+          <button onClick={() => void loadFavorites(true)} className="font-semibold">Retry</button>
         </div>
       ) : null}
 

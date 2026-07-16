@@ -207,6 +207,7 @@ model Ingredient {
   priceDefaults        IngredientPriceDefault[]
 
   @@index([category])
+  @@index([imageUrl, name])
 }
 
 model IngredientPriceDefault {
@@ -322,6 +323,7 @@ model Recipe {
   @@index([createdByUserId])
   @@index([moderatedByUserId])
   @@index([status, moderationStatus])
+  @@index([isPublished, status, moderationStatus, imageUrl])
   }
 
   model RecipeFavorite {

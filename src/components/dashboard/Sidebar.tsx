@@ -5,6 +5,7 @@ import {
   Heart,
   FileText,
   Home,
+  LogOut,
   Search,
   Settings,
   ShoppingBasket,
@@ -27,9 +28,11 @@ const links = [
 export function Sidebar({
   active,
   onSelect,
+  onSignOut,
 }: {
   active: string;
   onSelect: (label: string) => void;
+  onSignOut: () => void;
 }) {
   return (
     <aside className="dashboard-sidebar flex h-full w-[230px] shrink-0 flex-col overflow-y-auto bg-gradient-to-b from-[#073f32] to-[#06382d] px-4 py-5 text-white shadow-2xl lg:w-[222px]">
@@ -66,6 +69,14 @@ export function Sidebar({
           Real results.
         </p>
       </div>
+      <button
+        type="button"
+        onClick={onSignOut}
+        className="mt-3 flex w-full items-center gap-3 rounded-xl border border-white/15 px-4 py-3 text-left text-sm text-white/90 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      >
+        <LogOut size={19} strokeWidth={1.8} />
+        <span>Sign out</span>
+      </button>
     </aside>
   );
 }

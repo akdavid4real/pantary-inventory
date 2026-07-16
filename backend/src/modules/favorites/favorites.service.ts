@@ -10,25 +10,34 @@ export class FavoritesService {
     const favorites = await this.prisma.recipeFavorite.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        createdAt: true,
         recipe: {
-          include: {
-            ingredients: {
-              include: {
-                ingredient: {
-                  include: { aliases: true, nutrition: true },
-                },
-              },
-            },
-            steps: { orderBy: { stepNumber: 'asc' } },
-            tags: { include: { tag: true } },
-            createdBy: { include: { profile: true } },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            imageUrl: true,
+            category: true,
+            region: true,
+            servings: true,
+            prepTimeMinutes: true,
+            cookTimeMinutes: true,
+            difficulty: true,
+            caloriesPerServing: true,
+            proteinPerServing: true,
+            carbsPerServing: true,
+            fatPerServing: true,
           },
         },
       },
     });
 
-    return favorites.map((favorite) => ({
+    return favorites.sort((left, right) =>
+      Number(Boolean(right.recipe.imageUrl)) - Number(Boolean(left.recipe.imageUrl)) ||
+      right.createdAt.getTime() - left.createdAt.getTime(),
+    ).map((favorite) => ({
       id: favorite.id,
       createdAt: favorite.createdAt,
       recipe: favorite.recipe,

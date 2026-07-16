@@ -44,6 +44,10 @@ export function useAppNavigation() {
   const [page, setPage] = useState(() => resolvePageForAuth(getPageFromPath()));
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [page]);
+
+  useEffect(() => {
     const redirectAuthenticatedGuestRoute = () => {
       const requestedPage = getPageFromPath();
       const resolvedPage = resolvePageForAuth(requestedPage);

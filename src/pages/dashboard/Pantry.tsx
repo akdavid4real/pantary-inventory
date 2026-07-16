@@ -25,6 +25,7 @@ import {
 } from "../../components/dashboard/DashboardPageShell";
 import { MetricSummaryCard } from "../../components/dashboard/MetricSummaryCard";
 import { api } from "../../services/api";
+import { getCachedIngredientCatalog, loadIngredientCatalog } from "../../services/catalog";
 import { ingredientUnitOptions, unitHelp, unitLabels } from "../../utils/units";
 import { UnitConversion } from "../../types/inventory";
 
@@ -64,8 +65,6 @@ type PantryLog = {
   reason?: string | null;
   createdAt: string;
 };
-type IngredientResponse = { items: Ingredient[]; meta: { total: number } };
-
 const panel =
   "rounded-2xl border border-[#ded5c5] bg-[#fffdf8] shadow-[0_2px_8px_rgba(30,70,50,0.06)]";
 const locations: Array<"ALL" | StorageLocation> = [
@@ -108,7 +107,7 @@ function LocationIcon({
 
 export function Pantry({ onNavigate }: { onNavigate: (page: string) => void }) {
   const [items, setItems] = useState<PantryItem[]>([]);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>(() => getCachedIngredientCatalog() as Ingredient[]);
   const [selectedId, setSelectedId] = useState("");
   const [location, setLocation] = useState<"ALL" | StorageLocation>("ALL");
   const [status, setStatus] = useState("All status");
@@ -129,10 +128,10 @@ export function Pantry({ onNavigate }: { onNavigate: (page: string) => void }) {
     try {
       const [pantry, catalog] = await Promise.all([
         api<PantryItem[]>("/pantry"),
-        api<IngredientResponse>("/ingredients?limit=100"),
+        loadIngredientCatalog() as Promise<Ingredient[]>,
       ]);
       setItems(pantry);
-      setIngredients(catalog.items);
+      setIngredients(catalog);
       setSelectedId((current) =>
         pantry.some((item) => item.id === current)
           ? current

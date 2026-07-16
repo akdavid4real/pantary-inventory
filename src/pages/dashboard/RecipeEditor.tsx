@@ -2,7 +2,8 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { DashboardPageHeader, DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
 import { api } from "../../services/api";
-import { Ingredient, Paginated, Recipe } from "../../types/inventory";
+import { getCachedIngredientCatalog, invalidateRecipeCatalog, loadIngredientCatalog } from "../../services/catalog";
+import { Ingredient, Recipe } from "../../types/inventory";
 import { routes, ScreenProps } from "../../types/navigation";
 import { ingredientUnitOptions, unitHelp, unitLabels } from "../../utils/units";
 
@@ -14,7 +15,7 @@ const control = "mt-1 w-full rounded-xl border border-[#dcd4c7] bg-white px-3 py
 
 export function RecipeEditor({ onNavigate, recipeId }: ScreenProps & { recipeId?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>(getCachedIngredientCatalog);
   const [rows, setRows] = useState<IngredientRow[]>([]);
   const [steps, setSteps] = useState<StepRow[]>([{ key: 1, instruction: "", durationMinutes: 5 }]);
   const [loading, setLoading] = useState(true);
@@ -27,18 +28,18 @@ export function RecipeEditor({ onNavigate, recipeId }: ScreenProps & { recipeId?
   useEffect(() => {
     let active = true;
     Promise.all([
-      api<Paginated<Ingredient>>("/ingredients?limit=100"),
+      loadIngredientCatalog(),
       recipeId ? api<Recipe>(`/recipes/${recipeId}`) : Promise.resolve(null),
     ]).then(([result, recipe]) => {
         if (!active) return;
-        setIngredients(result.items);
+        setIngredients(result);
         setExisting(recipe);
         if (recipe) {
           setRows(recipe.ingredients.map((item, index) => ({ key: index + 1, ingredientId: item.ingredientId, quantity: item.quantity, unit: item.unit, isOptional: item.isOptional })));
           setSteps(recipe.steps.map((step, index) => ({ key: index + 1, instruction: step.instruction, durationMinutes: step.durationMinutes ?? 0 })));
           setSaveStatus((recipe as Recipe & { status?: "DRAFT" | "PUBLISHED" }).status ?? "DRAFT");
         } else {
-          const first = result.items[0];
+          const first = result[0];
           if (first) setRows([{ key: 1, ingredientId: first.id, quantity: 1, unit: first.defaultUnit, isOptional: false }]);
         }
       })
@@ -89,6 +90,7 @@ export function RecipeEditor({ onNavigate, recipeId }: ScreenProps & { recipeId?
           status: saveStatus,
         }),
       });
+      invalidateRecipeCatalog();
       onNavigate(saveStatus === "DRAFT" ? "My Recipes" : routes.recipe(saved.id));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not save recipe.");

@@ -33,7 +33,22 @@ describe('signup-to-cooking service regressions', () => {
         status: RecipeStatus.PUBLISHED,
         moderationStatus: RecipeModerationStatus.APPROVED,
       }),
+      orderBy: [
+        { imageUrl: { sort: 'desc', nulls: 'last' } },
+        { name: 'asc' },
+      ],
+      select: expect.objectContaining({ id: true, name: true, imageUrl: true }),
     }));
+  });
+
+  it('reuses the matching recipe catalogue within the cache window', async () => {
+    const prisma = {
+      recipe: { findMany: vi.fn().mockResolvedValue([]) },
+    } as any;
+    const service = new RecipeMatcherService(prisma);
+    await service.fromPantryItems([]);
+    await service.fromPantryItems([]);
+    expect(prisma.recipe.findMany).toHaveBeenCalledTimes(1);
   });
 
   it('uses the active measurement profile when deciding whether a recipe is ready', async () => {

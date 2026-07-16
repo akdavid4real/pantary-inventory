@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginationQueryDto } from '../../common/dto/query.dto';
 import { CreateIngredientDto, UpdateIngredientDto } from './dto/ingredient.dto';
@@ -16,6 +16,7 @@ export class IngredientsController {
   }
 
   @Get()
+  @Header('Cache-Control', 'private, max-age=300, stale-while-revalidate=900')
   findAll(@Query() query: PaginationQueryDto) {
     return this.ingredientsService.findAll(query);
   }

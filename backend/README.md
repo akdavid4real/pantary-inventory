@@ -74,19 +74,26 @@ does not upload or overwrite storage objects.
 # Local JSON and asset validation. Does not connect to the database.
 pnpm catalog:check
 
-# Read-only comparison with the database and configured Supabase bucket.
+# Read the current object counts from the linked Supabase Storage buckets.
+pnpm catalog:storage
+
+# Read-only comparison with the database and live Supabase buckets.
 pnpm catalog:reconcile
+
+# Link only missing recipe imageUrl values after reviewing reconciliation.
+pnpm catalog:apply-recipe-images
 
 # Explicit write mode. Run only after reviewing the reconciliation report.
 pnpm catalog:apply
 ```
 
-The importer defaults to the linked project's CLI-verified `recipe-images` and
-`ingredient-images` bucket layout. `SUPABASE_SERVICE_ROLE_KEY` is optional and
-only needed to refresh listings directly through the Storage API. Applying
-requires a real Platform Admin, resolved through `CATALOG_ADMIN_USER_ID` or an
-existing user matching `ADMIN_EMAIL`. Imported recipes remain drafts unless the
-JSON review status is `Approved`.
+The importer reads the linked project's live `recipe-images` and
+`ingredient-images` bucket listings through the Supabase CLI. When
+`SUPABASE_SERVICE_ROLE_KEY` is configured, it uses the Storage API instead.
+`catalog:apply-recipe-images` only fills blank recipe image URLs; the full
+`catalog:apply` command also requires a real Platform Admin, resolved through
+`CATALOG_ADMIN_USER_ID` or an existing user matching `ADMIN_EMAIL`. Imported
+recipes remain drafts unless the JSON review status is `Approved`.
 
 ## Useful endpoints
 

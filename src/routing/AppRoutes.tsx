@@ -98,11 +98,14 @@ function LazyRoute({ children }: { children: ReactNode }) {
 }
 
 export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
-  if (page === "landing") {
+  // Normalize so reloads and onNavigate("/recipes/…") both match deep routes.
+  const route = page.replace(/^\/+/, "").replace(/\/+$/, "") || "landing";
+
+  if (route === "landing") {
     return <LandingPage />;
   }
 
-  const editRecipeMatch = page.match(/^my-recipes\/([^/]+)\/edit$/);
+  const editRecipeMatch = route.match(/^my-recipes\/([^/]+)\/edit$/);
   if (editRecipeMatch) {
     return (
       <LazyRoute>
@@ -110,14 +113,14 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
       </LazyRoute>
     );
   }
-  if (page === "my-recipes/new") {
+  if (route === "my-recipes/new") {
     return (
       <LazyRoute>
         <RecipeEditor onNavigate={onNavigate} />
       </LazyRoute>
     );
   }
-  const recipeMatch = page.match(/^recipes\/([^/]+)$/);
+  const recipeMatch = route.match(/^recipes\/([^/]+)$/);
   if (recipeMatch) {
     return (
       <LazyRoute>
@@ -126,7 +129,7 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
     );
   }
 
-  const mealWeekMatch = page.match(/^meals\/week\/([^/]+)$/);
+  const mealWeekMatch = route.match(/^meals\/week\/([^/]+)$/);
   if (mealWeekMatch) {
     return (
       <LazyRoute>
@@ -135,7 +138,7 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
     );
   }
 
-  const shoppingListMatch = page.match(/^grocery\/lists\/([^/]+)$/);
+  const shoppingListMatch = route.match(/^grocery\/lists\/([^/]+)$/);
   if (shoppingListMatch) {
     return (
       <LazyRoute>
@@ -144,7 +147,7 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
     );
   }
 
-  const cookingMatch = page.match(/^cooking\/([^/]+)$/);
+  const cookingMatch = route.match(/^cooking\/([^/]+)$/);
   if (cookingMatch) {
     return (
       <LazyRoute>
@@ -152,20 +155,20 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
       </LazyRoute>
     );
   }
-  if (page === "login") {
+  if (route === "login") {
     return <Login onNavigate={onNavigate} />;
   }
 
-  if (page === "sign-up") {
+  if (route === "sign-up") {
     return <SignUp onNavigate={onNavigate} />;
   }
 
-  if (page === "forgot-password" || page === "reset-password") {
-    return <PasswordRecovery mode={page} onNavigate={onNavigate} />;
+  if (route === "forgot-password" || route === "reset-password") {
+    return <PasswordRecovery mode={route} onNavigate={onNavigate} />;
   }
 
-  if (page.startsWith("onboarding")) {
-    const step = Number(page.split("-")[1] || 1);
+  if (route.startsWith("onboarding")) {
+    const step = Number(route.split("-")[1] || 1);
     return (
       <LazyRoute>
         <Onboarding step={step} onNavigate={onNavigate} />
@@ -173,9 +176,16 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
     );
   }
 
-  const DashboardPage = dashboardPages[page];
+  // Dashboard labels may arrive as "Food Scan" or already be exact map keys.
+  const dashboardKey =
+    (Object.keys(dashboardPages).find(
+      (key) => key.toLowerCase() === route.toLowerCase() || key.toLowerCase().replace(/ /g, "-") === route.toLowerCase(),
+    ) as keyof typeof dashboardPages | undefined) ??
+    (route in dashboardPages ? (route as keyof typeof dashboardPages) : undefined);
+
+  const DashboardPage = dashboardKey ? dashboardPages[dashboardKey] : undefined;
   if (DashboardPage) {
-    if (page === "Home") {
+    if (dashboardKey === "Home") {
       return <DashboardPage onNavigate={onNavigate} />;
     }
     return (
@@ -185,7 +195,7 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
     );
   }
 
-  const UtilityPage = utilityPages[page];
+  const UtilityPage = utilityPages[route];
   if (UtilityPage) {
     return (
       <LazyRoute>

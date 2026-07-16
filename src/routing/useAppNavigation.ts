@@ -41,28 +41,52 @@ function titleCaseSlug(slug: string) {
     .join(" ");
 }
 
+/**
+ * Page ids never include a leading slash.
+ * Browser URLs always do (except landing "/").
+ * Accept both so reloads and onNavigate("/recipes/…") stay in sync.
+ */
+export function normalizePageId(page: string) {
+  const trimmed = page.trim();
+  if (!trimmed || trimmed === "/") {
+    return "landing";
+  }
+  return trimmed.replace(/^\/+/, "").replace(/\/+$/, "") || "landing";
+}
+
 export function getPathFromPage(page: string) {
-  if (page.startsWith("/")) {
-    return page;
-  }
-  if (page === "Home") {
-    return "/dashboard";
-  }
-  if (page === "landing") {
+  const id = normalizePageId(page);
+
+  if (id === "landing") {
     return "/";
   }
+  if (id === "Home" || id === "home") {
+    return "/dashboard";
+  }
 
-  return `/${page.toLowerCase().replace(/ /g, "-")}`;
+  // Deep links already look like recipes/:id, meals/week/:date, etc.
+  if (id.includes("/")) {
+    return `/${id}`;
+  }
+
+  const knownTitle = titledDashboardPages.find(
+    (label) => label.toLowerCase() === id.toLowerCase(),
+  );
+  if (knownTitle) {
+    return `/${knownTitle.toLowerCase().replace(/ /g, "-")}`;
+  }
+
+  return `/${id.toLowerCase().replace(/ /g, "-")}`;
 }
 
 export function getPageFromPath(currentPath = window.location.pathname) {
-  const normalized = currentPath.replace(/\/+$/, "") || "/";
-  if (pageByPath[normalized]) {
-    return pageByPath[normalized];
+  const pathname = currentPath.replace(/\/+$/, "") || "/";
+  if (pageByPath[pathname]) {
+    return pageByPath[pathname];
   }
 
-  const bare = normalized.replace(/^\/+/, "");
-  if (!bare) {
+  const bare = normalizePageId(pathname);
+  if (bare === "landing") {
     return "landing";
   }
 
@@ -79,12 +103,18 @@ export function getPageFromPath(currentPath = window.location.pathname) {
   return knownTitle ?? titled;
 }
 
+/**
+ * Resolve any navigate target (label, slug, or absolute path) into a page id.
+ */
 export function resolvePageForAuth(page: string, authenticated = hasAuthSession()) {
-  if (authenticated && (page === "login" || page === "sign-up")) {
+  const asPath = page.startsWith("/") ? page : getPathFromPage(page);
+  const id = getPageFromPath(asPath);
+
+  if (authenticated && (id === "login" || id === "sign-up")) {
     return "Home";
   }
 
-  return page;
+  return id;
 }
 
 export function useAppNavigation() {
@@ -96,8 +126,7 @@ export function useAppNavigation() {
 
   useEffect(() => {
     const syncRouteFromLocation = () => {
-      const requestedPage = getPageFromPath();
-      const resolvedPage = resolvePageForAuth(requestedPage);
+      const resolvedPage = resolvePageForAuth(getPageFromPath());
       const canonicalPath = getPathFromPage(resolvedPage);
 
       if (window.location.pathname !== canonicalPath) {

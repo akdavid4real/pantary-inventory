@@ -1,0 +1,787 @@
+{
+  "01-long-grain-rice": {
+    "thumb": "/catalog/thumb/01-long-grain-rice.webp",
+    "card": "/catalog/card/01-long-grain-rice.webp",
+    "hero": "/catalog/hero/01-long-grain-rice.webp"
+  },
+  "01-nigerian-jollof-rice": {
+    "thumb": "/catalog/thumb/01-nigerian-jollof-rice.webp",
+    "card": "/catalog/card/01-nigerian-jollof-rice.webp",
+    "hero": "/catalog/hero/01-nigerian-jollof-rice.webp"
+  },
+  "02-brown-beans": {
+    "thumb": "/catalog/thumb/02-brown-beans.webp",
+    "card": "/catalog/card/02-brown-beans.webp",
+    "hero": "/catalog/hero/02-brown-beans.webp"
+  },
+  "02-nigerian-fried-rice": {
+    "thumb": "/catalog/thumb/02-nigerian-fried-rice.webp",
+    "card": "/catalog/card/02-nigerian-fried-rice.webp",
+    "hero": "/catalog/hero/02-nigerian-fried-rice.webp"
+  },
+  "03-nigerian-coconut-rice": {
+    "thumb": "/catalog/thumb/03-nigerian-coconut-rice.webp",
+    "card": "/catalog/card/03-nigerian-coconut-rice.webp",
+    "hero": "/catalog/hero/03-nigerian-coconut-rice.webp"
+  },
+  "03-white-beans": {
+    "thumb": "/catalog/thumb/03-white-beans.webp",
+    "card": "/catalog/card/03-white-beans.webp",
+    "hero": "/catalog/hero/03-white-beans.webp"
+  },
+  "04-ofada-rice-ayamase": {
+    "thumb": "/catalog/thumb/04-ofada-rice-ayamase.webp",
+    "card": "/catalog/card/04-ofada-rice-ayamase.webp",
+    "hero": "/catalog/hero/04-ofada-rice-ayamase.webp"
+  },
+  "04-yam-tuber": {
+    "thumb": "/catalog/thumb/04-yam-tuber.webp",
+    "card": "/catalog/card/04-yam-tuber.webp",
+    "hero": "/catalog/hero/04-yam-tuber.webp"
+  },
+  "05-cassava-tuber": {
+    "thumb": "/catalog/thumb/05-cassava-tuber.webp",
+    "card": "/catalog/card/05-cassava-tuber.webp",
+    "hero": "/catalog/hero/05-cassava-tuber.webp"
+  },
+  "05-white-rice-tomato-stew": {
+    "thumb": "/catalog/thumb/05-white-rice-tomato-stew.webp",
+    "card": "/catalog/card/05-white-rice-tomato-stew.webp",
+    "hero": "/catalog/hero/05-white-rice-tomato-stew.webp"
+  },
+  "06-garri": {
+    "thumb": "/catalog/thumb/06-garri.webp",
+    "card": "/catalog/card/06-garri.webp",
+    "hero": "/catalog/hero/06-garri.webp"
+  },
+  "06-tuwo-shinkafa": {
+    "thumb": "/catalog/thumb/06-tuwo-shinkafa.webp",
+    "card": "/catalog/card/06-tuwo-shinkafa.webp",
+    "hero": "/catalog/hero/06-tuwo-shinkafa.webp"
+  },
+  "07-nigerian-beans-porridge": {
+    "thumb": "/catalog/thumb/07-nigerian-beans-porridge.webp",
+    "card": "/catalog/card/07-nigerian-beans-porridge.webp",
+    "hero": "/catalog/hero/07-nigerian-beans-porridge.webp"
+  },
+  "07-plantain": {
+    "thumb": "/catalog/thumb/07-plantain.webp",
+    "card": "/catalog/card/07-plantain.webp",
+    "hero": "/catalog/hero/07-plantain.webp"
+  },
+  "08-asaro-yam-porridge": {
+    "thumb": "/catalog/thumb/08-asaro-yam-porridge.webp",
+    "card": "/catalog/card/08-asaro-yam-porridge.webp",
+    "hero": "/catalog/hero/08-asaro-yam-porridge.webp"
+  },
+  "08-cocoyam": {
+    "thumb": "/catalog/thumb/08-cocoyam.webp",
+    "card": "/catalog/card/08-cocoyam.webp",
+    "hero": "/catalog/hero/08-cocoyam.webp"
+  },
+  "09-egusi-soup": {
+    "thumb": "/catalog/thumb/09-egusi-soup.webp",
+    "card": "/catalog/card/09-egusi-soup.webp",
+    "hero": "/catalog/hero/09-egusi-soup.webp"
+  },
+  "09-maize": {
+    "thumb": "/catalog/thumb/09-maize.webp",
+    "card": "/catalog/card/09-maize.webp",
+    "hero": "/catalog/hero/09-maize.webp"
+  },
+  "10-millet": {
+    "thumb": "/catalog/thumb/10-millet.webp",
+    "card": "/catalog/card/10-millet.webp",
+    "hero": "/catalog/hero/10-millet.webp"
+  },
+  "10-ogbono-soup": {
+    "thumb": "/catalog/thumb/10-ogbono-soup.webp",
+    "card": "/catalog/card/10-ogbono-soup.webp",
+    "hero": "/catalog/hero/10-ogbono-soup.webp"
+  },
+  "11-guinea-corn": {
+    "thumb": "/catalog/thumb/11-guinea-corn.webp",
+    "card": "/catalog/card/11-guinea-corn.webp",
+    "hero": "/catalog/hero/11-guinea-corn.webp"
+  },
+  "11-nigerian-okra-soup": {
+    "thumb": "/catalog/thumb/11-nigerian-okra-soup.webp",
+    "card": "/catalog/card/11-nigerian-okra-soup.webp",
+    "hero": "/catalog/hero/11-nigerian-okra-soup.webp"
+  },
+  "12-efo-riro": {
+    "thumb": "/catalog/thumb/12-efo-riro.webp",
+    "card": "/catalog/card/12-efo-riro.webp",
+    "hero": "/catalog/hero/12-efo-riro.webp"
+  },
+  "12-egusi-seeds": {
+    "thumb": "/catalog/thumb/12-egusi-seeds.webp",
+    "card": "/catalog/card/12-egusi-seeds.webp",
+    "hero": "/catalog/hero/12-egusi-seeds.webp"
+  },
+  "13-afang-soup": {
+    "thumb": "/catalog/thumb/13-afang-soup.webp",
+    "card": "/catalog/card/13-afang-soup.webp",
+    "hero": "/catalog/hero/13-afang-soup.webp"
+  },
+  "13-ogbono-seeds": {
+    "thumb": "/catalog/thumb/13-ogbono-seeds.webp",
+    "card": "/catalog/card/13-ogbono-seeds.webp",
+    "hero": "/catalog/hero/13-ogbono-seeds.webp"
+  },
+  "14-edikang-ikong-soup": {
+    "thumb": "/catalog/thumb/14-edikang-ikong-soup.webp",
+    "card": "/catalog/card/14-edikang-ikong-soup.webp",
+    "hero": "/catalog/hero/14-edikang-ikong-soup.webp"
+  },
+  "14-groundnuts": {
+    "thumb": "/catalog/thumb/14-groundnuts.webp",
+    "card": "/catalog/card/14-groundnuts.webp",
+    "hero": "/catalog/hero/14-groundnuts.webp"
+  },
+  "15-banga-soup": {
+    "thumb": "/catalog/thumb/15-banga-soup.webp",
+    "card": "/catalog/card/15-banga-soup.webp",
+    "hero": "/catalog/hero/15-banga-soup.webp"
+  },
+  "15-palm-nuts": {
+    "thumb": "/catalog/thumb/15-palm-nuts.webp",
+    "card": "/catalog/card/15-palm-nuts.webp",
+    "hero": "/catalog/hero/15-palm-nuts.webp"
+  },
+  "16-oha-soup": {
+    "thumb": "/catalog/thumb/16-oha-soup.webp",
+    "card": "/catalog/card/16-oha-soup.webp",
+    "hero": "/catalog/hero/16-oha-soup.webp"
+  },
+  "16-palm-oil": {
+    "thumb": "/catalog/thumb/16-palm-oil.webp",
+    "card": "/catalog/card/16-palm-oil.webp",
+    "hero": "/catalog/hero/16-palm-oil.webp"
+  },
+  "17-fresh-tomatoes": {
+    "thumb": "/catalog/thumb/17-fresh-tomatoes.webp",
+    "card": "/catalog/card/17-fresh-tomatoes.webp",
+    "hero": "/catalog/hero/17-fresh-tomatoes.webp"
+  },
+  "17-nsala-white-soup": {
+    "thumb": "/catalog/thumb/17-nsala-white-soup.webp",
+    "card": "/catalog/card/17-nsala-white-soup.webp",
+    "hero": "/catalog/hero/17-nsala-white-soup.webp"
+  },
+  "18-nigerian-pepper-soup": {
+    "thumb": "/catalog/thumb/18-nigerian-pepper-soup.webp",
+    "card": "/catalog/card/18-nigerian-pepper-soup.webp",
+    "hero": "/catalog/hero/18-nigerian-pepper-soup.webp"
+  },
+  "18-red-bell-peppers": {
+    "thumb": "/catalog/thumb/18-red-bell-peppers.webp",
+    "card": "/catalog/card/18-red-bell-peppers.webp",
+    "hero": "/catalog/hero/18-red-bell-peppers.webp"
+  },
+  "19-nigerian-tomato-stew": {
+    "thumb": "/catalog/thumb/19-nigerian-tomato-stew.webp",
+    "card": "/catalog/card/19-nigerian-tomato-stew.webp",
+    "hero": "/catalog/hero/19-nigerian-tomato-stew.webp"
+  },
+  "19-scotch-bonnet-peppers": {
+    "thumb": "/catalog/thumb/19-scotch-bonnet-peppers.webp",
+    "card": "/catalog/card/19-scotch-bonnet-peppers.webp",
+    "hero": "/catalog/hero/19-scotch-bonnet-peppers.webp"
+  },
+  "20-nigerian-groundnut-soup": {
+    "thumb": "/catalog/thumb/20-nigerian-groundnut-soup.webp",
+    "card": "/catalog/card/20-nigerian-groundnut-soup.webp",
+    "hero": "/catalog/hero/20-nigerian-groundnut-soup.webp"
+  },
+  "20-onions": {
+    "thumb": "/catalog/thumb/20-onions.webp",
+    "card": "/catalog/card/20-onions.webp",
+    "hero": "/catalog/hero/20-onions.webp"
+  },
+  "21-okra": {
+    "thumb": "/catalog/thumb/21-okra.webp",
+    "card": "/catalog/card/21-okra.webp",
+    "hero": "/catalog/hero/21-okra.webp"
+  },
+  "21-pounded-yam": {
+    "thumb": "/catalog/thumb/21-pounded-yam.webp",
+    "card": "/catalog/card/21-pounded-yam.webp",
+    "hero": "/catalog/hero/21-pounded-yam.webp"
+  },
+  "22-eba": {
+    "thumb": "/catalog/thumb/22-eba.webp",
+    "card": "/catalog/card/22-eba.webp",
+    "hero": "/catalog/hero/22-eba.webp"
+  },
+  "22-ugu-leaves": {
+    "thumb": "/catalog/thumb/22-ugu-leaves.webp",
+    "card": "/catalog/card/22-ugu-leaves.webp",
+    "hero": "/catalog/hero/22-ugu-leaves.webp"
+  },
+  "23-amala": {
+    "thumb": "/catalog/thumb/23-amala.webp",
+    "card": "/catalog/card/23-amala.webp",
+    "hero": "/catalog/hero/23-amala.webp"
+  },
+  "23-bitter-leaves": {
+    "thumb": "/catalog/thumb/23-bitter-leaves.webp",
+    "card": "/catalog/card/23-bitter-leaves.webp",
+    "hero": "/catalog/hero/23-bitter-leaves.webp"
+  },
+  "24-oha-leaves": {
+    "thumb": "/catalog/thumb/24-oha-leaves.webp",
+    "card": "/catalog/card/24-oha-leaves.webp",
+    "hero": "/catalog/hero/24-oha-leaves.webp"
+  },
+  "24-semovita": {
+    "thumb": "/catalog/thumb/24-semovita.webp",
+    "card": "/catalog/card/24-semovita.webp",
+    "hero": "/catalog/hero/24-semovita.webp"
+  },
+  "25-fufu-akpu": {
+    "thumb": "/catalog/thumb/25-fufu-akpu.webp",
+    "card": "/catalog/card/25-fufu-akpu.webp",
+    "hero": "/catalog/hero/25-fufu-akpu.webp"
+  },
+  "25-waterleaf": {
+    "thumb": "/catalog/thumb/25-waterleaf.webp",
+    "card": "/catalog/card/25-waterleaf.webp",
+    "hero": "/catalog/hero/25-waterleaf.webp"
+  },
+  "26-chicken-suya": {
+    "thumb": "/catalog/thumb/26-chicken-suya.webp",
+    "card": "/catalog/card/26-chicken-suya.webp",
+    "hero": "/catalog/hero/26-chicken-suya.webp"
+  },
+  "26-scent-leaves": {
+    "thumb": "/catalog/thumb/26-scent-leaves.webp",
+    "card": "/catalog/card/26-scent-leaves.webp",
+    "hero": "/catalog/hero/26-scent-leaves.webp"
+  },
+  "27-beef-suya": {
+    "thumb": "/catalog/thumb/27-beef-suya.webp",
+    "card": "/catalog/card/27-beef-suya.webp",
+    "hero": "/catalog/hero/27-beef-suya.webp"
+  },
+  "27-uziza-leaves": {
+    "thumb": "/catalog/thumb/27-uziza-leaves.webp",
+    "card": "/catalog/card/27-uziza-leaves.webp",
+    "hero": "/catalog/hero/27-uziza-leaves.webp"
+  },
+  "28-crayfish": {
+    "thumb": "/catalog/thumb/28-crayfish.webp",
+    "card": "/catalog/card/28-crayfish.webp",
+    "hero": "/catalog/hero/28-crayfish.webp"
+  },
+  "28-grilled-tilapia-pepper-sauce": {
+    "thumb": "/catalog/thumb/28-grilled-tilapia-pepper-sauce.webp",
+    "card": "/catalog/card/28-grilled-tilapia-pepper-sauce.webp",
+    "hero": "/catalog/hero/28-grilled-tilapia-pepper-sauce.webp"
+  },
+  "29-nkwobi": {
+    "thumb": "/catalog/thumb/29-nkwobi.webp",
+    "card": "/catalog/card/29-nkwobi.webp",
+    "hero": "/catalog/hero/29-nkwobi.webp"
+  },
+  "29-stockfish": {
+    "thumb": "/catalog/thumb/29-stockfish.webp",
+    "card": "/catalog/card/29-stockfish.webp",
+    "hero": "/catalog/hero/29-stockfish.webp"
+  },
+  "30-dried-fish": {
+    "thumb": "/catalog/thumb/30-dried-fish.webp",
+    "card": "/catalog/card/30-dried-fish.webp",
+    "hero": "/catalog/hero/30-dried-fish.webp"
+  },
+  "30-isi-ewu": {
+    "thumb": "/catalog/thumb/30-isi-ewu.webp",
+    "card": "/catalog/card/30-isi-ewu.webp",
+    "hero": "/catalog/hero/30-isi-ewu.webp"
+  },
+  "31-fresh-catfish": {
+    "thumb": "/catalog/thumb/31-fresh-catfish.webp",
+    "card": "/catalog/card/31-fresh-catfish.webp",
+    "hero": "/catalog/hero/31-fresh-catfish.webp"
+  },
+  "31-goat-meat-pepper-soup": {
+    "thumb": "/catalog/thumb/31-goat-meat-pepper-soup.webp",
+    "card": "/catalog/card/31-goat-meat-pepper-soup.webp",
+    "hero": "/catalog/hero/31-goat-meat-pepper-soup.webp"
+  },
+  "32-fresh-tilapia": {
+    "thumb": "/catalog/thumb/32-fresh-tilapia.webp",
+    "card": "/catalog/card/32-fresh-tilapia.webp",
+    "hero": "/catalog/hero/32-fresh-tilapia.webp"
+  },
+  "32-moi-moi": {
+    "thumb": "/catalog/thumb/32-moi-moi.webp",
+    "card": "/catalog/card/32-moi-moi.webp",
+    "hero": "/catalog/hero/32-moi-moi.webp"
+  },
+  "33-akara": {
+    "thumb": "/catalog/thumb/33-akara.webp",
+    "card": "/catalog/card/33-akara.webp",
+    "hero": "/catalog/hero/33-akara.webp"
+  },
+  "33-beef": {
+    "thumb": "/catalog/thumb/33-beef.webp",
+    "card": "/catalog/card/33-beef.webp",
+    "hero": "/catalog/hero/33-beef.webp"
+  },
+  "34-goat-meat": {
+    "thumb": "/catalog/thumb/34-goat-meat.webp",
+    "card": "/catalog/card/34-goat-meat.webp",
+    "hero": "/catalog/hero/34-goat-meat.webp"
+  },
+  "34-pap-and-akara": {
+    "thumb": "/catalog/thumb/34-pap-and-akara.webp",
+    "card": "/catalog/card/34-pap-and-akara.webp",
+    "hero": "/catalog/hero/34-pap-and-akara.webp"
+  },
+  "35-chicken": {
+    "thumb": "/catalog/thumb/35-chicken.webp",
+    "card": "/catalog/card/35-chicken.webp",
+    "hero": "/catalog/hero/35-chicken.webp"
+  },
+  "35-puff-puff": {
+    "thumb": "/catalog/thumb/35-puff-puff.webp",
+    "card": "/catalog/card/35-puff-puff.webp",
+    "hero": "/catalog/hero/35-puff-puff.webp"
+  },
+  "36-cow-skin-ponmo": {
+    "thumb": "/catalog/thumb/36-cow-skin-ponmo.webp",
+    "card": "/catalog/card/36-cow-skin-ponmo.webp",
+    "hero": "/catalog/hero/36-cow-skin-ponmo.webp"
+  },
+  "36-nigerian-meat-pie": {
+    "thumb": "/catalog/thumb/36-nigerian-meat-pie.webp",
+    "card": "/catalog/card/36-nigerian-meat-pie.webp",
+    "hero": "/catalog/hero/36-nigerian-meat-pie.webp"
+  },
+  "37-bole-grilled-fish": {
+    "thumb": "/catalog/thumb/37-bole-grilled-fish.webp",
+    "card": "/catalog/card/37-bole-grilled-fish.webp",
+    "hero": "/catalog/hero/37-bole-grilled-fish.webp"
+  },
+  "37-locust-beans-iru": {
+    "thumb": "/catalog/thumb/37-locust-beans-iru.webp",
+    "card": "/catalog/card/37-locust-beans-iru.webp",
+    "hero": "/catalog/hero/37-locust-beans-iru.webp"
+  },
+  "38-abacha-african-salad": {
+    "thumb": "/catalog/thumb/38-abacha-african-salad.webp",
+    "card": "/catalog/card/38-abacha-african-salad.webp",
+    "hero": "/catalog/hero/38-abacha-african-salad.webp"
+  },
+  "38-uda-pods": {
+    "thumb": "/catalog/thumb/38-uda-pods.webp",
+    "card": "/catalog/card/38-uda-pods.webp",
+    "hero": "/catalog/hero/38-uda-pods.webp"
+  },
+  "39-masa": {
+    "thumb": "/catalog/thumb/39-masa.webp",
+    "card": "/catalog/card/39-masa.webp",
+    "hero": "/catalog/hero/39-masa.webp"
+  },
+  "39-uziza-seeds": {
+    "thumb": "/catalog/thumb/39-uziza-seeds.webp",
+    "card": "/catalog/card/39-uziza-seeds.webp",
+    "hero": "/catalog/hero/39-uziza-seeds.webp"
+  },
+  "40-ginger": {
+    "thumb": "/catalog/thumb/40-ginger.webp",
+    "card": "/catalog/card/40-ginger.webp",
+    "hero": "/catalog/hero/40-ginger.webp"
+  },
+  "40-kilishi": {
+    "thumb": "/catalog/thumb/40-kilishi.webp",
+    "card": "/catalog/card/40-kilishi.webp",
+    "hero": "/catalog/hero/40-kilishi.webp"
+  },
+  "41-salt": {
+    "thumb": "/catalog/thumb/41-salt.webp",
+    "card": "/catalog/card/41-salt.webp",
+    "hero": "/catalog/hero/41-salt.webp"
+  },
+  "41-yam-and-egg-sauce": {
+    "thumb": "/catalog/thumb/41-yam-and-egg-sauce.webp",
+    "card": "/catalog/card/41-yam-and-egg-sauce.webp",
+    "hero": "/catalog/hero/41-yam-and-egg-sauce.webp"
+  },
+  "42-bread-and-eggs": {
+    "thumb": "/catalog/thumb/42-bread-and-eggs.webp",
+    "card": "/catalog/card/42-bread-and-eggs.webp",
+    "hero": "/catalog/hero/42-bread-and-eggs.webp"
+  },
+  "42-curry-powder": {
+    "thumb": "/catalog/thumb/42-curry-powder.webp",
+    "card": "/catalog/card/42-curry-powder.webp",
+    "hero": "/catalog/hero/42-curry-powder.webp"
+  },
+  "43-dried-thyme": {
+    "thumb": "/catalog/thumb/43-dried-thyme.webp",
+    "card": "/catalog/card/43-dried-thyme.webp",
+    "hero": "/catalog/hero/43-dried-thyme.webp"
+  },
+  "43-nigerian-custard": {
+    "thumb": "/catalog/thumb/43-nigerian-custard.webp",
+    "card": "/catalog/card/43-nigerian-custard.webp",
+    "hero": "/catalog/hero/43-nigerian-custard.webp"
+  },
+  "44-nigerian-oatmeal": {
+    "thumb": "/catalog/thumb/44-nigerian-oatmeal.webp",
+    "card": "/catalog/card/44-nigerian-oatmeal.webp",
+    "hero": "/catalog/hero/44-nigerian-oatmeal.webp"
+  },
+  "44-seasoning-cubes": {
+    "thumb": "/catalog/thumb/44-seasoning-cubes.webp",
+    "card": "/catalog/card/44-seasoning-cubes.webp",
+    "hero": "/catalog/hero/44-seasoning-cubes.webp"
+  },
+  "45-black-pepper": {
+    "thumb": "/catalog/thumb/45-black-pepper.webp",
+    "card": "/catalog/card/45-black-pepper.webp",
+    "hero": "/catalog/hero/45-black-pepper.webp"
+  },
+  "45-plantain-and-egg-sauce": {
+    "thumb": "/catalog/thumb/45-plantain-and-egg-sauce.webp",
+    "card": "/catalog/card/45-plantain-and-egg-sauce.webp",
+    "hero": "/catalog/hero/45-plantain-and-egg-sauce.webp"
+  },
+  "46-sweet-potato-and-egg-sauce": {
+    "thumb": "/catalog/thumb/46-sweet-potato-and-egg-sauce.webp",
+    "card": "/catalog/card/46-sweet-potato-and-egg-sauce.webp",
+    "hero": "/catalog/hero/46-sweet-potato-and-egg-sauce.webp"
+  },
+  "46-white-pepper": {
+    "thumb": "/catalog/thumb/46-white-pepper.webp",
+    "card": "/catalog/card/46-white-pepper.webp",
+    "hero": "/catalog/hero/46-white-pepper.webp"
+  },
+  "47-garlic": {
+    "thumb": "/catalog/thumb/47-garlic.webp",
+    "card": "/catalog/card/47-garlic.webp",
+    "hero": "/catalog/hero/47-garlic.webp"
+  },
+  "47-noodles-and-egg": {
+    "thumb": "/catalog/thumb/47-noodles-and-egg.webp",
+    "card": "/catalog/card/47-noodles-and-egg.webp",
+    "hero": "/catalog/hero/47-noodles-and-egg.webp"
+  },
+  "48-cloves": {
+    "thumb": "/catalog/thumb/48-cloves.webp",
+    "card": "/catalog/card/48-cloves.webp",
+    "hero": "/catalog/hero/48-cloves.webp"
+  },
+  "48-moi-moi-and-pap": {
+    "thumb": "/catalog/thumb/48-moi-moi-and-pap.webp",
+    "card": "/catalog/card/48-moi-moi-and-pap.webp",
+    "hero": "/catalog/hero/48-moi-moi-and-pap.webp"
+  },
+  "49-nigerian-pancakes": {
+    "thumb": "/catalog/thumb/49-nigerian-pancakes.webp",
+    "card": "/catalog/card/49-nigerian-pancakes.webp",
+    "hero": "/catalog/hero/49-nigerian-pancakes.webp"
+  },
+  "49-nutmeg": {
+    "thumb": "/catalog/thumb/49-nutmeg.webp",
+    "card": "/catalog/card/49-nutmeg.webp",
+    "hero": "/catalog/hero/49-nutmeg.webp"
+  },
+  "50-bay-leaves": {
+    "thumb": "/catalog/thumb/50-bay-leaves.webp",
+    "card": "/catalog/card/50-bay-leaves.webp",
+    "hero": "/catalog/hero/50-bay-leaves.webp"
+  },
+  "50-tea-bread-and-omelette": {
+    "thumb": "/catalog/thumb/50-tea-bread-and-omelette.webp",
+    "card": "/catalog/card/50-tea-bread-and-omelette.webp",
+    "hero": "/catalog/hero/50-tea-bread-and-omelette.webp"
+  },
+  "51-chin-chin": {
+    "thumb": "/catalog/thumb/51-chin-chin.webp",
+    "card": "/catalog/card/51-chin-chin.webp",
+    "hero": "/catalog/hero/51-chin-chin.webp"
+  },
+  "51-paprika": {
+    "thumb": "/catalog/thumb/51-paprika.webp",
+    "card": "/catalog/card/51-paprika.webp",
+    "hero": "/catalog/hero/51-paprika.webp"
+  },
+  "52-nigerian-sausage-roll": {
+    "thumb": "/catalog/thumb/52-nigerian-sausage-roll.webp",
+    "card": "/catalog/card/52-nigerian-sausage-roll.webp",
+    "hero": "/catalog/hero/52-nigerian-sausage-roll.webp"
+  },
+  "52-turmeric-powder": {
+    "thumb": "/catalog/thumb/52-turmeric-powder.webp",
+    "card": "/catalog/card/52-turmeric-powder.webp",
+    "hero": "/catalog/hero/52-turmeric-powder.webp"
+  },
+  "53-cinnamon": {
+    "thumb": "/catalog/thumb/53-cinnamon.webp",
+    "card": "/catalog/card/53-cinnamon.webp",
+    "hero": "/catalog/hero/53-cinnamon.webp"
+  },
+  "53-nigerian-fish-roll": {
+    "thumb": "/catalog/thumb/53-nigerian-fish-roll.webp",
+    "card": "/catalog/card/53-nigerian-fish-roll.webp",
+    "hero": "/catalog/hero/53-nigerian-fish-roll.webp"
+  },
+  "54-nigerian-buns": {
+    "thumb": "/catalog/thumb/54-nigerian-buns.webp",
+    "card": "/catalog/card/54-nigerian-buns.webp",
+    "hero": "/catalog/hero/54-nigerian-buns.webp"
+  },
+  "54-rosemary": {
+    "thumb": "/catalog/thumb/54-rosemary.webp",
+    "card": "/catalog/card/54-rosemary.webp",
+    "hero": "/catalog/hero/54-rosemary.webp"
+  },
+  "55-small-chops-samosa": {
+    "thumb": "/catalog/thumb/55-small-chops-samosa.webp",
+    "card": "/catalog/card/55-small-chops-samosa.webp",
+    "hero": "/catalog/hero/55-small-chops-samosa.webp"
+  },
+  "55-suya-spice": {
+    "thumb": "/catalog/thumb/55-suya-spice.webp",
+    "card": "/catalog/card/55-suya-spice.webp",
+    "hero": "/catalog/hero/55-suya-spice.webp"
+  },
+  "56-cameroon-pepper": {
+    "thumb": "/catalog/thumb/56-cameroon-pepper.webp",
+    "card": "/catalog/card/56-cameroon-pepper.webp",
+    "hero": "/catalog/hero/56-cameroon-pepper.webp"
+  },
+  "56-small-chops-spring-rolls": {
+    "thumb": "/catalog/thumb/56-small-chops-spring-rolls.webp",
+    "card": "/catalog/card/56-small-chops-spring-rolls.webp",
+    "hero": "/catalog/hero/56-small-chops-spring-rolls.webp"
+  },
+  "57-nigerian-scotch-eggs": {
+    "thumb": "/catalog/thumb/57-nigerian-scotch-eggs.webp",
+    "card": "/catalog/card/57-nigerian-scotch-eggs.webp",
+    "hero": "/catalog/hero/57-nigerian-scotch-eggs.webp"
+  },
+  "57-onion-powder": {
+    "thumb": "/catalog/thumb/57-onion-powder.webp",
+    "card": "/catalog/card/57-onion-powder.webp",
+    "hero": "/catalog/hero/57-onion-powder.webp"
+  },
+  "58-garlic-powder": {
+    "thumb": "/catalog/thumb/58-garlic-powder.webp",
+    "card": "/catalog/card/58-garlic-powder.webp",
+    "hero": "/catalog/hero/58-garlic-powder.webp"
+  },
+  "58-plantain-chips": {
+    "thumb": "/catalog/thumb/58-plantain-chips.webp",
+    "card": "/catalog/card/58-plantain-chips.webp",
+    "hero": "/catalog/hero/58-plantain-chips.webp"
+  },
+  "59-nigerian-coconut-candy": {
+    "thumb": "/catalog/thumb/59-nigerian-coconut-candy.webp",
+    "card": "/catalog/card/59-nigerian-coconut-candy.webp",
+    "hero": "/catalog/hero/59-nigerian-coconut-candy.webp"
+  },
+  "59-potash-akanwu": {
+    "thumb": "/catalog/thumb/59-potash-akanwu.webp",
+    "card": "/catalog/card/59-potash-akanwu.webp",
+    "hero": "/catalog/hero/59-potash-akanwu.webp"
+  },
+  "60-baking-soda": {
+    "thumb": "/catalog/thumb/60-baking-soda.webp",
+    "card": "/catalog/card/60-baking-soda.webp",
+    "hero": "/catalog/hero/60-baking-soda.webp"
+  },
+  "60-roasted-groundnuts": {
+    "thumb": "/catalog/thumb/60-roasted-groundnuts.webp",
+    "card": "/catalog/card/60-roasted-groundnuts.webp",
+    "hero": "/catalog/hero/60-roasted-groundnuts.webp"
+  },
+  "61-eggs": {
+    "thumb": "/catalog/thumb/61-eggs.webp",
+    "card": "/catalog/card/61-eggs.webp",
+    "hero": "/catalog/hero/61-eggs.webp"
+  },
+  "61-tuwo-masara": {
+    "thumb": "/catalog/thumb/61-tuwo-masara.webp",
+    "card": "/catalog/card/61-tuwo-masara.webp",
+    "hero": "/catalog/hero/61-tuwo-masara.webp"
+  },
+  "62-bitterleaf-soup": {
+    "thumb": "/catalog/thumb/62-bitterleaf-soup.webp",
+    "card": "/catalog/card/62-bitterleaf-soup.webp",
+    "hero": "/catalog/hero/62-bitterleaf-soup.webp"
+  },
+  "62-vegetable-oil": {
+    "thumb": "/catalog/thumb/62-vegetable-oil.webp",
+    "card": "/catalog/card/62-vegetable-oil.webp",
+    "hero": "/catalog/hero/62-vegetable-oil.webp"
+  },
+  "63-native-jollof-rice": {
+    "thumb": "/catalog/thumb/63-native-jollof-rice.webp",
+    "card": "/catalog/card/63-native-jollof-rice.webp",
+    "hero": "/catalog/hero/63-native-jollof-rice.webp"
+  },
+  "64-asun": {
+    "thumb": "/catalog/thumb/64-asun.webp",
+    "card": "/catalog/card/64-asun.webp",
+    "hero": "/catalog/hero/64-asun.webp"
+  },
+  "65-kuli-kuli": {
+    "thumb": "/catalog/thumb/65-kuli-kuli.webp",
+    "card": "/catalog/card/65-kuli-kuli.webp",
+    "hero": "/catalog/hero/65-kuli-kuli.webp"
+  },
+  "66-fried-yam-with-egg-sauce": {
+    "thumb": "/catalog/thumb/66-fried-yam-with-egg-sauce.webp",
+    "card": "/catalog/card/66-fried-yam-with-egg-sauce.webp",
+    "hero": "/catalog/hero/66-fried-yam-with-egg-sauce.webp"
+  },
+  "67-stockfish-fillet": {
+    "thumb": "/catalog/thumb/67-stockfish-fillet.webp",
+    "card": "/catalog/card/67-stockfish-fillet.webp",
+    "hero": "/catalog/hero/67-stockfish-fillet.webp"
+  },
+  "68-zobo": {
+    "thumb": "/catalog/thumb/68-zobo.webp",
+    "card": "/catalog/card/68-zobo.webp",
+    "hero": "/catalog/hero/68-zobo.webp"
+  },
+  "69-ekpang-nkukwo": {
+    "thumb": "/catalog/thumb/69-ekpang-nkukwo.webp",
+    "card": "/catalog/card/69-ekpang-nkukwo.webp",
+    "hero": "/catalog/hero/69-ekpang-nkukwo.webp"
+  },
+  "70-wheat-swallow": {
+    "thumb": "/catalog/thumb/70-wheat-swallow.webp",
+    "card": "/catalog/card/70-wheat-swallow.webp",
+    "hero": "/catalog/hero/70-wheat-swallow.webp"
+  },
+  "71-oat-swallow": {
+    "thumb": "/catalog/thumb/71-oat-swallow.webp",
+    "card": "/catalog/card/71-oat-swallow.webp",
+    "hero": "/catalog/hero/71-oat-swallow.webp"
+  },
+  "72-plantain-fufu": {
+    "thumb": "/catalog/thumb/72-plantain-fufu.webp",
+    "card": "/catalog/card/72-plantain-fufu.webp",
+    "hero": "/catalog/hero/72-plantain-fufu.webp"
+  },
+  "73-cocoyam-fufu": {
+    "thumb": "/catalog/thumb/73-cocoyam-fufu.webp",
+    "card": "/catalog/card/73-cocoyam-fufu.webp",
+    "hero": "/catalog/hero/73-cocoyam-fufu.webp"
+  },
+  "74-starch-usi": {
+    "thumb": "/catalog/thumb/74-starch-usi.webp",
+    "card": "/catalog/card/74-starch-usi.webp",
+    "hero": "/catalog/hero/74-starch-usi.webp"
+  },
+  "75-lafun": {
+    "thumb": "/catalog/thumb/75-lafun.webp",
+    "card": "/catalog/card/75-lafun.webp",
+    "hero": "/catalog/hero/75-lafun.webp"
+  },
+  "76-pupuru": {
+    "thumb": "/catalog/thumb/76-pupuru.webp",
+    "card": "/catalog/card/76-pupuru.webp",
+    "hero": "/catalog/hero/76-pupuru.webp"
+  },
+  "77-ground-rice-swallow": {
+    "thumb": "/catalog/thumb/77-ground-rice-swallow.webp",
+    "card": "/catalog/card/77-ground-rice-swallow.webp",
+    "hero": "/catalog/hero/77-ground-rice-swallow.webp"
+  },
+  "78-millet-swallow": {
+    "thumb": "/catalog/thumb/78-millet-swallow.webp",
+    "card": "/catalog/card/78-millet-swallow.webp",
+    "hero": "/catalog/hero/78-millet-swallow.webp"
+  },
+  "79-guinea-corn-swallow": {
+    "thumb": "/catalog/thumb/79-guinea-corn-swallow.webp",
+    "card": "/catalog/card/79-guinea-corn-swallow.webp",
+    "hero": "/catalog/hero/79-guinea-corn-swallow.webp"
+  },
+  "80-agidi-eko": {
+    "thumb": "/catalog/thumb/80-agidi-eko.webp",
+    "card": "/catalog/card/80-agidi-eko.webp",
+    "hero": "/catalog/hero/80-agidi-eko.webp"
+  },
+  "83-yellow-garri-eba": {
+    "thumb": "/catalog/thumb/83-yellow-garri-eba.webp",
+    "card": "/catalog/card/83-yellow-garri-eba.webp",
+    "hero": "/catalog/hero/83-yellow-garri-eba.webp"
+  },
+  "84-ijebu-garri-eba": {
+    "thumb": "/catalog/thumb/84-ijebu-garri-eba.webp",
+    "card": "/catalog/card/84-ijebu-garri-eba.webp",
+    "hero": "/catalog/hero/84-ijebu-garri-eba.webp"
+  },
+  "85-cassava-wheat-swallow": {
+    "thumb": "/catalog/thumb/85-cassava-wheat-swallow.webp",
+    "card": "/catalog/card/85-cassava-wheat-swallow.webp",
+    "hero": "/catalog/hero/85-cassava-wheat-swallow.webp"
+  },
+  "86-yam-flour-amala": {
+    "thumb": "/catalog/thumb/86-yam-flour-amala.webp",
+    "card": "/catalog/card/86-yam-flour-amala.webp",
+    "hero": "/catalog/hero/86-yam-flour-amala.webp"
+  },
+  "87-plantain-flour-amala": {
+    "thumb": "/catalog/thumb/87-plantain-flour-amala.webp",
+    "card": "/catalog/card/87-plantain-flour-amala.webp",
+    "hero": "/catalog/hero/87-plantain-flour-amala.webp"
+  },
+  "88-ewedu-soup": {
+    "thumb": "/catalog/thumb/88-ewedu-soup.webp",
+    "card": "/catalog/card/88-ewedu-soup.webp",
+    "hero": "/catalog/hero/88-ewedu-soup.webp"
+  },
+  "89-gbegiri-soup": {
+    "thumb": "/catalog/thumb/89-gbegiri-soup.webp",
+    "card": "/catalog/card/89-gbegiri-soup.webp",
+    "hero": "/catalog/hero/89-gbegiri-soup.webp"
+  },
+  "90-miyan-kuka": {
+    "thumb": "/catalog/thumb/90-miyan-kuka.webp",
+    "card": "/catalog/card/90-miyan-kuka.webp",
+    "hero": "/catalog/hero/90-miyan-kuka.webp"
+  },
+  "91-miyan-taushe": {
+    "thumb": "/catalog/thumb/91-miyan-taushe.webp",
+    "card": "/catalog/card/91-miyan-taushe.webp",
+    "hero": "/catalog/hero/91-miyan-taushe.webp"
+  },
+  "92-miyan-wake": {
+    "thumb": "/catalog/thumb/92-miyan-wake.webp",
+    "card": "/catalog/card/92-miyan-wake.webp",
+    "hero": "/catalog/hero/92-miyan-wake.webp"
+  },
+  "93-black-soup": {
+    "thumb": "/catalog/thumb/93-black-soup.webp",
+    "card": "/catalog/card/93-black-soup.webp",
+    "hero": "/catalog/hero/93-black-soup.webp"
+  },
+  "94-atama-soup": {
+    "thumb": "/catalog/thumb/94-atama-soup.webp",
+    "card": "/catalog/card/94-atama-soup.webp",
+    "hero": "/catalog/hero/94-atama-soup.webp"
+  },
+  "95-fisherman-soup": {
+    "thumb": "/catalog/thumb/95-fisherman-soup.webp",
+    "card": "/catalog/card/95-fisherman-soup.webp",
+    "hero": "/catalog/hero/95-fisherman-soup.webp"
+  },
+  "96-ofe-akwu": {
+    "thumb": "/catalog/thumb/96-ofe-akwu.webp",
+    "card": "/catalog/card/96-ofe-akwu.webp",
+    "hero": "/catalog/hero/96-ofe-akwu.webp"
+  },
+  "jollof-rice-grilled-chicken-hero": {
+    "thumb": "/catalog/thumb/jollof-rice-grilled-chicken-hero.webp",
+    "card": "/catalog/card/jollof-rice-grilled-chicken-hero.webp",
+    "hero": "/catalog/hero/jollof-rice-grilled-chicken-hero.webp"
+  }
+}

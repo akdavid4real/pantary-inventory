@@ -14,11 +14,10 @@ type FoodImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
 };
 
 /**
- * Dashboard food/ingredient image with:
- * - Supabase on-the-fly resize when possible
- * - lazy loading + async decode by default
- * - fallback to the original URL if transforms are unavailable
- * - soft placeholder while loading to avoid blank layout jumps
+ * Dashboard food/ingredient image for free Supabase tier:
+ * - Prefer self-hosted /catalog WebP variants (no paid transforms)
+ * - Lazy load + async decode by default
+ * - Soft placeholder while loading
  */
 export function FoodImage({
   src,
@@ -40,7 +39,8 @@ export function FoodImage({
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    ensureStoragePreconnect(src);
+    // Only preconnect Supabase when we still need a remote original.
+    if (optimized === original) ensureStoragePreconnect(src);
     setCurrentSrc(optimized || original);
     setFailed(false);
     setLoaded(false);
@@ -71,6 +71,7 @@ export function FoodImage({
         onLoad?.(event);
       }}
       onError={(event) => {
+        // Local optimized miss → try original remote/source once.
         if (currentSrc !== original && original) {
           setCurrentSrc(original);
           return;

@@ -27,6 +27,15 @@
       ]
     },
     {
+      "source": "/catalog/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
       "source": "/og-preview-v4.jpg",
       "headers": [
         {

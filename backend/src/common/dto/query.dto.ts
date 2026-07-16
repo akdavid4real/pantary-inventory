@@ -15,11 +15,11 @@ export class PaginationQueryDto extends SearchQueryDto {
   @Min(1)
   page?: number = 1;
 
-  @ApiPropertyOptional({ default: 20, maximum: 100 })
+  @ApiPropertyOptional({ default: 20, maximum: 250 })
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(100)
+  @Max(250)
   limit?: number = 20;
 }
 

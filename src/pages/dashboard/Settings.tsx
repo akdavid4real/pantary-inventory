@@ -11,7 +11,8 @@ import {
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
 import { api } from "../../services/api";
-import { Ingredient, Paginated } from "../../types/inventory";
+import { getCachedIngredientCatalog, loadIngredientCatalog } from "../../services/catalog";
+import { Ingredient } from "../../types/inventory";
 import { ScreenProps } from "../../types/navigation";
 
 type UserProfile = {
@@ -187,7 +188,7 @@ export function Settings({ onNavigate }: ScreenProps) {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [draft, setDraft] = useState<SettingsDraft>(defaultDraft);
   const [profiles, setProfiles] = useState<MeasurementProfile[]>([]);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>(getCachedIngredientCatalog);
   const [overrides, setOverrides] = useState<Record<string, MeasurementOverride[]>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -203,13 +204,13 @@ export function Settings({ onNavigate }: ScreenProps) {
       const [currentUser, profileValues, ingredientValues] = await Promise.all([
         api<CurrentUser>("/users/me"),
         api<MeasurementProfile[]>("/measurement-profiles"),
-        api<Paginated<Ingredient>>("/ingredients?limit=100"),
+        loadIngredientCatalog(),
       ]);
 
       setUser(currentUser);
       setDraft(draftFromUser(currentUser));
       setProfiles(profileValues);
-      setIngredients(ingredientValues.items);
+      setIngredients(ingredientValues);
       setOverrides(
         Object.fromEntries(
           profileValues.map((profile) => [profile.id, profile.overrides ?? []]),

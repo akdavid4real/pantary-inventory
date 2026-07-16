@@ -69,8 +69,22 @@ export class IngredientsService {
         where,
         skip,
         take,
-        orderBy: { name: 'asc' },
-        include: { aliases: true, nutrition: true, conversions: true },
+        orderBy: [
+          { imageUrl: { sort: 'desc', nulls: 'last' } },
+          { name: 'asc' },
+        ],
+        select: {
+          id: true,
+          name: true,
+          imageUrl: true,
+          category: true,
+          defaultUnit: true,
+          storageLocation: true,
+          averageCostNaira: true,
+          conversions: {
+            select: { id: true, fromUnit: true, toUnit: true, multiplier: true, notes: true },
+          },
+        },
       }),
       this.prisma.ingredient.count({ where }),
     ]);

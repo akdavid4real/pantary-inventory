@@ -107,8 +107,11 @@ export class RecipesService {
         where,
         skip,
         take,
-        orderBy: { name: 'asc' },
-        include: this.recipeInclude(),
+        orderBy: [
+          { imageUrl: { sort: 'desc', nulls: 'last' } },
+          { name: 'asc' },
+        ],
+        select: this.recipeListSelect(),
       }),
       this.prisma.recipe.count({ where }),
     ]);
@@ -446,6 +449,28 @@ export class RecipesService {
       steps: { orderBy: { stepNumber: 'asc' as const } },
       tags: { include: { tag: true } },
       createdBy: { include: { profile: true } },
+    };
+  }
+
+  private recipeListSelect() {
+    return {
+      id: true,
+      name: true,
+      description: true,
+      imageUrl: true,
+      category: true,
+      region: true,
+      servings: true,
+      prepTimeMinutes: true,
+      cookTimeMinutes: true,
+      difficulty: true,
+      caloriesPerServing: true,
+      proteinPerServing: true,
+      carbsPerServing: true,
+      fatPerServing: true,
+      catalogId: true,
+      catalogBatch: true,
+      catalogVersion: true,
     };
   }
 }

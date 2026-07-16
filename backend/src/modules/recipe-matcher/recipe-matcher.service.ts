@@ -29,23 +29,34 @@ type PantryLookup = {
 
 @Injectable()
 export class RecipeMatcherService {
+  private matchingRecipeCache: { expiresAt: number; recipes: any[] } | null = null;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly measurementProfiles?: MeasurementProfilesService,
   ) {}
 
   async fromPantry(userId: string) {
-    const [pantry, profile] = await Promise.all([
+    const [pantry, profile, recipes] = await Promise.all([
       this.getUserPantryLookup(userId),
       this.measurementProfiles?.active(userId),
+      this.getRecipesForMatching(),
     ]);
-    return this.fromPantryItems(pantry.items, profile);
+    return this.scoreRecipes(recipes, pantry.items, profile);
   }
 
   async fromPantryItems(items: MatchPantryItem[], profile?: ActiveMeasurementProfile) {
     const recipes = await this.getRecipesForMatching();
+    return this.scoreRecipes(recipes, items, profile);
+  }
+
+  private scoreRecipes(recipes: any[], items: MatchPantryItem[], profile?: ActiveMeasurementProfile) {
     const pantry = this.buildLookup(items.filter((item) => item.quantity > 0));
-    return recipes.map((recipe) => this.scoreRecipe(recipe, pantry, profile)).sort((a, b) => b.matchPercentage - a.matchPercentage);
+    return recipes.map((recipe) => this.scoreRecipe(recipe, pantry, profile)).sort((a, b) =>
+      b.matchPercentage - a.matchPercentage ||
+      Number(Boolean(b.imageUrl)) - Number(Boolean(a.imageUrl)) ||
+      a.recipeName.localeCompare(b.recipeName),
+    );
   }
 
   async checkRecipe(userId: string, recipeId: string) {
@@ -108,14 +119,50 @@ export class RecipeMatcherService {
   }
 
   private async getRecipesForMatching() {
-    return this.prisma.recipe.findMany({
+    if (this.matchingRecipeCache && this.matchingRecipeCache.expiresAt > Date.now()) {
+      return this.matchingRecipeCache.recipes;
+    }
+
+    const recipes = await this.prisma.recipe.findMany({
       where: {
         isPublished: true,
         status: RecipeStatus.PUBLISHED,
         moderationStatus: RecipeModerationStatus.APPROVED,
       },
-      include: this.matchInclude(),
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        region: true,
+        imageUrl: true,
+        servings: true,
+        cookTimeMinutes: true,
+        prepTimeMinutes: true,
+        caloriesPerServing: true,
+        proteinPerServing: true,
+        carbsPerServing: true,
+        fatPerServing: true,
+        ingredients: {
+          select: {
+            ingredientId: true,
+            quantity: true,
+            unit: true,
+            isOptional: true,
+            ingredient: {
+              select: {
+                id: true,
+                name: true,
+                aliases: { select: { normalized: true } },
+                conversions: { select: { fromUnit: true, toUnit: true, multiplier: true } },
+              },
+            },
+          },
+        },
+      },
     });
+
+    this.matchingRecipeCache = { expiresAt: Date.now() + 60_000, recipes };
+    return recipes;
   }
 
   private async getUserPantryLookup(userId: string): Promise<PantryLookup> {
@@ -235,7 +282,6 @@ export class RecipeMatcherService {
           },
         },
       },
-      tags: { include: { tag: true } },
     };
   }
 }

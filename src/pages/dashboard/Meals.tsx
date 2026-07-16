@@ -15,13 +15,13 @@ import {
   DashboardPageHeader,
   DashboardPageShell,
 } from "../../components/dashboard/DashboardPageShell";
-import { api } from "../../services/api";
+import { api, cachedApi } from "../../services/api";
+import { getCachedRecipeCatalog, loadRecipeCatalog } from "../../services/catalog";
 import {
   MealEntry,
   MealType,
-  Paginated,
-  Recipe,
   RecipeMatch,
+  RecipeSummary,
 } from "../../types/inventory";
 import { routes } from "../../types/navigation";
 
@@ -29,17 +29,11 @@ const mealTypes: MealType[] = ["BREAKFAST", "LUNCH", "DINNER", "SNACK"];
 const panel = "rounded-2xl border border-[#ded5c5] bg-[#fffdf8] shadow-sm";
 const dayMs = 86_400_000;
 
-async function loadAllRecipes() {
-  const firstPage = await api<Paginated<Recipe>>("/recipes?page=1&limit=100");
-  const pageCount = Math.ceil(firstPage.meta.total / firstPage.meta.limit);
-  if (pageCount <= 1) return firstPage.items;
-
-  const remainingPages = await Promise.all(
-    Array.from({ length: pageCount - 1 }, (_, index) =>
-      api<Paginated<Recipe>>(`/recipes?page=${index + 2}&limit=100`),
-    ),
-  );
-  return [firstPage, ...remainingPages].flatMap((page) => page.items);
+function sortMeals(entries: MealEntry[]) {
+  return [...entries].sort((left, right) => {
+    const dateDifference = left.plannedDate.localeCompare(right.plannedDate);
+    return dateDifference || mealTypes.indexOf(left.mealType) - mealTypes.indexOf(right.mealType);
+  });
 }
 
 function isoDay(date: Date) {
@@ -68,7 +62,7 @@ export function Meals({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [meals, setMeals] = useState<MealEntry[]>([]);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<RecipeSummary[]>(getCachedRecipeCatalog);
   const [matches, setMatches] = useState<RecipeMatch[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [recipeQuery, setRecipeQuery] = useState("");
@@ -80,6 +74,7 @@ export function Meals({
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState("");
   const weekStart = useMemo(() => startOfWeek(weekDate), [weekDate]);
   const days = useMemo(
@@ -91,18 +86,20 @@ export function Meals({
     [weekStart],
   );
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
     setLoading(true);
     setError("");
+    setNotice("");
+    const entriesRequest = api<MealEntry[]>(`/meal-planner/week?date=${isoDay(weekStart)}`);
+    const catalogRequest = loadRecipeCatalog(force).then(setRecipes);
+    const matchesRequest = cachedApi<RecipeMatch[]>("/recipe-matcher/from-pantry", {
+      ttlMs: 60_000,
+      force,
+    }).then(setMatches);
+
     try {
-      const [entries, recipeRows, matchRows] = await Promise.all([
-        api<MealEntry[]>(`/meal-planner/week?date=${isoDay(weekStart)}`),
-        loadAllRecipes(),
-        api<RecipeMatch[]>("/recipe-matcher/from-pantry"),
-      ]);
+      const entries = await entriesRequest;
       setMeals(entries);
-      setRecipes(recipeRows);
-      setMatches(matchRows);
       setSelectedId((current) =>
         entries.some((item) => item.id === current)
           ? current
@@ -115,9 +112,10 @@ export function Meals({
     } finally {
       setLoading(false);
     }
+    await Promise.allSettled([catalogRequest, matchesRequest]);
   }, [weekStart]);
   useEffect(() => {
-    void load();
+    void load(false);
   }, [load]);
 
   const saveMeal = async (event: FormEvent<HTMLFormElement>) => {
@@ -126,8 +124,9 @@ export function Meals({
     const form = new FormData(event.currentTarget);
     setBusy("add");
     setError("");
+    setNotice("");
     try {
-      await api("/meal-planner", {
+      const createdMeal = await api<MealEntry>("/meal-planner", {
         method: "POST",
         body: JSON.stringify({
           recipeId: form.get("recipeId"),
@@ -137,8 +136,15 @@ export function Meals({
           notes: form.get("notes") || undefined,
         }),
       });
+      setMeals((current) =>
+        sortMeals([
+          ...current.filter((meal) => meal.id !== createdMeal.id),
+          createdMeal,
+        ]),
+      );
+      setSelectedId(createdMeal.id);
       setEditor(null);
-      await load();
+      setNotice(`${createdMeal.recipe?.name ?? "Meal"} was added to your plan.`);
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : "Could not add meal.",
@@ -150,12 +156,25 @@ export function Meals({
   const updateMeal = async (id: string, change: Partial<MealEntry>) => {
     setBusy(id);
     setError("");
+    setNotice("");
     try {
-      await api(`/meal-planner/${id}`, {
+      const updatedMeal = await api<MealEntry>(`/meal-planner/${id}`, {
         method: "PATCH",
         body: JSON.stringify(change),
       });
-      await load();
+      const weekEnd = new Date(weekStart.getTime() + 7 * dayMs);
+      const updatedDate = new Date(updatedMeal.plannedDate);
+      const remainsInWeek = updatedDate >= weekStart && updatedDate < weekEnd;
+
+      setMeals((current) =>
+        sortMeals(
+          remainsInWeek
+            ? current.map((meal) => (meal.id === id ? updatedMeal : meal))
+            : current.filter((meal) => meal.id !== id),
+        ),
+      );
+      setSelectedId(remainsInWeek ? updatedMeal.id : "");
+      setNotice(remainsInWeek ? "Meal updated." : "Meal moved to another week.");
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : "Could not update meal.",
@@ -166,9 +185,15 @@ export function Meals({
   };
   const removeMeal = async (id: string) => {
     setBusy(id);
+    setError("");
+    setNotice("");
     try {
       await api(`/meal-planner/${id}`, { method: "DELETE" });
-      await load();
+      setMeals((current) => current.filter((meal) => meal.id !== id));
+      setSelectedId((current) =>
+        current === id ? (meals.find((meal) => meal.id !== id)?.id ?? "") : current,
+      );
+      setNotice("Meal removed from your plan.");
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : "Could not remove meal.",
@@ -257,7 +282,16 @@ export function Meals({
       {error ? (
         <div className="mb-4 flex items-center justify-between rounded-xl bg-red-50 p-3 text-sm text-red-700">
           <span>{error}</span>
-          <button onClick={() => void load()}>Retry</button>
+          <button onClick={() => void load(true)}>Retry</button>
+        </div>
+      ) : null}
+      {notice ? (
+        <div
+          className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+          role="status"
+          aria-live="polite"
+        >
+          {notice}
         </div>
       ) : null}
       <div className="mb-4 rounded-xl border border-[#d6e2da] bg-[#edf4ef] px-4 py-3 text-xs text-[#285a4a]">
@@ -297,7 +331,7 @@ export function Meals({
           <CalendarDays size={14} /> Today
         </button>
         <button
-          onClick={() => void load()}
+          onClick={() => void load(true)}
           disabled={loading}
           className="rounded-lg border p-2"
           aria-label="Refresh"

@@ -8,7 +8,7 @@ import yamImage from "../../../assets/ingredients/04-yam-tuber.webp";
 import { DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
 import { StatusPanel } from "../../components/dashboard/StatusPanel";
 import { panelClassName } from "../../components/dashboard/styles";
-import { api, getSession } from "../../services/api";
+import { cachedApi, getCachedApiValue, getSession } from "../../services/api";
 import { routes } from "../../types/navigation";
 
 type Recipe = {
@@ -86,6 +86,8 @@ const emptySummary: DashboardSummary = {
   weeklyNutrition: { calories: 0, protein: 0, carbs: 0, fat: 0 },
   recommendedRecipes: [],
 };
+const dashboardSummaryPath = "/dashboard/summary";
+const currentUserPath = "/users/me";
 
 function startOfCurrentWeek() {
   const date = new Date();
@@ -121,16 +123,19 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: string) => void }
   const [menuOpen, setMenuOpen] = useState(false);
   const [displayName, setDisplayName] = useState(sessionDisplayName);
   const [calorieGoal, setCalorieGoal] = useState(0);
-  const [summary, setSummary] = useState<DashboardSummary>(emptySummary);
-  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<DashboardSummary>(() => getCachedApiValue<DashboardSummary>(dashboardSummaryPath) ?? emptySummary);
+  const [loading, setLoading] = useState(() => getCachedApiValue<DashboardSummary>(dashboardSummaryPath) === null);
   const [loadError, setLoadError] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
+    setLoading(getCachedApiValue<DashboardSummary>(dashboardSummaryPath) === null);
     setLoadError("");
-    Promise.all([api<CurrentUser>("/users/me"), api<DashboardSummary>("/dashboard/summary")])
+    Promise.all([
+      cachedApi<CurrentUser>(currentUserPath, { ttlMs: 5 * 60_000, persist: true, force: loadAttempt > 0 }),
+      cachedApi<DashboardSummary>(dashboardSummaryPath, { ttlMs: 30_000, persist: true, force: loadAttempt > 0 }),
+    ])
       .then(([user, dashboard]) => {
         if (!active) return;
         setDisplayName(user.profile?.displayName?.trim() || sessionDisplayName() || "there");
@@ -173,7 +178,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: string) => void }
     setFavorites((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id]);
   };
 
-  if (loading || loadError) {
+  if (loading || (loadError && summary === emptySummary)) {
     return (
       <DashboardPageShell activePage="Home" menuOpen={menuOpen} onMenuOpenChange={setMenuOpen} onNavigate={onNavigate} mainClassName="px-4 py-5 sm:px-7 lg:px-8 xl:px-10">
         <header className="mb-6 flex items-start gap-3">

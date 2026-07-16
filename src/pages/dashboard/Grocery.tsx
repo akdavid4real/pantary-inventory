@@ -5,9 +5,9 @@ import {
   DashboardPageShell,
 } from "../../components/dashboard/DashboardPageShell";
 import { api } from "../../services/api";
+import { getCachedIngredientCatalog, loadIngredientCatalog } from "../../services/catalog";
 import {
   Ingredient,
-  Paginated,
   PurchaseReview,
   ShoppingItem,
   ShoppingItemStatus,
@@ -29,7 +29,7 @@ export function Grocery({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [list, setList] = useState<ShoppingList | null>(null);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>(getCachedIngredientCatalog);
   const [filter, setFilter] = useState<ShoppingItemStatus | "ALL">("ALL");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
@@ -55,14 +55,14 @@ export function Grocery({
     setLoading(true);
     setError("");
     try {
-      const [shoppingList, ingredientPage] = await Promise.all([
+      const [shoppingList, ingredientRows] = await Promise.all([
         api<ShoppingList | null>(
           listId ? `/shopping-list/${listId}` : "/shopping-list/current",
         ),
-        api<Paginated<Ingredient>>("/ingredients?limit=100"),
+        loadIngredientCatalog(),
       ]);
       setList(shoppingList);
-      setIngredients(ingredientPage.items);
+      setIngredients(ingredientRows);
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -128,7 +128,7 @@ export function Grocery({
     const ingredient = ingredients.find((item) => item.id === ingredientId);
     setBusy("add");
     try {
-      await api("/shopping-list/items", {
+      const createdItem = await api<ShoppingItem & { shoppingListId: string }>("/shopping-list/items", {
         method: "POST",
         body: JSON.stringify({
           ingredientId: ingredientId || undefined,
@@ -138,8 +138,21 @@ export function Grocery({
           notes: form.get("notes") || undefined,
         }),
       });
+      setList((current) =>
+        current?.id === createdItem.shoppingListId
+          ? { ...current, items: [...current.items, createdItem] }
+          : {
+              id: createdItem.shoppingListId,
+              title: "My shopping list",
+              status: "ACTIVE",
+              items: [createdItem],
+            },
+      );
       setAddOpen(false);
-      await load();
+      setNotice(`${createdItem.name} was added to your grocery list.`);
+      if (listId && listId !== createdItem.shoppingListId) {
+        onNavigate(routes.shoppingList(createdItem.shoppingListId));
+      }
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : "Could not add item.",
@@ -183,7 +196,7 @@ export function Grocery({
     if (!list || !review) return;
     setBusy("complete");
     try {
-      await api(`/shopping-list/${list.id}/complete`, {
+      const completedList = await api<ShoppingList>(`/shopping-list/${list.id}/complete`, {
         method: "POST",
         body: JSON.stringify({
           purchasedItems: Object.entries(reviewValues).map(
@@ -202,9 +215,9 @@ export function Grocery({
           ),
         }),
       });
+      setList(completedList);
       setReview(null);
       setNotice("Shopping completed and purchased food added to Pantry.");
-      await load();
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -604,12 +617,21 @@ export function Grocery({
         </div>
       ) : null}
       {notice ? (
-        <button
-          onClick={() => setNotice("")}
-          className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#07513f] px-5 py-3 text-sm text-white"
+        <div
+          className="fixed bottom-24 left-1/2 z-50 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-3 rounded-2xl bg-[#07513f] px-5 py-3 text-sm text-white shadow-lg lg:bottom-6"
+          role="status"
+          aria-live="polite"
         >
-          {notice}
-        </button>
+          <span>{notice}</span>
+          <button
+            type="button"
+            aria-label="Dismiss notification"
+            onClick={() => setNotice("")}
+            className="rounded-full p-1 hover:bg-white/10"
+          >
+            <X size={16} />
+          </button>
+        </div>
       ) : null}
     </DashboardPageShell>
   );

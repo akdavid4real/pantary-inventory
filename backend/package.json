@@ -19,6 +19,7 @@
     "catalog:check": "ts-node prisma/catalog-import.ts",
     "catalog:storage": "ts-node prisma/catalog-import.ts --storage-check",
     "catalog:reconcile": "ts-node prisma/catalog-import.ts --reconcile",
+    "catalog:apply-recipe-images": "ts-node prisma/catalog-import.ts --apply-recipe-images",
     "catalog:apply": "ts-node prisma/catalog-import.ts --apply",
     "seed": "ts-node prisma/seed.ts"
   },

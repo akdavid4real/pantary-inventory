@@ -1,29 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChefHat, Heart, Plus, RefreshCw, Search } from "lucide-react";
 import {
   DashboardPageHeader,
   DashboardPageShell,
 } from "../../components/dashboard/DashboardPageShell";
-import { api } from "../../services/api";
-import { Paginated, Recipe, RecipeMatch } from "../../types/inventory";
+import { api, cachedApi, invalidateApiCache } from "../../services/api";
+import { getCachedRecipeCatalog, loadRecipeCatalog } from "../../services/catalog";
+import { RecipeMatch, RecipeSummary } from "../../types/inventory";
 import { routes, ScreenProps } from "../../types/navigation";
 
-type Favorite = { id: string; recipe: Recipe };
+type Favorite = { id: string; recipe: RecipeSummary };
 
 const pageSize = 24;
-
-async function loadAllRecipes() {
-  const firstPage = await api<Paginated<Recipe>>("/recipes?page=1&limit=100");
-  const pageCount = Math.ceil(firstPage.meta.total / firstPage.meta.limit);
-  if (pageCount <= 1) return firstPage.items;
-
-  const remaining = await Promise.all(
-    Array.from({ length: pageCount - 1 }, (_, index) =>
-      api<Paginated<Recipe>>(`/recipes?page=${index + 2}&limit=100`),
-    ),
-  );
-  return [firstPage, ...remaining].flatMap((page) => page.items);
-}
 
 function categoryLabel(value: string) {
   return value.replace(/_/g, " ").toLowerCase();
@@ -31,7 +19,7 @@ function categoryLabel(value: string) {
 
 export function ExploreRecipes({ onNavigate }: ScreenProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<RecipeSummary[]>(getCachedRecipeCatalog);
   const [matches, setMatches] = useState<RecipeMatch[]>([]);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
@@ -39,31 +27,32 @@ export function ExploreRecipes({ onNavigate }: ScreenProps) {
   const [maxMinutes, setMaxMinutes] = useState("ALL");
   const [readyOnly, setReadyOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => getCachedRecipeCatalog().length === 0);
   const [favoriteBusy, setFavoriteBusy] = useState("");
   const [error, setError] = useState("");
+  const resultsRef = useRef<HTMLDivElement>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
     setLoading(true);
     setError("");
-    try {
-      const [recipeRows, matchRows, favoriteRows] = await Promise.all([
-        loadAllRecipes(),
-        api<RecipeMatch[]>("/recipe-matcher/from-pantry"),
-        api<Favorite[]>("/favorites"),
-      ]);
-      setRecipes(recipeRows);
+    const recipeRequest = loadRecipeCatalog(force).then(setRecipes);
+    const supportingRequest = Promise.all([
+      cachedApi<RecipeMatch[]>("/recipe-matcher/from-pantry", { ttlMs: 60_000, force }),
+      cachedApi<Favorite[]>("/favorites", { ttlMs: 60_000, force }),
+    ]).then(([matchRows, favoriteRows]) => {
       setMatches(matchRows);
       setFavoriteIds(new Set(favoriteRows.map((favorite) => favorite.recipe.id)));
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Could not load recipes.");
-    } finally {
-      setLoading(false);
+    });
+
+    const [recipeResult] = await Promise.allSettled([recipeRequest, supportingRequest]);
+    if (recipeResult.status === "rejected") {
+      setError(recipeResult.reason instanceof Error ? recipeResult.reason.message : "Could not load recipes.");
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
-    void load();
+    void load(false);
   }, [load]);
 
   useEffect(() => {
@@ -99,12 +88,27 @@ export function ExploreRecipes({ onNavigate }: ScreenProps) {
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const visible = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  const changePage = (nextPage: number) => {
+    const boundedPage = Math.min(pageCount, Math.max(1, nextPage));
+    if (boundedPage === currentPage) return;
+
+    setCurrentPage(boundedPage);
+    window.requestAnimationFrame(() => {
+      const results = resultsRef.current;
+      if (!results) return;
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      results.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      results.focus({ preventScroll: true });
+    });
+  };
+
   const toggleFavorite = async (recipeId: string) => {
     const isFavorite = favoriteIds.has(recipeId);
     setFavoriteBusy(recipeId);
     setError("");
     try {
       await api(`/favorites/${recipeId}`, { method: isFavorite ? "DELETE" : "POST" });
+      invalidateApiCache("/favorites");
       setFavoriteIds((current) => {
         const next = new Set(current);
         if (isFavorite) next.delete(recipeId);
@@ -135,7 +139,7 @@ export function ExploreRecipes({ onNavigate }: ScreenProps) {
             <button onClick={() => onNavigate("add-edit-recipe")} className="flex items-center gap-2 rounded-lg bg-[#07513f] px-4 py-3 text-sm text-white">
               <Plus size={17} /> Add your recipe
             </button>
-            <button aria-label="Refresh recipes" onClick={() => void load()} className="rounded-lg border p-3">
+            <button aria-label="Refresh recipes" onClick={() => void load(true)} className="rounded-lg border p-3">
               <RefreshCw size={17} className={loading ? "animate-spin" : ""} />
             </button>
           </div>
@@ -163,26 +167,51 @@ export function ExploreRecipes({ onNavigate }: ScreenProps) {
         </button>
       </div>
 
-      {error ? (
-        <div className="grid min-h-64 place-items-center rounded-xl border border-red-100 bg-red-50 p-8 text-center text-red-700" role="alert">
-          <div><p>{error}</p><button type="button" className="mt-4 rounded-lg bg-[#064536] px-5 py-2.5 text-sm text-white" onClick={() => void load()}>Try again</button></div>
+      {error && recipes.length ? (
+        <div className="mb-4 flex items-center justify-between rounded-xl bg-amber-50 p-3 text-sm text-amber-800" role="status">
+          <span>Showing saved recipes while the latest refresh is unavailable.</span>
+          <button type="button" className="font-semibold" onClick={() => void load(true)}>Retry</button>
         </div>
-      ) : loading ? (
-        <p className="p-12 text-center">Loading the full recipe catalog…</p>
+      ) : null}
+
+      {error && !recipes.length ? (
+        <div className="grid min-h-64 place-items-center rounded-xl border border-red-100 bg-red-50 p-8 text-center text-red-700" role="alert">
+          <div><p>{error}</p><button type="button" className="mt-4 rounded-lg bg-[#064536] px-5 py-2.5 text-sm text-white" onClick={() => void load(true)}>Try again</button></div>
+        </div>
+      ) : loading && !visible.length ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Loading recipes">
+          {Array.from({ length: 6 }, (_, index) => (
+            <div key={index} className="overflow-hidden rounded-2xl border bg-[#fffdf8] shadow-sm">
+              <div className="h-44 animate-pulse bg-[#e4e9e1]" />
+              <div className="space-y-3 p-4">
+                <div className="h-3 w-1/3 animate-pulse rounded bg-[#e4e9e1]" />
+                <div className="h-6 w-2/3 animate-pulse rounded bg-[#e4e9e1]" />
+                <div className="h-4 w-1/2 animate-pulse rounded bg-[#e4e9e1]" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : !visible.length ? (
         <p className="rounded-xl border bg-[#fffdf8] p-12 text-center">No recipes match these filters.</p>
       ) : (
         <>
-          <div className="mb-3 text-xs text-[#68706a]">Showing {visible.length} of {filtered.length} matching recipes</div>
+          <div
+            ref={resultsRef}
+            tabIndex={-1}
+            className="mb-3 scroll-mt-5 text-xs text-[#68706a] outline-none"
+            aria-live="polite"
+          >
+            Page {currentPage} of {pageCount} · showing {visible.length} of {filtered.length} matching recipes
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {visible.map((recipe) => {
+            {visible.map((recipe, index) => {
               const match = matchMap.get(recipe.id);
               const isFavorite = favoriteIds.has(recipe.id);
               return (
                 <article key={recipe.id} className="relative overflow-hidden rounded-2xl border bg-[#fffdf8] text-left shadow-sm transition hover:-translate-y-1">
                   <button type="button" onClick={() => onNavigate(routes.recipe(recipe.id))} className="block w-full text-left">
                     {recipe.imageUrl ? (
-                      <img src={recipe.imageUrl} alt={recipe.name} loading="lazy" className="h-44 w-full object-cover" />
+                      <img src={recipe.imageUrl} alt={recipe.name} loading={index < 3 ? "eager" : "lazy"} fetchPriority={index < 3 ? "high" : "auto"} className="h-44 w-full object-cover" />
                     ) : (
                       <div className="grid h-44 place-items-center bg-[#edf2e8] text-[#769282]"><ChefHat size={36} /></div>
                     )}
@@ -210,9 +239,9 @@ export function ExploreRecipes({ onNavigate }: ScreenProps) {
           </div>
           {pageCount > 1 ? (
             <div className="mt-6 flex items-center justify-center gap-3">
-              <button disabled={currentPage === 1} onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} className="rounded-lg border px-4 py-2 text-sm disabled:opacity-40">Previous</button>
+              <button type="button" disabled={currentPage === 1} onClick={() => changePage(currentPage - 1)} className="rounded-lg border px-4 py-2 text-sm disabled:opacity-40">Previous</button>
               <span className="text-sm">Page {currentPage} of {pageCount}</span>
-              <button disabled={currentPage === pageCount} onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))} className="rounded-lg border px-4 py-2 text-sm disabled:opacity-40">Next</button>
+              <button type="button" disabled={currentPage === pageCount} onClick={() => changePage(currentPage + 1)} className="rounded-lg border px-4 py-2 text-sm disabled:opacity-40">Next</button>
             </div>
           ) : null}
         </>

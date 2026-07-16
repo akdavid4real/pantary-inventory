@@ -20,32 +20,37 @@ export class DashboardService {
 
   async summary(userId: string) {
     const today = new Date();
-    const [todayMeals, pantryItems, shoppingList, weeklyMeals] = await Promise.all([
-      this.prisma.mealPlanEntry.findMany({
+    const pantryPromise = this.prisma.pantryItem.findMany({
+      where: { userId },
+      include: { ingredient: { include: { aliases: true } } },
+    });
+    const todayMealsPromise = this.prisma.mealPlanEntry.findMany({
         where: { userId, plannedDate: { gte: startOfDay(today), lte: endOfDay(today) } },
         include: { recipe: true },
         orderBy: { mealType: 'asc' },
-      }),
-      this.prisma.pantryItem.findMany({
-        where: { userId },
-        include: { ingredient: { include: { aliases: true } } },
-      }),
-      this.prisma.shoppingList.findFirst({
+      });
+    const shoppingListPromise = this.prisma.shoppingList.findFirst({
         where: { userId, status: ShoppingListStatus.ACTIVE },
         orderBy: { createdAt: 'desc' },
         include: { items: true },
-      }),
-      this.prisma.mealPlanEntry.findMany({
+      });
+    const weeklyMealsPromise = this.prisma.mealPlanEntry.findMany({
         where: {
           userId,
           plannedDate: { gte: startOfWeek(today), lte: endOfWeek(today) },
           recipeId: { not: null },
         },
         include: { recipe: true },
-      }),
-    ]);
+      });
 
-    const recommendations = await this.recipeMatcherService.fromPantryItems(pantryItems);
+    const pantryItems = await pantryPromise;
+    const recommendationsPromise = this.recipeMatcherService.fromPantryItems(pantryItems);
+    const [todayMeals, shoppingList, weeklyMeals, recommendations] = await Promise.all([
+      todayMealsPromise,
+      shoppingListPromise,
+      weeklyMealsPromise,
+      recommendationsPromise,
+    ]);
     const expiryCutoff = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
     const expiringItems = pantryItems
       .filter((item) => item.expiryDate && item.expiryDate >= today && item.expiryDate <= expiryCutoff)

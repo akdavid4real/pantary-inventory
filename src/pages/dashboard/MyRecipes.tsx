@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Edit3, Eye, FileText, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { DashboardPageHeader, DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
 import { api } from "../../services/api";
+import { invalidateRecipeCatalog } from "../../services/catalog";
 import { Recipe } from "../../types/inventory";
 import { routes, ScreenProps } from "../../types/navigation";
 
@@ -27,20 +28,20 @@ export function MyRecipes({ onNavigate }: ScreenProps) {
 
   const changeStatus = async (recipe: ManagedRecipe, status: ManagedRecipe["status"]) => {
     setBusy(recipe.id);
-    try { await api(`/recipes/${recipe.id}`, { method: "PATCH", body: JSON.stringify({ status }) }); await load(); }
+    try { await api(`/recipes/${recipe.id}`, { method: "PATCH", body: JSON.stringify({ status }) }); invalidateRecipeCatalog(); await load(); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Could not update recipe status."); }
     finally { setBusy(""); }
   };
   const remove = async (recipe: ManagedRecipe) => {
     if (!window.confirm(`Delete ${recipe.name}? This cannot be undone.`)) return;
     setBusy(recipe.id);
-    try { await api(`/recipes/${recipe.id}`, { method: "DELETE" }); await load(); }
+    try { await api(`/recipes/${recipe.id}`, { method: "DELETE" }); invalidateRecipeCatalog(); await load(); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Could not delete recipe."); }
     finally { setBusy(""); }
   };
   const moderate = async (recipe: ManagedRecipe, moderationStatus: "APPROVED" | "REJECTED") => {
     setBusy(recipe.id);
-    try { await api(`/recipes/${recipe.id}/moderation`, { method: "PATCH", body: JSON.stringify({ moderationStatus, moderationNote: moderationStatus === "REJECTED" ? "Removed after moderation review." : "Approved for the community catalog." }) }); await load(); }
+    try { await api(`/recipes/${recipe.id}/moderation`, { method: "PATCH", body: JSON.stringify({ moderationStatus, moderationNote: moderationStatus === "REJECTED" ? "Removed after moderation review." : "Approved for the community catalog." }) }); invalidateRecipeCatalog(); await load(); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Could not moderate recipe."); }
     finally { setBusy(""); }
   };

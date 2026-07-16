@@ -9,6 +9,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FoodImage } from "../../components/FoodImage";
 import { DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
 import { api } from "../../services/api";
 import { getCachedIngredientCatalog, loadIngredientCatalog } from "../../services/catalog";
@@ -406,9 +407,10 @@ export function Settings({ onNavigate }: ScreenProps) {
             <div className="mt-4 grid gap-5 sm:grid-cols-[150px_minmax(0,1fr)]">
               <div className="text-center">
                 {draft.avatarUrl ? (
-                  <img
+                  <FoodImage
                     src={draft.avatarUrl}
                     alt="Your profile"
+                    variant="thumb"
                     className="mx-auto h-28 w-28 rounded-full object-cover"
                   />
                 ) : (

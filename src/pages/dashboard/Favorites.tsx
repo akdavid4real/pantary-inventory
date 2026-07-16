@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChefHat, Clock3, Heart, Search, Users } from "lucide-react";
+import { FoodImage } from "../../components/FoodImage";
 import {
   DashboardPageHeader,
   DashboardPageShell,
@@ -149,7 +150,7 @@ export function Favorites({ onNavigate }: { onNavigate: (page: string) => void }
               <article key={id} className="overflow-hidden rounded-2xl border border-[#ded5c5] bg-white">
                 <div className="relative">
                   {recipe.imageUrl ? (
-                    <img src={recipe.imageUrl} alt={recipe.name} loading="lazy" className="h-44 w-full object-cover" />
+                    <FoodImage src={recipe.imageUrl} alt={recipe.name} variant="card" className="h-44 w-full object-cover" />
                   ) : (
                     <div className="grid h-44 place-items-center bg-[#edf2e8] text-[#71917f]">
                       <ChefHat size={34} />

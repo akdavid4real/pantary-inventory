@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Edit3, Eye, FileText, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { FoodImage } from "../../components/FoodImage";
 import { DashboardPageHeader, DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
 import { api } from "../../services/api";
 import { invalidateRecipeCatalog } from "../../services/catalog";
@@ -50,7 +51,7 @@ export function MyRecipes({ onNavigate }: ScreenProps) {
     <DashboardPageHeader title="My Recipes" subtitle="Create, revise, publish, and monitor your community recipes." onOpenMenu={() => setMenuOpen(true)} action={<button onClick={() => onNavigate(routes.newRecipe)} className="flex items-center gap-2 rounded-xl bg-[#07513f] px-4 py-3 text-sm text-white"><Plus size={16}/> New recipe</button>} />
     {error ? <div className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700" role="alert">{error}</div> : null}
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{recipes.map((recipe) => <article key={recipe.id} className="overflow-hidden rounded-2xl border bg-[#fffdf8] shadow-sm">
-      {recipe.imageUrl ? <img src={recipe.imageUrl} alt="" className="h-40 w-full object-cover"/> : <div className="grid h-40 place-items-center bg-[#edf4ef]"><FileText/></div>}
+      {recipe.imageUrl ? <FoodImage src={recipe.imageUrl} alt="" variant="card" className="h-40 w-full object-cover"/> : <div className="grid h-40 place-items-center bg-[#edf4ef]"><FileText/></div>}
       <div className="p-5"><div className="flex items-start justify-between gap-3"><div><h2 className="font-serif text-xl">{recipe.name}</h2><p className="mt-1 text-xs text-[#6d746f]">{recipe.caloriesPerServing > 0 ? `${Math.round(recipe.caloriesPerServing)} kcal/serving` : "Nutrition pending"}</p></div><span className={`rounded-full px-2 py-1 text-[10px] ${recipe.status === "PUBLISHED" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>{recipe.status.toLowerCase()}</span></div>
       {recipe.catalogId ? <p className="mt-3 text-xs font-medium text-[#356052]">Seeded by {recipe.createdBy?.profile?.displayName ?? "Platform Admin"}{recipe.catalogBatch ? ` · ${recipe.catalogBatch.replace("batch_", "Batch ")}` : ""}</p> : null}
       <p className="mt-3 text-xs">Moderation: {recipe.moderationStatus.toLowerCase()} · {recipe._count?.reports ?? 0} report(s)</p>{recipe.moderationNote ? <p className="mt-2 rounded-lg bg-amber-50 p-2 text-xs">{recipe.moderationNote}</p> : null}

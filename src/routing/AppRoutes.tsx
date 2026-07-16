@@ -1,23 +1,8 @@
-import { Analytics } from "../pages/dashboard/Analytics";
-import { CookingMode } from "../pages/dashboard/CookingMode";
+import { ComponentType, lazy, ReactNode, Suspense } from "react";
 import { Dashboard } from "../pages/dashboard/Dashboard";
-import { ExploreRecipes } from "../pages/dashboard/ExploreRecipes";
-import { Favorites } from "../pages/dashboard/Favorites";
-import { FoodScan } from "../pages/dashboard/FoodScan";
-import { Grocery } from "../pages/dashboard/Grocery";
-import { Meals } from "../pages/dashboard/Meals";
-import { Notifications } from "../pages/dashboard/Notifications";
-import { Pantry } from "../pages/dashboard/Pantry";
-import { PantryItemEditor } from "../pages/dashboard/PantryItemEditor";
-import { RecipeDetails } from "../pages/dashboard/RecipeDetails";
-import { RecipeEditor } from "../pages/dashboard/RecipeEditor";
-import { MyRecipes } from "../pages/dashboard/MyRecipes";
-import { Settings } from "../pages/dashboard/Settings";
-import { ShoppingListGenerator } from "../pages/dashboard/ShoppingListGenerator";
 import { Login } from "../pages/auth/Login";
 import { PasswordRecovery } from "../pages/auth/PasswordRecovery";
 import { SignUp } from "../pages/auth/SignUp";
-import { Onboarding } from "../pages/onboarding/Onboarding";
 import { LandingPage } from "../pages/public/LandingPage";
 import { ScreenProps } from "../types/navigation";
 
@@ -25,7 +10,60 @@ type AppRoutesProps = ScreenProps & {
   page: string;
 };
 
-const dashboardPages = {
+type LazyPage = ComponentType<ScreenProps>;
+
+const Analytics = lazy(() =>
+  import("../pages/dashboard/Analytics").then((module) => ({ default: module.Analytics })),
+);
+const CookingMode = lazy(() =>
+  import("../pages/dashboard/CookingMode").then((module) => ({ default: module.CookingMode })),
+);
+const ExploreRecipes = lazy(() =>
+  import("../pages/dashboard/ExploreRecipes").then((module) => ({ default: module.ExploreRecipes })),
+);
+const Favorites = lazy(() =>
+  import("../pages/dashboard/Favorites").then((module) => ({ default: module.Favorites })),
+);
+const FoodScan = lazy(() =>
+  import("../pages/dashboard/FoodScan").then((module) => ({ default: module.FoodScan })),
+);
+const Grocery = lazy(() =>
+  import("../pages/dashboard/Grocery").then((module) => ({ default: module.Grocery })),
+);
+const Meals = lazy(() =>
+  import("../pages/dashboard/Meals").then((module) => ({ default: module.Meals })),
+);
+const MyRecipes = lazy(() =>
+  import("../pages/dashboard/MyRecipes").then((module) => ({ default: module.MyRecipes })),
+);
+const Notifications = lazy(() =>
+  import("../pages/dashboard/Notifications").then((module) => ({ default: module.Notifications })),
+);
+const Pantry = lazy(() =>
+  import("../pages/dashboard/Pantry").then((module) => ({ default: module.Pantry })),
+);
+const PantryItemEditor = lazy(() =>
+  import("../pages/dashboard/PantryItemEditor").then((module) => ({ default: module.PantryItemEditor })),
+);
+const RecipeDetails = lazy(() =>
+  import("../pages/dashboard/RecipeDetails").then((module) => ({ default: module.RecipeDetails })),
+);
+const RecipeEditor = lazy(() =>
+  import("../pages/dashboard/RecipeEditor").then((module) => ({ default: module.RecipeEditor })),
+);
+const Settings = lazy(() =>
+  import("../pages/dashboard/Settings").then((module) => ({ default: module.Settings })),
+);
+const ShoppingListGenerator = lazy(() =>
+  import("../pages/dashboard/ShoppingListGenerator").then((module) => ({
+    default: module.ShoppingListGenerator,
+  })),
+);
+const Onboarding = lazy(() =>
+  import("../pages/onboarding/Onboarding").then((module) => ({ default: module.Onboarding })),
+);
+
+const dashboardPages: Record<string, LazyPage | typeof Dashboard> = {
   Analytics,
   Explore: ExploreRecipes,
   Favorites,
@@ -36,16 +74,28 @@ const dashboardPages = {
   "My Recipes": MyRecipes,
   Pantry,
   Settings,
-} as const;
+};
 
-const utilityPages = {
+const utilityPages: Record<string, LazyPage> = {
   "add-edit-pantry-item": PantryItemEditor,
   "add-edit-recipe": RecipeEditor,
   "cooking-mode": CookingMode,
   "generate-shopping-list": ShoppingListGenerator,
   notifications: Notifications,
   "recipe-details": RecipeDetails,
-} as const;
+};
+
+function RouteFallback() {
+  return (
+    <div className="grid min-h-[50vh] place-items-center bg-[#f5f0e7] px-6 text-center text-sm text-[#5f6862]">
+      Loading page…
+    </div>
+  );
+}
+
+function LazyRoute({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<RouteFallback />}>{children}</Suspense>;
+}
 
 export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
   if (page === "landing") {
@@ -53,19 +103,55 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
   }
 
   const editRecipeMatch = page.match(/^my-recipes\/([^/]+)\/edit$/);
-  if (editRecipeMatch) return <RecipeEditor recipeId={editRecipeMatch[1]} onNavigate={onNavigate} />;
-  if (page === "my-recipes/new") return <RecipeEditor onNavigate={onNavigate} />;
+  if (editRecipeMatch) {
+    return (
+      <LazyRoute>
+        <RecipeEditor recipeId={editRecipeMatch[1]} onNavigate={onNavigate} />
+      </LazyRoute>
+    );
+  }
+  if (page === "my-recipes/new") {
+    return (
+      <LazyRoute>
+        <RecipeEditor onNavigate={onNavigate} />
+      </LazyRoute>
+    );
+  }
   const recipeMatch = page.match(/^recipes\/([^/]+)$/);
-  if (recipeMatch) return <RecipeDetails recipeId={recipeMatch[1]} onNavigate={onNavigate} />;
+  if (recipeMatch) {
+    return (
+      <LazyRoute>
+        <RecipeDetails recipeId={recipeMatch[1]} onNavigate={onNavigate} />
+      </LazyRoute>
+    );
+  }
 
   const mealWeekMatch = page.match(/^meals\/week\/([^/]+)$/);
-  if (mealWeekMatch) return <Meals weekDate={mealWeekMatch[1]} onNavigate={onNavigate} />;
+  if (mealWeekMatch) {
+    return (
+      <LazyRoute>
+        <Meals weekDate={mealWeekMatch[1]} onNavigate={onNavigate} />
+      </LazyRoute>
+    );
+  }
 
   const shoppingListMatch = page.match(/^grocery\/lists\/([^/]+)$/);
-  if (shoppingListMatch) return <Grocery listId={shoppingListMatch[1]} onNavigate={onNavigate} />;
+  if (shoppingListMatch) {
+    return (
+      <LazyRoute>
+        <Grocery listId={shoppingListMatch[1]} onNavigate={onNavigate} />
+      </LazyRoute>
+    );
+  }
 
   const cookingMatch = page.match(/^cooking\/([^/]+)$/);
-  if (cookingMatch) return <CookingMode sessionId={cookingMatch[1]} onNavigate={onNavigate} />;
+  if (cookingMatch) {
+    return (
+      <LazyRoute>
+        <CookingMode sessionId={cookingMatch[1]} onNavigate={onNavigate} />
+      </LazyRoute>
+    );
+  }
   if (page === "login") {
     return <Login onNavigate={onNavigate} />;
   }
@@ -75,27 +161,37 @@ export function AppRoutes({ page, onNavigate }: AppRoutesProps) {
   }
 
   if (page === "forgot-password" || page === "reset-password") {
-    return (
-      <PasswordRecovery mode={page} onNavigate={onNavigate} />
-    );
+    return <PasswordRecovery mode={page} onNavigate={onNavigate} />;
   }
 
   if (page.startsWith("onboarding")) {
     const step = Number(page.split("-")[1] || 1);
-
-    return <Onboarding step={step} onNavigate={onNavigate} />;
+    return (
+      <LazyRoute>
+        <Onboarding step={step} onNavigate={onNavigate} />
+      </LazyRoute>
+    );
   }
 
-  const DashboardPage = dashboardPages[page as keyof typeof dashboardPages];
-
+  const DashboardPage = dashboardPages[page];
   if (DashboardPage) {
-    return <DashboardPage onNavigate={onNavigate} />;
+    if (page === "Home") {
+      return <DashboardPage onNavigate={onNavigate} />;
+    }
+    return (
+      <LazyRoute>
+        <DashboardPage onNavigate={onNavigate} />
+      </LazyRoute>
+    );
   }
 
-  const UtilityPage = utilityPages[page as keyof typeof utilityPages];
-
+  const UtilityPage = utilityPages[page];
   if (UtilityPage) {
-    return <UtilityPage onNavigate={onNavigate} />;
+    return (
+      <LazyRoute>
+        <UtilityPage onNavigate={onNavigate} />
+      </LazyRoute>
+    );
   }
 
   return <LandingPage />;

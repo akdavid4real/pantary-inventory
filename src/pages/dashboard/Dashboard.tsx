@@ -5,6 +5,7 @@ import beansImage from "../../../assets/foods/07-nigerian-beans-porridge.webp";
 import egusiImage from "../../../assets/foods/09-egusi-soup.webp";
 import jollofImage from "../../../assets/foods/01-nigerian-jollof-rice.webp";
 import yamImage from "../../../assets/ingredients/04-yam-tuber.webp";
+import { FoodImage } from "../../components/FoodImage";
 import { DashboardPageShell } from "../../components/dashboard/DashboardPageShell";
 import { StatusPanel } from "../../components/dashboard/StatusPanel";
 import { panelClassName } from "../../components/dashboard/styles";
@@ -233,7 +234,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: string) => void }
           {featuredName ? (
             <>
               <div className="grid gap-5 p-5 pt-2 sm:grid-cols-[minmax(260px,.95fr)_1fr]">
-                <img className="h-56 w-full rounded-xl object-cover" src={imageFor(featuredName, featuredMeal?.imageUrl ?? featuredRecommendation?.imageUrl)} alt={featuredName} />
+                <FoodImage className="h-56 w-full rounded-xl object-cover" src={imageFor(featuredName, featuredMeal?.imageUrl ?? featuredRecommendation?.imageUrl)} alt={featuredName} variant="hero" priority />
                 <div className="flex flex-col justify-center">
                   <small className="uppercase tracking-[.16em] text-[#926d17]">{featuredMeal ? selectedMeals[0].mealType.replace(/_/g, " ") : "Top pantry match"}</small>
                   <h3 className="font-serif text-[31px] leading-[1.05]">{featuredName}</h3>
@@ -262,7 +263,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: string) => void }
           <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3"><div><h2 className="m-0 font-serif text-[26px] leading-tight">Recommended from your pantry</h2><p className="mt-1 text-xs text-[#696a65]">Ranked using the ingredients currently saved in your pantry.</p></div><button className="shrink-0 text-xs font-medium text-[#17604a]" onClick={() => onNavigate("Explore")}>View all</button></div>
           {summary.recommendedRecipes.length ? <div className="space-y-1">{summary.recommendedRecipes.slice(0, 3).map((recipe) => (
             <div className="grid items-center overflow-hidden rounded-xl border border-[#e4daca] bg-white/25 sm:grid-cols-[200px_1fr_auto_auto]" key={recipe.recipeId}>
-              <img className="h-24 w-full object-cover" src={imageFor(recipe.recipeName, recipe.imageUrl)} alt={recipe.recipeName} />
+              <FoodImage className="h-24 w-full object-cover" src={imageFor(recipe.recipeName, recipe.imageUrl)} alt={recipe.recipeName} variant="card" />
               <div className="px-4 py-2"><h3 className="font-serif text-[16px]">{recipe.recipeName}</h3><div className="mt-2 flex gap-4 text-[11px]"><span className="flex items-center gap-1"><Clock3 size={13} />{recipe.prepTimeMinutes + recipe.cookTimeMinutes} min</span><span className="flex items-center gap-1"><Leaf size={13} fill="currentColor" />{recipe.ingredientPresencePercentage}% owned</span></div></div>
               <button className="p-3" onClick={() => toggleFavorite(recipe.recipeId)} aria-label={`Favorite ${recipe.recipeName}`}><Heart size={20} fill={favorites.includes(recipe.recipeId) ? "currentColor" : "none"} /></button>
               <button className="flex items-center gap-3 whitespace-nowrap px-4 text-xs" onClick={() => onNavigate(routes.recipe(recipe.recipeId))}>View recipe <ArrowRight size={17} /></button>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChefHat, Heart, Plus, RefreshCw, Search } from "lucide-react";
+import { FoodImage } from "../../components/FoodImage";
 import {
   DashboardPageHeader,
   DashboardPageShell,
@@ -211,7 +212,7 @@ export function ExploreRecipes({ onNavigate }: ScreenProps) {
                 <article key={recipe.id} className="relative overflow-hidden rounded-2xl border bg-[#fffdf8] text-left shadow-sm transition hover:-translate-y-1">
                   <button type="button" onClick={() => onNavigate(routes.recipe(recipe.id))} className="block w-full text-left">
                     {recipe.imageUrl ? (
-                      <img src={recipe.imageUrl} alt={recipe.name} loading={index < 3 ? "eager" : "lazy"} fetchPriority={index < 3 ? "high" : "auto"} className="h-44 w-full object-cover" />
+                      <FoodImage src={recipe.imageUrl} alt={recipe.name} variant="card" priority={index < 2} className="h-44 w-full object-cover" />
                     ) : (
                       <div className="grid h-44 place-items-center bg-[#edf2e8] text-[#769282]"><ChefHat size={36} /></div>
                     )}

@@ -19,6 +19,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { FoodImage } from "../../components/FoodImage";
 import {
   DashboardPageHeader,
   DashboardPageShell,
@@ -478,10 +479,11 @@ export function Pantry({ onNavigate }: { onNavigate: (page: string) => void }) {
                           ) : null}
                         </span>
                         {item.ingredient.imageUrl ? (
-                          <img
+                          <FoodImage
                             className="h-10 w-10 shrink-0 rounded-xl border border-white object-cover shadow-sm"
                             src={item.ingredient.imageUrl}
                             alt=""
+                            variant="thumb"
                           />
                         ) : (
                           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#edf1e8]">
@@ -539,9 +541,10 @@ export function Pantry({ onNavigate }: { onNavigate: (page: string) => void }) {
                     >
                       <div className="relative aspect-[16/10] overflow-hidden bg-[#eef2e9]">
                         {item.ingredient.imageUrl ? (
-                          <img
+                          <FoodImage
                             src={item.ingredient.imageUrl}
                             alt={item.ingredient.name}
+                            variant="card"
                             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                           />
                         ) : (
@@ -629,9 +632,10 @@ export function Pantry({ onNavigate }: { onNavigate: (page: string) => void }) {
                     className="flex w-full items-center gap-3 py-2 text-left"
                   >
                     {item.ingredient.imageUrl ? (
-                      <img
+                      <FoodImage
                         src={item.ingredient.imageUrl}
                         alt=""
+                        variant="thumb"
                         className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
@@ -968,7 +972,7 @@ function PantryEditor({
                     className={`group flex min-w-0 items-center gap-2 rounded-xl border p-2 text-left transition ${ingredientId === entry.id ? "border-[#2e715b] bg-[#e8f1eb] shadow-sm ring-2 ring-[#07513f]/10" : "border-transparent bg-white hover:-translate-y-0.5 hover:border-[#b9cec4]"}`}
                   >
                     {entry.imageUrl ? (
-                      <img src={entry.imageUrl} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                      <FoodImage src={entry.imageUrl} alt="" variant="thumb" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                     ) : (
                       <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-[#e8eee7]"><Leaf size={16} /></span>
                     )}
@@ -986,9 +990,10 @@ function PantryEditor({
           {ingredient ? (
             <div className="sm:col-span-2 flex items-center gap-5 rounded-2xl border border-[#d6e2da] bg-[#edf4ef] p-4">
               {ingredient.imageUrl ? (
-                <img
+                <FoodImage
                   src={ingredient.imageUrl}
                   alt={ingredient.name}
+                  variant="thumb"
                   className="h-20 w-20 rounded-2xl object-cover shadow-md sm:h-24 sm:w-24"
                 />
               ) : (

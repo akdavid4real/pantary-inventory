@@ -12,6 +12,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { FoodImage } from "../../components/FoodImage";
 import {
   DashboardPageHeader,
   DashboardPageShell,
@@ -447,9 +448,10 @@ export function Meals({
                             className={`h-full w-full rounded-lg border p-2 text-left ${selectedId === entry.id ? "border-[#07513f] bg-[#edf4ef]" : "bg-[#faf7f0]"}`}
                           >
                             {entry.recipe?.imageUrl ? (
-                              <img
+                              <FoodImage
                                 src={entry.recipe.imageUrl}
                                 alt=""
+                                variant="thumb"
                                 className="mb-2 h-12 w-full rounded-md object-cover"
                               />
                             ) : null}
@@ -701,7 +703,7 @@ export function Meals({
               {aiPreview.entries.map((entry) => (
                 <article key={`${entry.plannedDate}-${entry.mealType}`} className="grid grid-cols-[76px_1fr] gap-3 rounded-xl border border-[#ded5c5] bg-white/60 p-3">
                   {entry.recipe.imageUrl ? (
-                    <img src={entry.recipe.imageUrl} alt="" className="h-20 w-[76px] rounded-lg object-cover" />
+                    <FoodImage src={entry.recipe.imageUrl} alt="" variant="thumb" className="h-20 w-[76px] rounded-lg object-cover" />
                   ) : (
                     <span className="grid h-20 w-[76px] place-items-center rounded-lg bg-[#edf4ef] text-[#07513f]"><Sparkles size={20} /></span>
                   )}

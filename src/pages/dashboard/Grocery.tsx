@@ -15,6 +15,7 @@ import {
   StorageLocation,
 } from "../../types/inventory";
 import { routes } from "../../types/navigation";
+import { normalizePurchaseReview, normalizeShoppingList } from "../../utils/shoppingList";
 
 const statuses: ShoppingItemStatus[] = ["PENDING", "BOUGHT", "SKIPPED"];
 const locations: StorageLocation[] = ["PANTRY", "FRIDGE", "FREEZER", "COUNTER"];
@@ -58,7 +59,7 @@ export function Grocery({
       const shoppingList = await api<ShoppingList | null>(
         listId ? `/shopping-list/${listId}` : "/shopping-list/current",
       );
-      setList(shoppingList);
+      setList(normalizeShoppingList(shoppingList));
       // The list remains usable when the optional catalog request is
       // temporarily unavailable; it only powers the manual-add dropdown.
       try {
@@ -88,7 +89,7 @@ export function Grocery({
         "/shopping-list/generate/from-meal-plan",
         { method: "POST", body: "{}" },
       );
-      setList(value);
+      setList(normalizeShoppingList(value));
       setNotice("List refreshed from this week's meals.");
       if (!listId) onNavigate(routes.shoppingList(value.id));
     } catch (reason) {
@@ -110,7 +111,7 @@ export function Grocery({
         current
           ? {
               ...current,
-              items: current.items.map((entry) =>
+              items: (current.items ?? []).map((entry) =>
                 entry.id === item.id ? value : entry,
               ),
             }
@@ -143,7 +144,7 @@ export function Grocery({
       });
       setList((current) =>
         current?.id === createdItem.shoppingListId
-          ? { ...current, items: [...current.items, createdItem] }
+          ? { ...current, items: [...(current.items ?? []), createdItem] }
           : {
               id: createdItem.shoppingListId,
               title: "My shopping list",
@@ -168,9 +169,10 @@ export function Grocery({
     if (!list) return;
     setBusy("review");
     try {
-      const value = await api<PurchaseReview>(
+      const response = await api<PurchaseReview>(
         `/shopping-list/${list.id}/purchase-review`,
       );
+      const value = normalizePurchaseReview(response);
       const initial: typeof reviewValues = {};
       for (const item of value.items.filter(
         (entry) => entry.becomesPantryStock,
@@ -218,7 +220,7 @@ export function Grocery({
           ),
         }),
       });
-      setList(completedList);
+      setList(normalizeShoppingList(completedList));
       setReview(null);
       setNotice("Shopping completed and purchased food added to Pantry.");
     } catch (reason) {
@@ -232,17 +234,20 @@ export function Grocery({
     }
   };
 
+  const listItems = useMemo(
+    () => (Array.isArray(list?.items) ? list.items : []),
+    [list],
+  );
   const visible = useMemo(
     () =>
-      list?.items.filter(
+      listItems.filter(
         (item) => filter === "ALL" || item.status === filter,
-      ) ?? [],
-    [filter, list],
+      ),
+    [filter, listItems],
   );
-  const bought =
-    list?.items.filter((item) => item.status === "BOUGHT").length ?? 0;
-  const progress = list?.items.length
-    ? Math.round((bought / list.items.length) * 100)
+  const bought = listItems.filter((item) => item.status === "BOUGHT").length;
+  const progress = listItems.length
+    ? Math.round((bought / listItems.length) * 100)
     : 0;
 
   return (
@@ -283,7 +288,7 @@ export function Grocery({
               />
             </div>
             <small>
-              {bought} of {list?.items.length ?? 0} items bought · {progress}%
+              {bought} of {listItems.length} items bought · {progress}%
             </small>
           </div>
           <button
@@ -322,7 +327,7 @@ export function Grocery({
       <section className={`${panel} overflow-hidden`}>
         {loading ? (
           <p className="p-12 text-center">Loading grocery list…</p>
-        ) : !list || !list.items.length ? (
+        ) : !list || !listItems.length ? (
           <div className="p-12 text-center">
             <ShoppingBag className="mx-auto mb-3" />
             <h2 className="font-serif text-2xl">Your active list is empty</h2>

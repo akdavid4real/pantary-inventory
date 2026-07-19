@@ -7,11 +7,9 @@ import {
   Menu,
   Search,
   ShoppingBasket,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { gsap } from "gsap";
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { clearSession } from "../../services/api";
 import { Sidebar } from "./Sidebar";
 
@@ -65,7 +63,7 @@ export function DashboardPageShell({
 
   return (
     <div
-      className={`flex min-h-screen bg-[#faf7f0] dark:bg-[#09120e] font-sans text-[#103a31] dark:text-[#f0f5f2] ${rootClassName}`}
+      className={`flex min-h-screen bg-[#faf7f0] font-sans text-[#103a31] ${rootClassName}`}
     >
       {resolvedMenuOpen ? (
         <button
@@ -152,23 +150,6 @@ function DashboardMobileNavigation({
 }
 
 function DashboardToolbar({ onOpenMenu }: { onOpenMenu: () => void }) {
-  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
-
-  useEffect(() => {
-    const handleThemeChange = () => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    };
-    window.addEventListener("themechange", handleThemeChange);
-    return () => window.removeEventListener("themechange", handleThemeChange);
-  }, []);
-
-  const toggleTheme = () => {
-    const root = document.documentElement;
-    const nextDark = root.classList.toggle("dark");
-    localStorage.setItem("theme", nextDark ? "dark" : "light");
-    window.dispatchEvent(new Event("themechange"));
-  };
-
   return (
     <div className="dashboard-toolbar mb-[18px] flex items-center justify-end gap-[18px]">
       <button
@@ -180,24 +161,15 @@ function DashboardToolbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         <Menu />
       </button>
 
-      <label className="hidden min-w-[420px] items-center gap-2.5 rounded-lg border border-[#d9d2c7] bg-white/40 px-3.5 py-2.5 md:flex dark:border-[#1e352c] dark:bg-[#101d19]/40">
+      <label className="hidden min-w-[420px] items-center gap-2.5 rounded-lg border border-[#d9d2c7] bg-white px-3.5 py-2.5 md:flex">
         <Search size={19} />
         <input
-          className="w-full border-0 bg-transparent outline-none dark:text-white dark:placeholder-[#516b6e]"
+          className="w-full border-0 bg-transparent outline-none"
           placeholder="Search meals, ingredients, or recipes"
         />
       </label>
 
-      <button
-        type="button"
-        aria-label="Toggle Theme"
-        onClick={toggleTheme}
-        className="rounded-lg p-2 text-[#103a31] hover:bg-black/5 dark:text-[#f0f5f2] dark:hover:bg-white/5 transition-all duration-300 hover:scale-105"
-      >
-        {isDark ? <Sun size={21} /> : <Moon size={21} />}
-      </button>
-
-      <button type="button" aria-label="Notifications" className="p-2 text-[#103a31] dark:text-[#f0f5f2] hover:bg-black/5 dark:hover:bg-white/5 rounded-lg">
+      <button type="button" aria-label="Notifications" className="rounded-lg p-2 text-[#103a31] hover:bg-black/5">
         <Bell size={21} />
       </button>
 

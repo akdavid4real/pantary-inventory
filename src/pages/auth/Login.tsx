@@ -3,7 +3,7 @@ import { FormEvent, useState } from "react";
 import loginBackground from "../../../assets/auth/login-food-background.webp";
 import { Brand } from "../../components/Brand";
 import { ScreenProps } from "../../types/navigation";
-import { AuthSession, publicApi, saveSession } from "../../services/api";
+import { AuthSession, publicApi, saveSession, startGoogleSignIn } from "../../services/api";
 
 export function Login({ onNavigate }: ScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +26,14 @@ export function Login({ onNavigate }: ScreenProps) {
       setError(caught instanceof Error ? caught.message : "Unable to sign in.");
     } finally {
       setLoading(false);
+    }
+  };
+  const signInWithGoogle = () => {
+    setError("");
+    try {
+      startGoogleSignIn();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to start Google sign-in.");
     }
   };
   return (
@@ -96,6 +104,11 @@ export function Login({ onNavigate }: ScreenProps) {
           {error ? <p role="alert">{error}</p> : null}
           <button className="auth-submit" type="submit" disabled={loading}>
             {loading ? "Signing in..." : "Sign in"}
+          </button>
+          <div className="auth-divider" aria-hidden="true">or</div>
+          <button className="google-button" type="button" onClick={signInWithGoogle}>
+            <span className="google-button-mark" aria-hidden="true">G</span>
+            Continue with Google
           </button>
           <p className="auth-switch">
             New to Pantry-to-Plate?{" "}

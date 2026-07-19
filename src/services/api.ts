@@ -62,6 +62,37 @@ export function clearSession() {
   window.dispatchEvent(new Event(SESSION_CHANGE_EVENT));
 }
 
+/** Start Supabase's Google OAuth flow and return to the in-app callback route. */
+export function startGoogleSignIn() {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !publishableKey || supabaseUrl.includes("your-project-ref")) {
+    throw new Error("Google sign-in is not configured yet. Please try email sign-in or contact support.");
+  }
+
+  const authorizeUrl = new URL("/auth/v1/authorize", supabaseUrl);
+  authorizeUrl.searchParams.set("provider", "google");
+  authorizeUrl.searchParams.set("redirect_to", `${window.location.origin}/auth/callback`);
+  authorizeUrl.searchParams.set("apikey", publishableKey);
+  window.location.assign(authorizeUrl.toString());
+}
+
+/** Read the Supabase implicit OAuth response after Google redirects back. */
+export function readOAuthCallbackSession(): AuthSession | null {
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const accessToken = hash.get("access_token");
+  const refreshToken = hash.get("refresh_token");
+  if (!accessToken || !refreshToken) return null;
+
+  const expiresIn = Number(hash.get("expires_in"));
+  return {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    ...(Number.isFinite(expiresIn) ? { expires_in: expiresIn } : {}),
+  };
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   const data = (await response.json().catch(() => ({}))) as T & { message?: string | string[] };
   if (!response.ok) {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getPageFromPath,
+  getOnboardingStep,
   getPathFromPage,
   normalizePageId,
   resolvePageForAuth,
@@ -11,13 +12,12 @@ describe("getPageFromPath", () => {
     expect(getPageFromPath("/")).toBe("landing");
     expect(getPageFromPath("/dashboard")).toBe("Home");
     expect(getPageFromPath("/pantry")).toBe("Pantry");
+    // Any recipe id should pass through as a deep link page id.
     expect(getPageFromPath("/recipes/recipe-1")).toBe("recipes/recipe-1");
-    expect(getPageFromPath("/recipes/3d8e6599-07b5-49bc-bc31-f1bd2d0cdfac")).toBe(
-      "recipes/3d8e6599-07b5-49bc-bc31-f1bd2d0cdfac",
-    );
     expect(getPageFromPath("/meals/week/2026-07-14")).toBe("meals/week/2026-07-14");
     expect(getPageFromPath("/grocery/lists/list-1")).toBe("grocery/lists/list-1");
     expect(getPageFromPath("/cooking/session-1")).toBe("cooking/session-1");
+    expect(getPageFromPath("/auth/callback")).toBe("auth/callback");
   });
 
   it("restores multi-word dashboard pages from URL slugs on reload", () => {
@@ -26,6 +26,16 @@ describe("getPageFromPath", () => {
     expect(getPathFromPage("Food Scan")).toBe("/food-scan");
     expect(getPathFromPage("My Recipes")).toBe("/my-recipes");
   });
+
+  it("maps onboarding routes correctly", () => {
+    expect(getPageFromPath("/onboarding")).toBe("onboarding-1");
+    expect(getPageFromPath("/onboarding-2")).toBe("onboarding-2");
+    expect(getPathFromPage("onboarding-2")).toBe("/onboarding-2");
+    expect(getPathFromPage("Onboarding 1")).toBe("/onboarding-1");
+    expect(getOnboardingStep("/onboarding-4/")).toBe(4);
+    expect(getOnboardingStep("Onboarding 2")).toBe(2);
+    expect(getOnboardingStep("onboarding-5")).toBeNull();
+  });
 });
 
 describe("normalizePageId / getPathFromPage", () => {
@@ -33,9 +43,7 @@ describe("normalizePageId / getPathFromPage", () => {
     expect(normalizePageId("/recipes/abc")).toBe("recipes/abc");
     expect(getPathFromPage("/recipes/abc")).toBe("/recipes/abc");
     expect(getPathFromPage("recipes/abc")).toBe("/recipes/abc");
-    expect(resolvePageForAuth("/recipes/3d8e6599-07b5-49bc-bc31-f1bd2d0cdfac")).toBe(
-      "recipes/3d8e6599-07b5-49bc-bc31-f1bd2d0cdfac",
-    );
+    expect(resolvePageForAuth("/recipes/any-id")).toBe("recipes/any-id");
   });
 });
 

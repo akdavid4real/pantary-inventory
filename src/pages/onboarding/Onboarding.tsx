@@ -447,16 +447,39 @@ type CookingPreferenceStepProps = {
 };
 
 function CookingPreferenceStep(props: CookingPreferenceStepProps) {
+  const [animProgress, setAnimProgress] = useState(0);
+
+  useEffect(() => {
+    let start: number | null = null;
+    const duration = 1200;
+    let animId: number;
+
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = timestamp - start;
+      const pct = Math.min(progress / duration, 1);
+      const ease = 1 - Math.pow(1 - pct, 3); // easeOutCubic
+      setAnimProgress(ease);
+      if (progress < duration) {
+        animId = requestAnimationFrame(step);
+      }
+    };
+
+    animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [props.nutrition.carbs, props.nutrition.protein, props.nutrition.fat]);
+
   const proteinCalories = props.nutrition.protein * 4;
   const carbCalories = props.nutrition.carbs * 4;
   const fatCalories = props.nutrition.fat * 9;
   const macroCalories = proteinCalories + carbCalories + fatCalories;
-  const proteinEnd = macroCalories ? (proteinCalories / macroCalories) * 100 : 0;
+  const proteinEnd = macroCalories ? (proteinCalories / macroCalories) * 100 * animProgress : 0;
   const carbEnd = macroCalories
-    ? proteinEnd + (carbCalories / macroCalories) * 100
+    ? proteinEnd + (carbCalories / macroCalories) * 100 * animProgress
     : 0;
+  const totalEnd = 100 * animProgress;
   const macroChartBackground = macroCalories
-    ? `conic-gradient(#599335 0 ${proteinEnd}%, #f56318 ${proteinEnd}% ${carbEnd}%, #f3b01e ${carbEnd}% 100%)`
+    ? `conic-gradient(#599335 0 ${proteinEnd}%, #f56318 ${proteinEnd}% ${carbEnd}%, #f3b01e ${carbEnd}% ${totalEnd}%, #e4ddd2 ${totalEnd}% 100%)`
     : "#e4ddd2";
 
   const updateNutrition = (key: keyof NutritionGoals, value: string) => {

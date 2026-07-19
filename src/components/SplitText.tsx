@@ -3,7 +3,7 @@ type SplitTextProps = {
   className?: string;
   by?: "chars" | "words";
 };
-
+ 
 export function SplitText({ text, className = "", by = "chars" }: SplitTextProps) {
   const parts = by === "chars" ? Array.from(text) : text.split(" ");
 

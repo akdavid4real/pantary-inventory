@@ -55,14 +55,17 @@ export function Grocery({
     setLoading(true);
     setError("");
     try {
-      const [shoppingList, ingredientRows] = await Promise.all([
-        api<ShoppingList | null>(
-          listId ? `/shopping-list/${listId}` : "/shopping-list/current",
-        ),
-        loadIngredientCatalog(),
-      ]);
+      const shoppingList = await api<ShoppingList | null>(
+        listId ? `/shopping-list/${listId}` : "/shopping-list/current",
+      );
       setList(shoppingList);
-      setIngredients(ingredientRows);
+      // The list remains usable when the optional catalog request is
+      // temporarily unavailable; it only powers the manual-add dropdown.
+      try {
+        setIngredients(await loadIngredientCatalog());
+      } catch {
+        setIngredients(getCachedIngredientCatalog());
+      }
     } catch (reason) {
       setError(
         reason instanceof Error

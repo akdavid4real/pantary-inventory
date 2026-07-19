@@ -1,2 +1,2 @@
 export const panelClassName =
-  "rounded-2xl border border-[#ded5c5] bg-[#fffdf8] shadow-[0_2px_8px_rgba(30,70,50,0.07)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-[#cfc3ae] hover:shadow-[0_12px_30px_rgba(30,70,50,0.10)]";
+  "rounded-2xl border border-[#ded5c5] dark:border-[#1e352c] bg-[#fffdf8] dark:bg-[#101d19] shadow-[0_2px_8px_rgba(30,70,50,0.07)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-[#cfc3ae] dark:hover:border-[#2d5042] hover:shadow-[0_12px_30px_rgba(30,70,50,0.10)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.55)]";

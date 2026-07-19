@@ -218,7 +218,7 @@ main {
   font-weight: 800;
   letter-spacing: 0;
 }
-
+ 
 .hero-title {
   display: flex;
   max-width: 790px;
@@ -1262,6 +1262,49 @@ main {
     transform: none !important;
   }
 
+  .footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .footer-orbit img:nth-child(1) {
+    left: -8%;
+    top: 18%;
+  }
+
+  .footer-orbit img:nth-child(2) {
+    right: -9%;
+    top: 16%;
+  }
+
+  .footer-orbit img:nth-child(3) {
+    left: 54%;
+    bottom: 4%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+
+  .loader {
+    display: none;
+  }
+
+  .split-part,
+  .reveal-up,
+  .scene-card,
+  .hero-plate,
+  .float-chip {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   .cook-image-mask {
     clip-path: none !important;
   }
@@ -1269,4 +1312,105 @@ main {
   .footer-scene {
     clip-path: none !important;
   }
+}
+
+/* ==========================================================================
+   🌙 MIDNIGHT FEAST — LUXURY DARK MODE STYLES
+   ========================================================================== */
+html.dark,
+body.dark {
+  color-scheme: dark;
+  background-color: #09120e !important;
+  color: #f0f5f2 !important;
+
+  --evergreen: #f0f5f2;
+  --sage: #2a5242;
+  --cream: #09120e;
+  --cream-deep: #13241d;
+  --charcoal: #fbf7ef;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(42, 82, 66, 0.25), transparent 32rem),
+    radial-gradient(circle at 82% 30%, rgba(242, 180, 65, 0.1), transparent 28rem),
+    #09120e !important;
+  color: #f0f5f2 !important;
+}
+
+/* Headers and Strong Texts */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark strong,
+.dark b {
+  color: #f5fcf8 !important;
+}
+
+/* Secondary/Muted Texts */
+.dark p,
+.dark small,
+.dark span:not([class*="text-"]),
+.dark label,
+.dark th,
+.dark td,
+.dark i,
+.dark svg {
+  color: #b3c5bc !important;
+}
+
+/* Custom form elements globally across the application */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #101d19 !important;
+  color: #f0f5f2 !important;
+  border-color: #1e352c !important;
+}
+
+.dark input::placeholder {
+  color: #516b6e !important;
+}
+
+.dark .segmented button:not(.selected) {
+  background-color: #101d19 !important;
+  color: #b3c5bc !important;
+  border-color: #1e352c !important;
+}
+
+.dark .segmented button.selected {
+  background-color: #07513f !important;
+  color: #ffffff !important;
+}
+
+.dark .onboard-panel {
+  background-color: #101d19 !important;
+  border-color: #1e352c !important;
+}
+
+/* Settings and specific dashboard card overrides */
+.dark select,
+.dark option {
+  background-color: #101d19 !important;
+  color: #f0f5f2 !important;
+}
+
+.dark .pantry-table-grid,
+.dark .dashboard-toolbar label,
+.dark .dashboard-mobile-nav {
+  background-color: rgba(16, 29, 25, 0.9) !important;
+  border-color: #1e352c !important;
+  color: #f0f5f2 !important;
+}
+
+/* Ensure donut chart inner circle transitions nicely */
+.dark .macro-chart strong,
+.dark .macro-chart span {
+  background-color: #101d19 !important;
+  color: #f0f5f2 !important;
+}
+
+.dark .macro-chart {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
 }

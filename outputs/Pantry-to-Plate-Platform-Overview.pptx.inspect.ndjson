@@ -1,0 +1,201 @@
+{"kind":"deck","id":"pr/nucb4k","name":"Deck"}
+{"kind":"layout","layoutId":"a4c65356-9ff3-494d-8110-298fccdebfda","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"07d16780-0048-495e-b8f7-48f4ad993985","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/59yg30","slide":1,"title":"PANTRY-TO-PLATE","textShapes":4}
+{"kind":"shape","id":"sh/xcruh0za","slide":1,"bbox":[0,0,640,720]}
+{"kind":"textbox","id":"sh/apgv65gj","slide":1,"text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[54,46,300,28]}
+{"kind":"textbox","id":"sh/bq9cfah4","slide":1,"text":"Smart meal planning,\nfrom pantry to plate","textPreview":"Smart meal planning, | from pantry to plate","textChars":41,"textLines":2,"bbox":[54,180,540,210]}
+{"kind":"textbox","id":"sh/onyt4vyd","slide":1,"text":"A Nigerian-first platform that connects inventory, recipes, meal plans, groceries, nutrition and cooking in one continuous loop.","textPreview":"A Nigerian-first platform that connects inventory, recipes, meal plans, groceries, nutrition and cooking in one continuous loop.","textChars":128,"textLines":1,"bbox":[56,424,500,120]}
+{"kind":"shape","id":"sh/po7ud0zy","slide":1,"bbox":[56,586,174,7]}
+{"kind":"textbox","id":"sh/2lgb2lg7","slide":1,"text":"PLATFORM OVERVIEW  •  JULY 2026","textPreview":"PLATFORM OVERVIEW  •  JULY 2026","textChars":31,"textLines":1,"bbox":[56,616,500,28]}
+{"kind":"shape","id":"sh/nmpcbqhs","slide":1,"bbox":[670,42,568,636]}
+{"kind":"image","id":"im/hcnm5wfu","slide":1,"name":"","geometry":"roundRect","alt":"A rich spread of Nigerian dishes and fresh ingredients","bbox":[682,54,544,612]}
+{"kind":"notes","id":"nt/59yg30","slide":1,"text":""}
+{"kind":"slide","id":"sl/o0hwys","slide":2,"title":"PANTRY-TO-PLATE","textShapes":15}
+{"kind":"textbox","id":"sh/ojytkbel","slide":2,"name":"brand-2","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/nipcb6d0","slide":2,"name":"section-2","text":"WHY IT MATTERS","textPreview":"WHY IT MATTERS","textChars":14,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/2hgbilwf","slide":2,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/1g7u9gva","slide":2,"name":"slide-number-2","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/0fytgbep","slide":2,"name":"slide-title","text":"Meal planning breaks when every step lives somewhere else","textPreview":"Meal planning breaks when every step lives somewhere else","textChars":57,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"textbox","id":"sh/fe5s76d4","slide":2,"name":"slide-subtitle","text":"Pantry-to-Plate turns a fragmented household routine into one connected decision flow.","textPreview":"Pantry-to-Plate turns a fragmented household routine into one connected decision flow.","textChars":86,"textLines":1,"bbox":[44,157,1120,48]}
+{"kind":"shape","id":"sh/edwbe1wj","slide":2,"bbox":[42,252,360,7]}
+{"kind":"textbox","id":"sh/dcnalwvy","slide":2,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[42,282,90,58]}
+{"kind":"textbox","id":"sh/sretcred","slide":2,"text":"Know what is available","textPreview":"Know what is available","textChars":22,"textLines":1,"bbox":[42,350,360,72]}
+{"kind":"textbox","id":"sh/a9k7m94b","slide":2,"text":"Track quantities, measurement units, expiry dates and low-stock items instead of relying on memory.","textPreview":"Track quantities, measurement units, expiry dates and low-stock items instead of relying on memory.","textChars":99,"textLines":1,"bbox":[42,438,354,140]}
+{"kind":"shape","id":"sh/bat8fe5w","slide":2,"bbox":[452,252,360,7]}
+{"kind":"textbox","id":"sh/cv29ojm1","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[452,282,90,58]}
+{"kind":"textbox","id":"sh/xwbqhonm","slide":2,"text":"Choose what makes sense","textPreview":"Choose what makes sense","textChars":23,"textLines":1,"bbox":[452,350,360,72]}
+{"kind":"textbox","id":"sh/2507i9oz","slide":2,"text":"Match Nigerian recipes against the pantry, expose missing ingredients and plan meals around real preferences.","textPreview":"Match Nigerian recipes against the pantry, expose missing ingredients and plan meals around real preferences.","textChars":109,"textLines":1,"bbox":[452,438,354,140]}
+{"kind":"shape","id":"sh/n6t8be5k","slide":2,"bbox":[862,252,360,7]}
+{"kind":"textbox","id":"sh/o72pkjm5","slide":2,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[862,282,90,58]}
+{"kind":"textbox","id":"sh/p8bqdonq","slide":2,"text":"Keep the loop accurate","textPreview":"Keep the loop accurate","textChars":22,"textLines":1,"bbox":[862,350,360,72]}
+{"kind":"textbox","id":"sh/e107epo3","slide":2,"text":"Turn planned meals into a shopping list, add purchases back to stock, then deduct ingredients after cooking.","textPreview":"Turn planned meals into a shopping list, add purchases back to stock, then deduct ingredients after cooking.","textChars":108,"textLines":1,"bbox":[862,438,354,140]}
+{"kind":"textbox","id":"sh/f2987u5o","slide":2,"text":"The result: less guesswork, less waste and a clearer path to the next meal.","textPreview":"The result: less guesswork, less waste and a clearer path to the next meal.","textChars":75,"textLines":1,"bbox":[42,620,1050,32]}
+{"kind":"notes","id":"nt/o0hwys","slide":2,"text":""}
+{"kind":"slide","id":"sl/7i4cwz","slide":3,"title":"PANTRY-TO-PLATE","textShapes":11}
+{"kind":"textbox","id":"sh/65kzelwv","slide":3,"name":"brand-3","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/t8bi90vm","slide":3,"name":"section-3","text":"PLATFORM OVERVIEW","textPreview":"PLATFORM OVERVIEW","textChars":17,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/s72hgve1","slide":3,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/fut0badc","slide":3,"name":"slide-number-3","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/etkzi5wr","slide":3,"name":"slide-title","text":"One dashboard brings the full food-planning loop into view","textPreview":"One dashboard brings the full food-planning loop into view","textChars":58,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"shape","id":"sh/1wvid0vi","slide":3,"bbox":[438,188,800,448]}
+{"kind":"textbox","id":"sh/gvmhkvux","slide":3,"text":"The home experience combines","textPreview":"The home experience combines","textChars":28,"textLines":1,"bbox":[42,212,340,32]}
+{"kind":"shape","id":"sh/3yd0fado","slide":3,"bbox":[42,275,12,12]}
+{"kind":"textbox","id":"sh/2x4zm5c3","slide":3,"text":"Today’s meal","textPreview":"Today’s meal","textChars":12,"textLines":1,"bbox":[70,268,322,34]}
+{"kind":"textbox","id":"sh/o7ehkze1","slide":3,"text":"A clear next action, recipe progress and direct access to cooking mode.","textPreview":"A clear next action, recipe progress and direct access to cooking mode.","textChars":71,"textLines":1,"bbox":[70,306,322,62]}
+{"kind":"shape","id":"sh/98nidkvm","slide":3,"bbox":[42,389,12,12]}
+{"kind":"textbox","id":"sh/m5czipwv","slide":3,"text":"Weekly nutrition","textPreview":"Weekly nutrition","textChars":16,"textLines":1,"bbox":[70,382,322,34]}
+{"kind":"textbox","id":"sh/n6lgbudg","slide":3,"text":"At-a-glance macro estimates and a direct route into deeper analytics.","textPreview":"At-a-glance macro estimates and a direct route into deeper analytics.","textChars":69,"textLines":1,"bbox":[70,420,322,62]}
+{"kind":"shape","id":"sh/wbehozex","slide":3,"bbox":[42,503,12,12]}
+{"kind":"textbox","id":"sh/xcnih4vi","slide":3,"text":"Pantry signals","textPreview":"Pantry signals","textChars":14,"textLines":1,"bbox":[70,496,322,34]}
+{"kind":"textbox","id":"sh/a9wzmpw7","slide":3,"text":"Recommendations, item counts, expiry warnings and grocery status in context.","textPreview":"Recommendations, item counts, expiry warnings and grocery status in context.","textChars":76,"textLines":1,"bbox":[70,534,322,62]}
+{"kind":"image","id":"im/8b2xojyh","slide":3,"name":"","geometry":"roundRect","alt":"Pantry-to-Plate populated dashboard showing meal plan, nutrition and pantry recommendations","bbox":[450,200,776,424]}
+{"kind":"notes","id":"nt/7i4cwz","slide":3,"text":""}
+{"kind":"slide","id":"sl/m7r2au","slide":4,"title":"PANTRY-TO-PLATE","textShapes":13}
+{"kind":"textbox","id":"sh/cnexs36p","slide":4,"name":"brand-4","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/rmlgjip4","slide":4,"name":"section-4","text":"PERSONALIZATION","textPreview":"PERSONALIZATION","textChars":15,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/qlcfqdoj","slide":4,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/1cnyps76","slide":4,"name":"slide-number-4","text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/0bexwn6l","slide":4,"name":"slide-title","text":"Onboarding builds a meal plan around the person, not a generic diet","textPreview":"Onboarding builds a meal plan around the person, not a generic diet","textChars":67,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"shape","id":"sh/zq5gnip0","slide":4,"bbox":[42,204,738,420]}
+{"kind":"shape","id":"sh/epwfudof","slide":4,"bbox":[802,204,436,420]}
+{"kind":"textbox","id":"sh/9g7yts72","slide":4,"text":"Personalization captured","textPreview":"Personalization captured","textChars":24,"textLines":1,"bbox":[838,240,350,38]}
+{"kind":"textbox","id":"sh/ofyx0n6h","slide":4,"text":"Food preferences","textPreview":"Food preferences","textChars":16,"textLines":1,"bbox":[838,306,340,26]}
+{"kind":"textbox","id":"sh/i5orad0z","slide":4,"text":"Meals and ingredients the user enjoys.","textPreview":"Meals and ingredients the user enjoys.","textChars":38,"textLines":1,"bbox":[838,334,340,38]}
+{"kind":"textbox","id":"sh/j6xs3i1k","slide":4,"text":"Cooking goals","textPreview":"Cooking goals","textChars":13,"textLines":1,"bbox":[838,378,340,26]}
+{"kind":"textbox","id":"sh/k769cni5","slide":4,"text":"Budget, speed, nutrition and waste priorities.","textPreview":"Budget, speed, nutrition and waste priorities.","textChars":46,"textLines":1,"bbox":[838,406,340,38]}
+{"kind":"textbox","id":"sh/58fa5sjq","slide":4,"text":"Dietary safeguards","textPreview":"Dietary safeguards","textChars":18,"textLines":1,"bbox":[838,450,340,26]}
+{"kind":"textbox","id":"sh/69obex0b","slide":4,"text":"Allergies, avoided ingredients and time limits.","textPreview":"Allergies, avoided ingredients and time limits.","textChars":47,"textLines":1,"bbox":[838,478,340,38]}
+{"kind":"textbox","id":"sh/7axs72hw","slide":4,"text":"Starting pantry","textPreview":"Starting pantry","textChars":15,"textLines":1,"bbox":[838,522,340,26]}
+{"kind":"textbox","id":"sh/sbqtgni1","slide":4,"text":"Existing ingredients become immediate recipe context.","textPreview":"Existing ingredients become immediate recipe context.","textChars":53,"textLines":1,"bbox":[838,550,340,38]}
+{"kind":"image","id":"im/q9kfitc3","slide":4,"name":"","geometry":"roundRect","alt":"Personalized Pantry-to-Plate onboarding welcome screen","bbox":[54,216,714,396]}
+{"kind":"notes","id":"nt/m7r2au","slide":4,"text":""}
+{"kind":"slide","id":"sl/qfokgj","slide":5,"title":"PANTRY-TO-PLATE","textShapes":11}
+{"kind":"textbox","id":"sh/ixofqhc3","slide":5,"name":"brand-5","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/50zylwvu","slide":5,"name":"section-5","text":"INVENTORY","textPreview":"INVENTORY","textChars":9,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/4zqxsru9","slide":5,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/rmhgn6dk","slide":5,"name":"slide-number-5","text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/ql8fu1cf","slide":5,"name":"slide-title","text":"The pantry is a living inventory, not a static checklist","textPreview":"The pantry is a living inventory, not a static checklist","textChars":56,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"shape","id":"sh/dozypgvq","slide":5,"bbox":[42,200,820,438]}
+{"kind":"textbox","id":"sh/snqxwbu5","slide":5,"text":"Inventory intelligence","textPreview":"Inventory intelligence","textChars":22,"textLines":1,"bbox":[900,222,300,36]}
+{"kind":"shape","id":"sh/7qdgr2dg","slide":5,"bbox":[894,289,12,12]}
+{"kind":"textbox","id":"sh/654fixwv","slide":5,"text":"Quantities and units","textPreview":"Quantities and units","textChars":20,"textLines":1,"bbox":[922,282,292,34]}
+{"kind":"textbox","id":"sh/c36lkfel","slide":5,"text":"Save realistic amounts using configurable measurement profiles.","textPreview":"Save realistic amounts using configurable measurement profiles.","textChars":63,"textLines":1,"bbox":[922,320,292,62]}
+{"kind":"shape","id":"sh/x4f2dkv6","slide":5,"bbox":[894,401,12,12]}
+{"kind":"textbox","id":"sh/a1o3i5wv","slide":5,"text":"Expiry and low stock","textPreview":"Expiry and low stock","textChars":20,"textLines":1,"bbox":[922,394,292,34]}
+{"kind":"textbox","id":"sh/b2xkbad0","slide":5,"text":"Surface urgent ingredients before they become waste or block a meal.","textPreview":"Surface urgent ingredients before they become waste or block a meal.","textChars":68,"textLines":1,"bbox":[922,432,292,62]}
+{"kind":"shape","id":"sh/kr6lozex","slide":5,"bbox":[894,513,12,12]}
+{"kind":"textbox","id":"sh/lsz2h4vi","slide":5,"text":"History and editing","textPreview":"History and editing","textChars":19,"textLines":1,"bbox":[922,506,292,34]}
+{"kind":"textbox","id":"sh/y5o3mpwr","slide":5,"text":"Update, remove and review items while keeping the dashboard current.","textPreview":"Update, remove and review items while keeping the dashboard current.","textChars":68,"textLines":1,"bbox":[922,544,292,62]}
+{"kind":"image","id":"im/4na5ovux","slide":5,"name":"","geometry":"roundRect","alt":"Pantry inventory screen with quantities, units, expiry status and editing tools","bbox":[54,212,796,414]}
+{"kind":"notes","id":"nt/qfokgj","slide":5,"text":""}
+{"kind":"slide","id":"sl/zqgab5","slide":6,"title":"PANTRY-TO-PLATE","textShapes":8}
+{"kind":"textbox","id":"sh/m1g7a9cb","slide":6,"name":"brand-6","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/94rq5ov2","slide":6,"name":"section-6","text":"RECIPE INTELLIGENCE","textPreview":"RECIPE INTELLIGENCE","textChars":19,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/83ypcjuh","slide":6,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/v6987yds","slide":6,"name":"slide-number-6","text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/a50retc7","slide":6,"name":"slide-title","text":"The pantry becomes a recipe search engine","textPreview":"The pantry becomes a recipe search engine","textChars":41,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"shape","id":"sh/x8rq98vy","slide":6,"bbox":[42,196,560,390]}
+{"kind":"shape","id":"sh/w7i9g3ud","slide":6,"bbox":[626,196,612,390]}
+{"kind":"textbox","id":"sh/ju98byd4","slide":6,"text":"MATCH","textPreview":"MATCH","textChars":5,"textLines":1,"bbox":[54,606,120,25]}
+{"kind":"textbox","id":"sh/it0ritcj","slide":6,"text":"Recipes are ranked against the user’s real pantry.","textPreview":"Recipes are ranked against the user’s real pantry.","textChars":50,"textLines":1,"bbox":[138,605,440,28]}
+{"kind":"textbox","id":"sh/4bml836h","slide":6,"text":"UNDERSTAND","textPreview":"UNDERSTAND","textChars":10,"textLines":1,"bbox":[638,606,150,25]}
+{"kind":"textbox","id":"sh/pcfmh8n2","slide":6,"text":"Details show ingredients, missing items, steps and nutrition estimates.","textPreview":"Details show ingredients, missing items, steps and nutrition estimates.","textChars":71,"textLines":1,"bbox":[784,605,430,34]}
+{"kind":"image","id":"im/9g72xcvq","slide":6,"name":"","geometry":"roundRect","alt":"Recipe explorer showing Nigerian recipes matched from pantry ingredients","bbox":[54,208,536,366]}
+{"kind":"image","id":"im/ofy147e5","slide":6,"name":"","geometry":"roundRect","alt":"Recipe detail page with recipe information, ingredients and actions","bbox":[638,208,588,366]}
+{"kind":"notes","id":"nt/zqgab5","slide":6,"text":""}
+{"kind":"slide","id":"sl/rd7ieb","slide":7,"title":"PANTRY-TO-PLATE","textShapes":14}
+{"kind":"textbox","id":"sh/dgbix8fa","slide":7,"name":"brand-7","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/qdkzmdgj","slide":7,"name":"section-7","text":"MEAL PLANNING","textPreview":"MEAL PLANNING","textChars":13,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/ret0vyx4","slide":7,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/4bihk3yt","slide":7,"name":"slide-number-7","text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/5cbyt8fe","slide":7,"name":"slide-title","text":"Weekly planning stays explainable and under the user’s control","textPreview":"Weekly planning stays explainable and under the user’s control","textChars":62,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"shape","id":"sh/i90zitgn","slide":7,"bbox":[42,194,720,372]}
+{"kind":"shape","id":"sh/3a9gryx8","slide":7,"bbox":[808,224,42,42]}
+{"kind":"textbox","id":"sh/o7mhwnex","slide":7,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[808,230,42,28]}
+{"kind":"textbox","id":"sh/p8vi5sfi","slide":7,"text":"Filter","textPreview":"Filter","textChars":6,"textLines":1,"bbox":[872,222,150,30]}
+{"kind":"textbox","id":"sh/pob2lkji","slide":7,"text":"Allergies, avoided ingredients and cooking-time limits.","textPreview":"Allergies, avoided ingredients and cooking-time limits.","textChars":55,"textLines":1,"bbox":[872,258,330,66]}
+{"kind":"shape","id":"sh/on21cfix","slide":7,"bbox":[828,274,2,62]}
+{"kind":"shape","id":"sh/n2tkju1c","slide":7,"bbox":[808,336,42,42]}
+{"kind":"textbox","id":"sh/210jap0r","slide":7,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[808,342,42,28]}
+{"kind":"textbox","id":"sh/10rihkjm","slide":7,"text":"Preview","textPreview":"Preview","textChars":7,"textLines":1,"bbox":[872,334,150,30]}
+{"kind":"textbox","id":"sh/0zi18fi1","slide":7,"text":"Gemini selects only approved recipes; PlateSense provides a safe fallback.","textPreview":"Gemini selects only approved recipes; PlateSense provides a safe fallback.","textChars":74,"textLines":1,"bbox":[872,370,330,66]}
+{"kind":"shape","id":"sh/fy90fa1g","slide":7,"bbox":[828,386,2,62]}
+{"kind":"shape","id":"sh/ex0j650v","slide":7,"bbox":[808,448,42,42]}
+{"kind":"textbox","id":"sh/lwv2t4jq","slide":7,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[808,454,42,28]}
+{"kind":"textbox","id":"sh/kvm1kji5","slide":7,"text":"Confirm","textPreview":"Confirm","textChars":7,"textLines":1,"bbox":[872,446,150,30]}
+{"kind":"textbox","id":"sh/4bedc7ud","slide":7,"text":"Nothing is saved until the user reviews and applies the plan.","textPreview":"Nothing is saved until the user reviews and applies the plan.","textChars":61,"textLines":1,"bbox":[872,482,330,66]}
+{"kind":"textbox","id":"sh/5cnu5cby","slide":7,"text":"The calendar remains editable after generation, so automation supports decisions instead of replacing them.","textPreview":"The calendar remains editable after generation, so automation supports decisions instead of replacing them.","textChars":107,"textLines":1,"bbox":[42,606,1100,34]}
+{"kind":"image","id":"im/183q1cjy","slide":7,"name":"","geometry":"roundRect","alt":"Weekly meal planner calendar with a planned Nigerian meal","bbox":[54,206,696,348]}
+{"kind":"notes","id":"nt/rd7ieb","slide":7,"text":""}
+{"kind":"slide","id":"sl/xkitt5","slide":8,"title":"PANTRY-TO-PLATE","textShapes":11}
+{"kind":"textbox","id":"sh/fyl4n6h4","slide":8,"name":"brand-8","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/gzu5gbyp","slide":8,"name":"section-8","text":"SHOPPING LOOP","textPreview":"SHOPPING LOOP","textChars":13,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/103mpgfa","slide":8,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/21cnilgv","slide":8,"name":"slide-number-8","text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/32l4rqxg","slide":8,"name":"slide-title","text":"A meal plan becomes an actionable grocery list — then returns to the pantry","textPreview":"A meal plan becomes an actionable grocery list — then returns to the pantry","textChars":75,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"shape","id":"sh/o3u5kvy1","slide":8,"bbox":[42,194,560,330]}
+{"kind":"shape","id":"sh/p4nmtgf6","slide":8,"bbox":[678,194,560,330]}
+{"kind":"shape","id":"sh/q5wnmlgr","slide":8,"bbox":[608,330,54,54]}
+{"kind":"textbox","id":"sh/b654vqxc","slide":8,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[608,330,54,42]}
+{"kind":"textbox","id":"sh/3e1gzm9k","slide":8,"text":"Generate","textPreview":"Generate","textChars":8,"textLines":1,"bbox":[42,548,160,28]}
+{"kind":"textbox","id":"sh/2dsz6hsz","slide":8,"text":"Missing ingredients are consolidated from recipes or the weekly meal plan.","textPreview":"Missing ingredients are consolidated from recipes or the weekly meal plan.","textChars":74,"textLines":1,"bbox":[42,582,360,58]}
+{"kind":"textbox","id":"sh/pg3y1wrq","slide":8,"text":"Check off","textPreview":"Check off","textChars":9,"textLines":1,"bbox":[448,548,160,28]}
+{"kind":"textbox","id":"sh/4fah8ra5","slide":8,"text":"Items can be marked as bought while shopping.","textPreview":"Items can be marked as bought while shopping.","textChars":45,"textLines":1,"bbox":[448,582,260,58]}
+{"kind":"textbox","id":"sh/fa1gv29o","slide":8,"text":"Add to pantry","textPreview":"Add to pantry","textChars":13,"textLines":1,"bbox":[842,548,190,28]}
+{"kind":"textbox","id":"sh/u9sf2xs3","slide":8,"text":"A purchase review converts bought items into updated inventory.","textPreview":"A purchase review converts bought items into updated inventory.","textChars":63,"textLines":1,"bbox":[842,582,340,58]}
+{"kind":"image","id":"im/ed4vydwj","slide":8,"name":"","geometry":"roundRect","alt":"Generated grocery list with shopping items and completion controls","bbox":[54,206,536,306]}
+{"kind":"image","id":"im/fedcrix4","slide":8,"name":"","geometry":"roundRect","alt":"Purchase review page for adding bought grocery items into the pantry","bbox":[690,206,536,306]}
+{"kind":"notes","id":"nt/xkitt5","slide":8,"text":""}
+{"kind":"slide","id":"sl/muhui9","slide":9,"title":"PANTRY-TO-PLATE","textShapes":12}
+{"kind":"textbox","id":"sh/36xsbah8","slide":9,"name":"brand-9","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/47694fyt","slide":9,"name":"section-9","text":"GUIDANCE AND INTELLIGENCE","textPreview":"GUIDANCE AND INTELLIGENCE","textChars":25,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/58fadkfe","slide":9,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/q98r6pgz","slide":9,"name":"slide-number-9","text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/rahsfuxk","slide":9,"name":"slide-title","text":"Cooking closes the inventory loop while nutrition and AI add context","textPreview":"Cooking closes the inventory loop while nutrition and AI add context","textChars":68,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"shape","id":"sh/svq98zy5","slide":9,"bbox":[42,196,650,410]}
+{"kind":"textbox","id":"sh/dwzahkfq","slide":9,"text":"Three connected capabilities","textPreview":"Three connected capabilities","textChars":28,"textLines":1,"bbox":[736,202,450,38]}
+{"kind":"shape","id":"sh/6d4rulgv","slide":9,"bbox":[732,275,12,12]}
+{"kind":"textbox","id":"sh/7ed83qhg","slide":9,"text":"Guided cooking mode","textPreview":"Guided cooking mode","textChars":19,"textLines":1,"bbox":[760,268,442,34]}
+{"kind":"textbox","id":"sh/7epgj2lk","slide":9,"text":"Step-by-step instructions keep the selected recipe and pantry usage in one place.","textPreview":"Step-by-step instructions keep the selected recipe and pantry usage in one place.","textChars":81,"textLines":1,"bbox":[760,306,442,62]}
+{"kind":"shape","id":"sh/mdgfqx4z","slide":9,"bbox":[732,389,12,12]}
+{"kind":"textbox","id":"sh/9g7ylc3q","slide":9,"text":"Automatic stock deduction","textPreview":"Automatic stock deduction","textChars":25,"textLines":1,"bbox":[760,382,442,34]}
+{"kind":"textbox","id":"sh/8fyxs7m5","slide":9,"text":"Completing a cooking session updates pantry quantities and records nutrition estimates.","textPreview":"Completing a cooking session updates pantry quantities and records nutrition estimates.","textChars":87,"textLines":1,"bbox":[760,420,442,62]}
+{"kind":"shape","id":"sh/zapgf2l8","slide":9,"bbox":[732,503,12,12]}
+{"kind":"textbox","id":"sh/y9wfmx43","slide":9,"text":"Food Scan + analytics","textPreview":"Food Scan + analytics","textChars":21,"textLines":1,"bbox":[760,496,442,34]}
+{"kind":"textbox","id":"sh/lc7yhs3e","slide":9,"text":"Photo analysis identifies likely dishes, ingredients and allergens; weekly summaries remain clearly labeled as estimates.","textPreview":"Photo analysis identifies likely dishes, ingredients and allergens; weekly summaries remain clearly labeled as estimates.","textChars":121,"textLines":1,"bbox":[760,534,442,62]}
+{"kind":"textbox","id":"sh/kbyxo7mt","slide":9,"text":"Images are compressed in the browser and are not saved in Pantry-to-Plate storage.","textPreview":"Images are compressed in the browser and are not saved in Pantry-to-Plate storage.","textChars":82,"textLines":1,"bbox":[42,628,1040,28]}
+{"kind":"image","id":"im/wfy10fi1","slide":9,"name":"","geometry":"roundRect","alt":"Cooking mode showing recipe steps, meal image and pantry usage","bbox":[54,208,626,386]}
+{"kind":"notes","id":"nt/muhui9","slide":9,"text":""}
+{"kind":"slide","id":"sl/xvvkdp","slide":10,"title":"PANTRY-TO-PLATE","textShapes":19}
+{"kind":"textbox","id":"sh/5cj2xgjy","slide":10,"name":"brand-10","text":"PANTRY-TO-PLATE","textPreview":"PANTRY-TO-PLATE","textChars":15,"textLines":1,"bbox":[42,26,230,24]}
+{"kind":"textbox","id":"sh/i9sj21kn","slide":10,"name":"section-10","text":"TECHNOLOGY AND VALUE","textPreview":"TECHNOLOGY AND VALUE","textChars":20,"textLines":1,"bbox":[880,28,320,22]}
+{"kind":"shape","id":"sh/ja1kv618","slide":10,"bbox":[42,58,1196,1]}
+{"kind":"textbox","id":"sh/w7a10b2h","slide":10,"name":"slide-number-10","text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1180,675,58,20]}
+{"kind":"textbox","id":"sh/h8j2twj2","slide":10,"name":"slide-title","text":"Pantry-to-Plate connects every decision from stock to serving","textPreview":"Pantry-to-Plate connects every decision from stock to serving","textChars":61,"textLines":1,"bbox":[42,84,1196,72]}
+{"kind":"textbox","id":"sh/u58jy1kb","slide":10,"text":"PLATFORM LAYERS","textPreview":"PLATFORM LAYERS","textChars":15,"textLines":1,"bbox":[42,198,300,24]}
+{"kind":"shape","id":"sh/v6hkr61w","slide":10,"bbox":[42,238,530,64]}
+{"kind":"textbox","id":"sh/8jq1wr2l","slide":10,"text":"Experience","textPreview":"Experience","textChars":10,"textLines":1,"bbox":[62,250,210,28]}
+{"kind":"textbox","id":"sh/9kz2pwj6","slide":10,"text":"React + Vite","textPreview":"React + Vite","textChars":12,"textLines":1,"bbox":[270,251,280,28]}
+{"kind":"shape","id":"sh/5wbulwju","slide":10,"bbox":[42,320,530,64]}
+{"kind":"textbox","id":"sh/4v2tsr29","slide":10,"text":"Food intelligence","textPreview":"Food intelligence","textChars":17,"textLines":1,"bbox":[62,332,210,28]}
+{"kind":"textbox","id":"sh/3utcjm1o","slide":10,"text":"PlateSense + Gemini","textPreview":"PlateSense + Gemini","textChars":19,"textLines":1,"bbox":[270,333,280,28]}
+{"kind":"shape","id":"sh/itkbqhk3","slide":10,"bbox":[42,402,530,64]}
+{"kind":"textbox","id":"sh/hsbuhcji","slide":10,"text":"Application API","textPreview":"Application API","textChars":15,"textLines":1,"bbox":[62,414,210,28]}
+{"kind":"textbox","id":"sh/gr2to72d","slide":10,"text":"NestJS + Swagger","textPreview":"NestJS + Swagger","textChars":16,"textLines":1,"bbox":[270,415,280,28]}
+{"kind":"shape","id":"sh/vqtcf21s","slide":10,"bbox":[42,484,530,64]}
+{"kind":"textbox","id":"sh/u5kbmxk7","slide":10,"text":"Data and identity","textPreview":"Data and identity","textChars":17,"textLines":1,"bbox":[62,496,210,28]}
+{"kind":"textbox","id":"sh/t4rudcjm","slide":10,"text":"Prisma + Supabase PostgreSQL","textPreview":"Prisma + Supabase PostgreSQL","textChars":28,"textLines":1,"bbox":[270,497,280,28]}
+{"kind":"shape","id":"sh/83itk721","slide":10,"bbox":[622,204,1,392]}
+{"kind":"textbox","id":"sh/k7mt07ax","slide":10,"text":"WHAT THE PLATFORM NOW DELIVERS","textPreview":"WHAT THE PLATFORM NOW DELIVERS","textChars":30,"textLines":1,"bbox":[668,198,500,24]}
+{"kind":"shape","id":"sh/l8vu9cri","slide":10,"bbox":[668,251,18,18]}
+{"kind":"textbox","id":"sh/y54byxsr","slide":10,"text":"Personalized onboarding, authentication, settings and favorites","textPreview":"Personalized onboarding, authentication, settings and favorites","textChars":63,"textLines":1,"bbox":[704,246,500,58]}
+{"kind":"shape","id":"sh/z6dc729c","slide":10,"bbox":[668,327,18,18]}
+{"kind":"textbox","id":"sh/cjmtwna1","slide":10,"text":"Pantry, recipes, meal plans, groceries, nutrition and cooking in one loop","textPreview":"Pantry, recipes, meal plans, groceries, nutrition and cooking in one loop","textChars":73,"textLines":1,"bbox":[704,322,500,58]}
+{"kind":"shape","id":"sh/xkvu5sb6","slide":10,"bbox":[668,403,18,18]}
+{"kind":"textbox","id":"sh/qhkbuxsv","slide":10,"text":"Nigerian-aware catalog intelligence with missing-ingredient detection","textPreview":"Nigerian-aware catalog intelligence with missing-ingredient detection","textChars":69,"textLines":1,"bbox":[704,398,500,58]}
+{"kind":"shape","id":"sh/bitc3itg","slide":10,"bbox":[668,479,18,18]}
+{"kind":"textbox","id":"sh/wf6d8ra5","slide":10,"text":"Server-side AI with validation, approved recipe IDs and preview-before-save safeguards","textPreview":"Server-side AI with validation, approved recipe IDs and preview-before-save safeguards","textChars":86,"textLines":1,"bbox":[704,474,500,58]}
+{"kind":"shape","id":"sh/hgfuhwrq","slide":10,"bbox":[668,564,534,76]}
+{"kind":"textbox","id":"sh/ra1w7qts","slide":10,"text":"A complete closed loop: plan smarter, shop with purpose, cook confidently and keep the pantry accurate.","textPreview":"A complete closed loop: plan smarter, shop with purpose, cook confidently and keep the pantry accurate.","textChars":103,"textLines":1,"bbox":[692,580,486,44]}
+{"kind":"notes","id":"nt/xvvkdp","slide":10,"text":""}

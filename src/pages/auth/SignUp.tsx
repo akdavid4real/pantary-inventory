@@ -3,7 +3,7 @@ import { FormEvent, useState } from "react";
 import signupBackground from "../../../assets/auth/signup-food-background.webp";
 import { Brand } from "../../components/Brand";
 import { ScreenProps } from "../../types/navigation";
-import { AuthSession, publicApi, saveSession, SignUpResponse } from "../../services/api";
+import { AuthSession, publicApi, saveSession, SignUpResponse, startGoogleSignIn } from "../../services/api";
 
 export function SignUp({ onNavigate }: ScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -75,6 +75,14 @@ export function SignUp({ onNavigate }: ScreenProps) {
       setError(caught instanceof Error ? caught.message : "Unable to resend the code.");
     } finally {
       setLoading(false);
+    }
+  };
+  const signUpWithGoogle = () => {
+    setError("");
+    try {
+      startGoogleSignIn();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to start Google sign-up.");
     }
   };
   return (
@@ -220,6 +228,11 @@ export function SignUp({ onNavigate }: ScreenProps) {
           {error ? <p role="alert">{error}</p> : null}
           <button className="auth-submit" type="submit" disabled={loading}>
             {loading ? "Creating account..." : "Create account"}
+          </button>
+          <div className="auth-divider" aria-hidden="true">or</div>
+          <button className="google-button" type="button" onClick={signUpWithGoogle}>
+            <span className="google-button-mark" aria-hidden="true">G</span>
+            Continue with Google
           </button>
           <p className="auth-switch">
             Already have an account?{" "}

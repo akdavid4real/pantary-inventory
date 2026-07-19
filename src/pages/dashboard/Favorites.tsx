@@ -147,7 +147,7 @@ export function Favorites({ onNavigate }: { onNavigate: (page: string) => void }
         ) : visible.length ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {visible.map(({ id, recipe }) => (
-              <article key={id} className="overflow-hidden rounded-2xl border border-[#ded5c5] bg-white">
+              <article key={id} className="overflow-hidden rounded-2xl border border-[#ded5c5] bg-[#fffdf8] transition-all duration-300 hover:-translate-y-1 hover:border-[#bdae9c] hover:shadow-[0_12px_24px_rgba(5,54,42,0.08)]">
                 <div className="relative">
                   {recipe.imageUrl ? (
                     <FoodImage src={recipe.imageUrl} alt={recipe.name} variant="card" className="h-44 w-full object-cover" />

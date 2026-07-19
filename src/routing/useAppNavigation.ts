@@ -25,6 +25,11 @@ const pageByPath: Record<string, string> = {
   "/cooking-mode": "cooking-mode",
   "/generate-shopping-list": "generate-shopping-list",
   "/recipe-details": "recipe-details",
+  "/onboarding": "onboarding-1",
+  "/onboarding-1": "onboarding-1",
+  "/onboarding-2": "onboarding-2",
+  "/onboarding-3": "onboarding-3",
+  "/onboarding-4": "onboarding-4",
 };
 
 /** Multi-word dashboard labels that must survive slug → page reverse mapping. */
@@ -54,8 +59,22 @@ export function normalizePageId(page: string) {
   return trimmed.replace(/^\/+/, "").replace(/\/+$/, "") || "landing";
 }
 
+/** Return a valid onboarding step for route labels, slugs, and URL paths. */
+export function getOnboardingStep(page: string): number | null {
+  const normalized = normalizePageId(page)
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+  const match = normalized.match(/^onboarding(?:-([1-4]))?$/);
+  return match ? Number(match[1] ?? 1) : null;
+}
+
 export function getPathFromPage(page: string) {
   const id = normalizePageId(page);
+
+  const onboardingStep = getOnboardingStep(id);
+  if (onboardingStep !== null) {
+    return `/onboarding-${onboardingStep}`;
+  }
 
   if (id === "landing") {
     return "/";

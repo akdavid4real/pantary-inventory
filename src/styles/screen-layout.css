@@ -23,6 +23,13 @@
   position: relative;
   transition: background 0.25s ease;
 }
+
+/* Auth action consistency and a compact layout for short/tablet viewports. */
+.google-button{display:flex;align-items:center;justify-content:center;gap:0;border-color:#b9b9b4;font-weight:600}.google-button:hover{border-color:#075246;background:#f4f8f4}.google-button-mark{display:grid;width:22px;height:22px;place-items:center;margin-right:12px;border-radius:50%;color:#4285f4;font-family:Arial,sans-serif;font-size:1rem;font-weight:700}.auth-divider{margin:22px 0}.auth-callback,.route-error{display:grid;min-height:100dvh;place-content:center;justify-items:center;gap:14px;background:#fffaf4;color:#153d35;padding:28px;text-align:center}.auth-callback svg{width:42px;height:42px;color:#075246}.auth-callback h1,.route-error h1{margin:0;font:500 clamp(2rem,5vw,3.25rem)/1.1 Georgia,serif;color:#075246}.auth-callback p,.route-error p{max-width:520px;margin:0;color:#5d6e7a;line-height:1.55}.auth-callback button,.route-error button{border:0;border-radius:8px;background:#075246;color:white;padding:12px 18px;font:600 1rem Inter,Arial,sans-serif}
+
+@media (max-width:1000px){.auth--login .auth-art,.auth--signup .auth-art{display:none}.auth{display:block}.auth-form{min-height:100dvh;padding:clamp(26px,6vh,52px) clamp(24px,9vw,76px)}.auth-form form{width:min(100%,704px)}}
+
+@media (max-height:650px) and (min-width:641px){.auth-form{padding-block:22px;place-items:start center}.auth--login .auth-form h1{font-size:2.25rem}.auth--login .auth-form form>p:first-of-type{margin:8px 0 16px}.auth--login .auth-field{margin-bottom:11px}.auth--login .auth-field>input,.auth--login .auth-field>div{height:50px}.auth--login .auth-options{margin:0 0 14px}.auth--login .auth-submit,.auth--login .google-button{min-height:50px}.auth--login .auth-divider{margin:14px 0}.auth--login .auth-security{margin-top:18px!important}}
 .pantry-builder aside .unit-help{grid-column:2/-1;color:#6b746f;font-size:10px;line-height:1.35}
 .screen-main {
   flex: 1;

@@ -51,6 +51,8 @@ is not saved in Pantry-to-Plate storage.
 └── README.md
 ```
 
+New to the backend? Read the team-friendly [backend concepts and file map](docs/BACKEND_GUIDE_FOR_TEAM.md).
+
 ## Backend quick start
 
 ```bash

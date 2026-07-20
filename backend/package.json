@@ -21,6 +21,7 @@
     "catalog:reconcile": "ts-node prisma/catalog-import.ts --reconcile",
     "catalog:apply-recipe-images": "ts-node prisma/catalog-import.ts --apply-recipe-images",
     "catalog:apply": "ts-node prisma/catalog-import.ts --apply",
+    "seed:user": "ts-node prisma/seed-user-demo.ts",
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {

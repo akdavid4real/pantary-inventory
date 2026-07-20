@@ -212,9 +212,9 @@ export function ExploreRecipes({ onNavigate }: ScreenProps) {
                 <article key={recipe.id} className="relative overflow-hidden rounded-2xl border bg-[#fffdf8] text-left shadow-sm transition hover:-translate-y-1">
                   <button type="button" onClick={() => onNavigate(routes.recipe(recipe.id))} className="block w-full text-left">
                     {recipe.imageUrl ? (
-                      <FoodImage src={recipe.imageUrl} alt={recipe.name} variant="card" priority={index < 2} className="h-44 w-full object-cover" />
+                      <FoodImage src={recipe.imageUrl} alt={recipe.name} variant="card" priority={index < 2} className="h-64 w-full object-cover md:h-72" />
                     ) : (
-                      <div className="grid h-44 place-items-center bg-[#edf2e8] text-[#769282]"><ChefHat size={36} /></div>
+                      <div className="grid h-64 place-items-center bg-[#edf2e8] text-[#769282] md:h-72"><ChefHat size={36} /></div>
                     )}
                     <div className="p-4">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8a6b36]">{categoryLabel(recipe.category ?? "OTHER")} {recipe.region ? `· ${recipe.region}` : ""}</p>

@@ -25,6 +25,9 @@ const panel = "rounded-2xl border border-[#ded5c5] bg-[#fffdf8] shadow-sm";
 
 function isoDay(date: Date) { return date.toISOString().slice(0, 10); }
 function formatNumber(value: number) { return Math.round(value).toLocaleString(); }
+function shortHistoryDate(value: string) {
+  return new Date(`${value}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
 function weekLabel(summary: WeekSummary | null, selected: Date) {
   const start = summary ? new Date(`${summary.weekStart}T12:00:00`) : selected;
   const end = summary ? new Date(`${summary.weekEnd}T12:00:00`) : new Date(selected.getTime() + 6 * dayMs);
@@ -118,9 +121,22 @@ export function Analytics({ onNavigate }: ScreenProps) {
                 <select value={historyMetric} onChange={(event) => setHistoryMetric(event.target.value as HistoryMetric)} className="rounded-lg border bg-white p-2 text-xs">{(Object.keys(historyLabels) as HistoryMetric[]).map((key) => <option key={key} value={key}>{historyLabels[key]}</option>)}</select>
               </div>
             </div>
-            <div className="mt-6 flex h-56 items-end gap-1 overflow-x-auto border-b px-1" aria-label={`${historyLabels[historyMetric]} history chart`}>
-              {history?.days.map((day) => <div key={day.date} className="group relative flex h-full min-w-3 flex-1 items-end"><div title={`${day.date}: ${historyMetric.endsWith("Naira") ? "₦" : ""}${formatNumber(day[historyMetric])}`} className="w-full rounded-t bg-[#ef701a] transition-all group-hover:bg-[#07513f]" style={{ height: `${Math.max(day[historyMetric] ? 3 : 0, day[historyMetric] / historyMax * 205)}px` }} /></div>)}
+            <div className="mt-6 flex h-64 items-end gap-1 overflow-x-auto border-b px-1" aria-label={`${historyLabels[historyMetric]} history chart`}>
+              {history?.days.map((day, index, days) => {
+                const value = day[historyMetric];
+                const labelEvery = Math.max(1, Math.floor((days.length - 1) / 4));
+                const showDate = index === 0 || index === days.length - 1 || index % labelEvery === 0;
+                const displayValue = `${historyMetric.endsWith("Naira") ? "₦" : ""}${formatNumber(value)}`;
+                return (
+                  <div key={day.date} className="group relative flex h-full min-w-4 flex-1 items-end pb-7">
+                    {value ? <span className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 rounded bg-[#073f32] px-2 py-1 text-[9px] text-white opacity-0 shadow transition-opacity group-hover:opacity-100">{displayValue}</span> : null}
+                    <div aria-label={`${shortHistoryDate(day.date)}: ${displayValue}`} className="w-full rounded-t bg-[#ef701a] transition-all group-hover:bg-[#07513f]" style={{ height: `${Math.max(value ? 3 : 0, value / historyMax * 205)}px` }} />
+                    {showDate ? <span className="absolute bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] text-[#6d746f]">{shortHistoryDate(day.date)}</span> : null}
+                  </div>
+                );
+              })}
             </div>
+            <p className="mt-2 text-[10px] text-[#6d746f]">Each bar represents one day. Blank days mean no {historyLabels[historyMetric].toLowerCase()} was recorded.</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-3"><MiniStat icon={<ShoppingBasket />} value={`₦${formatNumber(history?.totals.spendingNaira ?? 0)}`} label="Spent" /><MiniStat icon={<Leaf />} value={`₦${formatNumber(history?.totals.wasteNaira ?? 0)}`} label="Estimated waste" /><MiniStat icon={<Flame />} value={`${formatNumber(history?.totals.calories ?? 0)} kcal`} label="Consumed" /></div>
           </section>
 

@@ -5,7 +5,7 @@ export function CookingSection() {
   return (
     <section id="cook" className="cook-pin">
       <div className="cook-image-mask">
-        <img src={assets.cooking} alt="Hands slicing cucumber beside tomatoes on a cutting board" loading="lazy" decoding="async" />
+        <img src={assets.cooking} alt="Nigerian bole served with grilled fish and pepper sauce" loading="lazy" decoding="async" />
         <div className="cook-overlay">
           <ChefHat size={40} />
           <h2>Cooking mode keeps the counter clear.</h2>

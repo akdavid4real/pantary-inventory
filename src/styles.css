@@ -649,6 +649,10 @@ main {
   padding: clamp(70px, 9vw, 120px) max(18px, calc((100vw - 1240px) / 2));
 }
 
+.chef-story--favour {
+  padding-bottom: 0;
+}
+
 .chef-story-scene {
   position: relative;
   display: grid;
@@ -678,12 +682,20 @@ main {
   background: linear-gradient(90deg, rgba(9, 31, 24, 0.96) 0%, rgba(9, 31, 24, 0.78) 34%, rgba(9, 31, 24, 0.12) 68%, transparent 100%);
 }
 
+.chef-story--favour .chef-story-shade {
+  background: linear-gradient(270deg, rgba(9, 31, 24, 0.96) 0%, rgba(9, 31, 24, 0.78) 34%, rgba(9, 31, 24, 0.12) 68%, transparent 100%);
+}
+
 .chef-story-copy {
   position: relative;
   z-index: 2;
   max-width: 560px;
   color: var(--cream);
   padding: clamp(34px, 6vw, 76px);
+}
+
+.chef-story--favour .chef-story-copy {
+  justify-self: end;
 }
 
 .chef-story-kicker,
@@ -1179,6 +1191,10 @@ main {
     inset: auto;
     grid-row: 1;
     object-position: 70% center;
+  }
+
+  .chef-story--favour .chef-story-scene > img {
+    object-position: 42% center;
   }
 
   .chef-story-shade {

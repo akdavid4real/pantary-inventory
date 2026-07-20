@@ -32,16 +32,15 @@ export function HeroSection() {
           </a>
         </div>
 
-        <div className="hero-visual" aria-label="Fresh prepared meal bowl">
+        <div className="hero-visual" aria-label="Nigerian jollof rice with grilled chicken">
           <div className="spin-ring">better food / better planning / better you</div>
           <img
             className="hero-plate"
             src={assets.hero}
-            alt="A colorful chickpea, quinoa, tomato, and avocado bowl"
+            alt="Nigerian jollof rice served with grilled chicken and plantain"
             width={1254}
             height={1254}
             decoding="async"
-            fetchPriority="high"
           />
           <KineticLabel>Real ingredients</KineticLabel>
           <div className="float-chip float-chip--one">24 pantry items</div>

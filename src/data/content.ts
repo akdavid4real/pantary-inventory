@@ -14,7 +14,7 @@ export const featureSlides = [
     kicker: "Scan what is already home",
     copy: "Auto-detect shelf staples, produce, and use-first ingredients so dinner starts from your actual kitchen.",
     image: assets.pantry,
-    alt: "Glass jars of chickpeas, oats, quinoa, and lentils on a wooden surface",
+    alt: "Nigerian brown beans ready for a pantry meal",
     rotation: "-4deg",
   },
   {
@@ -23,7 +23,7 @@ export const featureSlides = [
     kicker: "Fresh ideas, not random tabs",
     copy: "Pull up ingredient-aware meals that match your time, taste, and nutrition goals.",
     image: assets.recipe,
-    alt: "A warm grain bowl with lentils, rice, zucchini, peppers, and onions",
+    alt: "A bowl of rich Nigerian egusi soup",
     rotation: "3deg",
   },
   {
@@ -32,7 +32,7 @@ export const featureSlides = [
     kicker: "A week that bends with you",
     copy: "Build flexible plans, swap meals quickly, and turn the week into a list that only includes what is missing.",
     image: assets.grocery,
-    alt: "A canvas grocery bag filled with kale, tomatoes, lemon, and herbs",
+    alt: "Fresh Nigerian plum tomatoes ready for the weekly shop",
     rotation: "-2deg",
   },
   {
@@ -41,7 +41,7 @@ export const featureSlides = [
     kicker: "One list, no double-buying",
     copy: "Separate pantry-owned ingredients from true grocery gaps before you leave the house.",
     image: assets.herbs,
-    alt: "Fresh basil, rosemary, and lemon slices",
+    alt: "Nigerian efo riro with leafy vegetables and assorted meat",
     rotation: "4deg",
   },
 ] as const;

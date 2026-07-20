@@ -16,6 +16,7 @@ import {
 } from "../../types/inventory";
 import { routes } from "../../types/navigation";
 import { normalizePurchaseReview, normalizeShoppingList } from "../../utils/shoppingList";
+import { defaultIngredientQuantity, quantityInputConstraints } from "../../utils/units";
 
 const statuses: ShoppingItemStatus[] = ["PENDING", "BOUGHT", "SKIPPED"];
 const locations: StorageLocation[] = ["PANTRY", "FRIDGE", "FREEZER", "COUNTER"];
@@ -37,6 +38,10 @@ export function Grocery({
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [addOpen, setAddOpen] = useState(false);
+  const [manualIngredientId, setManualIngredientId] = useState("");
+  const [manualName, setManualName] = useState("");
+  const [manualQuantity, setManualQuantity] = useState("1");
+  const [manualUnit, setManualUnit] = useState("item");
   const [review, setReview] = useState<PurchaseReview | null>(null);
   const [reviewValues, setReviewValues] = useState<
     Record<
@@ -153,6 +158,10 @@ export function Grocery({
             },
       );
       setAddOpen(false);
+      setManualIngredientId("");
+      setManualName("");
+      setManualQuantity("1");
+      setManualUnit("item");
       setNotice(`${createdItem.name} was added to your grocery list.`);
       if (listId && listId !== createdItem.shoppingListId) {
         onNavigate(routes.shoppingList(createdItem.shoppingListId));
@@ -238,6 +247,7 @@ export function Grocery({
     () => (Array.isArray(list?.items) ? list.items : []),
     [list],
   );
+  const manualQuantityConstraints = quantityInputConstraints(manualUnit);
   const visible = useMemo(
     () =>
       listItems.filter(
@@ -433,6 +443,15 @@ export function Grocery({
               Catalog food (optional)
               <select
                 name="ingredientId"
+                value={manualIngredientId}
+                onChange={(event) => {
+                  const ingredientId = event.target.value;
+                  const ingredient = ingredients.find((item) => item.id === ingredientId);
+                  setManualIngredientId(ingredientId);
+                  setManualName(ingredient?.name ?? "");
+                  setManualUnit(ingredient?.defaultUnit ?? "item");
+                  setManualQuantity(String(defaultIngredientQuantity(ingredient?.defaultUnit ?? "item")));
+                }}
                 className="mt-1 w-full rounded-lg border p-3"
               >
                 <option value="">Free-text household item</option>
@@ -447,6 +466,8 @@ export function Grocery({
               Name
               <input
                 name="name"
+                value={manualName}
+                onChange={(event) => setManualName(event.target.value)}
                 required
                 className="mt-1 w-full rounded-lg border p-3"
                 placeholder="Dish soap or food name"
@@ -458,9 +479,10 @@ export function Grocery({
                 <input
                   name="quantity"
                   type="number"
-                  min="0.01"
-                  step="0.1"
-                  defaultValue="1"
+                  min={manualQuantityConstraints.min}
+                  step={manualQuantityConstraints.step}
+                  value={manualQuantity}
+                  onChange={(event) => setManualQuantity(event.target.value)}
                   required
                   className="mt-1 w-full rounded-lg border p-3"
                 />
@@ -469,7 +491,8 @@ export function Grocery({
                 Unit
                 <input
                   name="unit"
-                  defaultValue="item"
+                  value={manualUnit}
+                  onChange={(event) => setManualUnit(event.target.value)}
                   required
                   className="mt-1 w-full rounded-lg border p-3"
                 />

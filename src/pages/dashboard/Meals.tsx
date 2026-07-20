@@ -17,7 +17,7 @@ import {
   DashboardPageHeader,
   DashboardPageShell,
 } from "../../components/dashboard/DashboardPageShell";
-import { api, cachedApi } from "../../services/api";
+import { api, cachedApi, getSession } from "../../services/api";
 import { getCachedRecipeCatalog, loadRecipeCatalog } from "../../services/catalog";
 import {
   AiMealPlanPreview,
@@ -31,6 +31,7 @@ import { routes } from "../../types/navigation";
 const mealTypes: MealType[] = ["BREAKFAST", "LUNCH", "DINNER", "SNACK"];
 const panel = "rounded-2xl border border-[#ded5c5] bg-[#fffdf8] shadow-sm";
 const dayMs = 86_400_000;
+const lastMealWeekPrefix = "pantry-to-plate-last-meal-week:";
 
 function sortMeals(entries: MealEntry[]) {
   return [...entries].sort((left, right) => {
@@ -48,6 +49,19 @@ function startOfWeek(value: string) {
   date.setDate(date.getDate() - offset);
   return date;
 }
+function mealWeekStorageKey() {
+  const userId = getSession()?.user?.id;
+  return userId ? `${lastMealWeekPrefix}${userId}` : "";
+}
+function initialMealWeek(requestedWeek?: string) {
+  if (requestedWeek) return requestedWeek;
+  const key = mealWeekStorageKey();
+  if (!key) return isoDay(new Date());
+  const savedWeek = localStorage.getItem(key);
+  return savedWeek && /^\d{4}-\d{2}-\d{2}$/.test(savedWeek)
+    ? savedWeek
+    : isoDay(new Date());
+}
 function matchLabel(match?: RecipeMatch) {
   if (!match) return "Checking pantry";
   if (match.canCookNow) return "Ready to cook";
@@ -58,7 +72,7 @@ function matchLabel(match?: RecipeMatch) {
 
 export function Meals({
   onNavigate,
-  weekDate = isoDay(new Date()),
+  weekDate,
 }: {
   onNavigate: (page: string) => void;
   weekDate?: string;
@@ -80,7 +94,8 @@ export function Meals({
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState("");
   const [aiPreview, setAiPreview] = useState<AiMealPlanPreview | null>(null);
-  const weekStart = useMemo(() => startOfWeek(weekDate), [weekDate]);
+  const resolvedWeekDate = useMemo(() => initialMealWeek(weekDate), [weekDate]);
+  const weekStart = useMemo(() => startOfWeek(resolvedWeekDate), [resolvedWeekDate]);
   const days = useMemo(
     () =>
       Array.from(
@@ -121,6 +136,10 @@ export function Meals({
   useEffect(() => {
     void load(false);
   }, [load]);
+  useEffect(() => {
+    const key = mealWeekStorageKey();
+    if (key) localStorage.setItem(key, isoDay(weekStart));
+  }, [weekStart]);
 
   const saveMeal = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -148,7 +167,7 @@ export function Meals({
       );
       setSelectedId(createdMeal.id);
       setEditor(null);
-      setNotice(`${createdMeal.recipe?.name ?? "Meal"} was added to your plan.`);
+      setNotice(`${createdMeal.recipe?.name ?? "Meal"} was saved to your account. It will still be here after you sign out.`);
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : "Could not add meal.",
@@ -267,7 +286,7 @@ export function Meals({
       setMeals((current) => sortMeals([...current, ...created]));
       setSelectedId(created[0]?.id ?? "");
       setAiPreview(null);
-      setNotice(`${created.length} smart meal${created.length === 1 ? "" : "s"} added to this week.`);
+      setNotice(`${created.length} smart meal${created.length === 1 ? "" : "s"} saved to your account for this week.`);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not add the AI plan.");
     } finally {
@@ -351,7 +370,7 @@ export function Meals({
         </div>
       ) : null}
       <div className="mb-4 rounded-xl border border-[#d6e2da] bg-[#edf4ef] px-4 py-3 text-xs text-[#285a4a]">
-        <strong>How to add a meal:</strong> select any empty day/meal cell below, or use <strong>Add meal</strong> to start with Monday dinner. You will choose a built-in or community recipe, servings, and notes.
+        <strong>How saving works:</strong> select an empty day/meal cell, choose a recipe, then press <strong>Add meal</strong>. Added meals are saved to your account and reload after you sign back in. Gemini plans are previews until you press <strong>Add meals to this week</strong>.
       </div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <button
@@ -686,6 +705,9 @@ export function Meals({
               <div>
                 <span className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#e8f2eb] px-3 py-1 text-[11px] font-medium text-[#07513f]">
                   <Sparkles size={13} /> {aiPreview.source === "GEMINI" ? "Gemini plan" : "PlateSense fallback"}
+                </span>
+                <span className="mb-2 ml-2 inline-flex rounded-full bg-amber-100 px-3 py-1 text-[11px] font-medium text-amber-800">
+                  Preview only · not saved yet
                 </span>
                 <h2 id="ai-plan-title" className="font-serif text-3xl text-[#092e27]">Your smart week</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68706a]">{aiPreview.summary}</p>

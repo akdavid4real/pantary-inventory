@@ -40,6 +40,14 @@ export function defaultIngredientQuantity(unit: string) {
   return 1;
 }
 
+export function quantityInputConstraints(unit: string) {
+  const normalized = unit.trim().toLowerCase();
+  const isWholeItem = ["item", "items", "piece", "pieces", "pc", "pcs"].includes(normalized);
+  return isWholeItem
+    ? { min: 1, step: 1 }
+    : { min: 0.01, step: 0.01 };
+}
+
 export function unitHelp(ingredient?: Pick<Ingredient, "conversions"> | null) {
   const local = ingredient?.conversions?.filter((conversion) => !["g", "kg", "ml", "l"].includes(conversion.fromUnit));
   if (!local?.length) return "Choose the unit you actually use at home.";

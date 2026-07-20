@@ -207,13 +207,7 @@ export function DashboardPageHeader({
       </div>
 
       <div className="dashboard-page-actions flex items-center gap-4">
-        <label className="hidden w-[350px] items-center gap-3 rounded-xl border border-[#ded5c5] px-4 py-3 text-[#72736d] md:flex">
-          <Search size={19} />
-          <input
-            className="w-full bg-transparent text-sm outline-none"
-            placeholder="Search meals, ingredients, or recipes"
-          />
-        </label>
+        {action ? <div className="dashboard-page-action-slot">{action}</div> : null}
 
         <button type="button" aria-label="Notifications">
           <Bell size={23} />
@@ -226,8 +220,6 @@ export function DashboardPageHeader({
         >
           A
         </button>
-
-        {action}
       </div>
     </header>
   );

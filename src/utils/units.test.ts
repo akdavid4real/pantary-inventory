@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ingredientUnitOptions, unitHelp } from "./units";
+import { ingredientUnitOptions, quantityInputConstraints, unitHelp } from "./units";
 
 describe("ingredient-aware unit options", () => {
   it("offers Nigerian dry measures only when the ingredient has conversions", () => {
@@ -10,5 +10,7 @@ describe("ingredient-aware unit options", () => {
 
   it("keeps count-based food separate from mass and volume", () => {
     expect(ingredientUnitOptions({ defaultUnit: "piece", conversions: [] })).toEqual(["piece"]);
+    expect(quantityInputConstraints("piece")).toEqual({ min: 1, step: 1 });
+    expect(quantityInputConstraints("g")).toEqual({ min: 0.01, step: 0.01 });
   });
 });
